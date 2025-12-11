@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'features/roots_view.dart';
-import 'core/theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +13,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Jesoor Pro',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
       home: const RootsView(),
     );
   }

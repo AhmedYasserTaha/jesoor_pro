@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home/home_screen.dart';
+import 'package:jesoor_pro/features/home_screen.dart';
 import 'search_screen.dart';
 import 'favorites_screen.dart';
 import 'profile_screen.dart';
