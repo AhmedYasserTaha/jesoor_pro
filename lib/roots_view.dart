@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:jesoor_pro/features/home_screen.dart';
-import 'search_screen.dart';
-import 'favorites_screen.dart';
-import 'profile_screen.dart';
+import 'package:jesoor_pro/features/home/home_screen.dart';
+import 'features/chat_screen.dart';
+import 'features/assignment_screen.dart';
+import 'features/categories_bottom_sheet.dart';
 
 class RootsView extends StatefulWidget {
   const RootsView({super.key});
@@ -14,13 +14,24 @@ class RootsView extends StatefulWidget {
 class _RootsViewState extends State<RootsView> {
   int _currentIndex = 0;
 
-  // قائمة الشاشات
+  // قائمة الشاشات (بدون Menu لأنه bottom sheet)
   final List<Widget> _screens = const [
     HomeScreen(),
-    SearchScreen(),
-    FavoritesScreen(),
-    ProfileScreen(),
+    ChatScreen(),
+    AssignmentScreen(),
   ];
+
+  void _onNavTap(int index) {
+    // Index 3 is Menu - show bottom sheet instead
+    if (index == 3) {
+      CategoriesBottomSheet.show(context);
+      return;
+    }
+
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +53,7 @@ class _RootsViewState extends State<RootsView> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           child: BottomNavigationBar(
             currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
+            onTap: _onNavTap,
             type: BottomNavigationBarType.fixed,
             backgroundColor: const Color(0xFF092032),
             selectedItemColor: Colors.white,
@@ -61,24 +68,19 @@ class _RootsViewState extends State<RootsView> {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.grid_view_outlined),
-                activeIcon: Icon(Icons.grid_view),
-                label: 'Categories',
+                icon: Icon(Icons.chat_bubble_outline),
+                activeIcon: Icon(Icons.chat_bubble),
+                label: 'Chat',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.shopping_cart_outlined),
-                activeIcon: Icon(Icons.shopping_cart),
-                label: 'Cart',
+                icon: Icon(Icons.assignment_outlined),
+                activeIcon: Icon(Icons.assignment),
+                label: 'Assignment',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.favorite_outline),
-                activeIcon: Icon(Icons.favorite),
-                label: 'Favorite',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                activeIcon: Icon(Icons.person),
-                label: 'Profile',
+                icon: Icon(Icons.menu),
+                activeIcon: Icon(Icons.menu),
+                label: 'Menu',
               ),
             ],
           ),

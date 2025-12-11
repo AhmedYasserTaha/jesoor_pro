@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 
-class SearchScreen extends StatelessWidget {
-  const SearchScreen({super.key});
+class ChatScreen extends StatelessWidget {
+  const ChatScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('البحث'), centerTitle: true),
-      body: Center(
+      appBar: AppBar(title: const Text('Chat'), centerTitle: true),
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.search,
+              Icons.chat_bubble_outline,
               size: 100,
-              color: Theme.of(context).primaryColor,
+              color: Color(0xFF092032),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'شاشة البحث',
+            SizedBox(height: 20),
+            Text(
+              'Chat Screen',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],

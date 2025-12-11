@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 
-class FavoritesScreen extends StatelessWidget {
-  const FavoritesScreen({super.key});
+class AssignmentScreen extends StatelessWidget {
+  const AssignmentScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('المفضلة'), centerTitle: true),
-      body: Center(
+      appBar: AppBar(title: const Text('Assignments'), centerTitle: true),
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.favorite,
+              Icons.assignment_outlined,
               size: 100,
-              color: Theme.of(context).primaryColor,
+              color: Color(0xFF092032),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'شاشة المفضلة',
+            SizedBox(height: 20),
+            Text(
+              'Assignment Screen',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],

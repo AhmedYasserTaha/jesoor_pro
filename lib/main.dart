@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/roots_view.dart';
+import 'roots_view.dart';
 
 void main() {
   runApp(const MyApp());

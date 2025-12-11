@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return const SubjectItem();
                   },
-                  itemCount: 6,
+                  itemCount: 8,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                 ),
