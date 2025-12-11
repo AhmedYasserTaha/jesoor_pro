@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'roots_view.dart';
+import 'package:jesoor_pro/features/splash/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,6 +8,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         primaryColor: const Color(0xFF092032),
       ),
-      home: const RootsView(),
+      home: const SplashScreen(),
     );
   }
 }

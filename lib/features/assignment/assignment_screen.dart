@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/widgets/custom_text.dart';
+import 'package:jesoor_pro/core/theme/app_colors.dart';
 
 class AssignmentScreen extends StatelessWidget {
   const AssignmentScreen({super.key});
@@ -6,12 +8,6 @@ class AssignmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Assignments'),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF092032),
-        foregroundColor: Colors.white,
-      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -19,16 +15,14 @@ class AssignmentScreen extends StatelessWidget {
             Icon(
               Icons.assignment_outlined,
               size: 100,
-              color: Color(0xFF092032),
+              color: AppColors.primary,
             ),
             SizedBox(height: 20),
-            Text(
+            const CustomText(
               'Assignment Screen',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF092032),
-              ),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
             ),
           ],
         ),

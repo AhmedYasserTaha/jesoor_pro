@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/widgets/custom_text.dart';
+import 'package:jesoor_pro/core/theme/app_colors.dart';
 
 class ProductItem extends StatelessWidget {
   const ProductItem({super.key});
@@ -6,7 +8,7 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
+      color: AppColors.background,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
@@ -15,7 +17,7 @@ class ProductItem extends StatelessWidget {
           Container(
             height: 140,
             decoration: BoxDecoration(
-              color: Colors.grey[50],
+              color: AppColors.backgroundGrey,
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(12),
               ),
@@ -24,7 +26,7 @@ class ProductItem extends StatelessWidget {
               child: Icon(
                 Icons.brush_outlined,
                 size: 60,
-                color: Color(0xFF092032),
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -33,24 +35,20 @@ class ProductItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                CustomText(
                   'Product Name',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF092032),
-                    fontWeight: FontWeight.w500,
-                  ),
+                  fontSize: 14,
+                  color: const Color(0xFF092032),
+                  fontWeight: FontWeight.w500,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 4),
-                Text(
+                const SizedBox(height: 4),
+                const CustomText(
                   '\$40.00',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF092032),
-                  ),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
                 ),
               ],
             ),

@@ -41,5 +41,10 @@ class AppColors {
   static const Color rating = Color(0xFFFFC107);
   static const Color discount = Color(0xFFFF5722);
 
+  // Auth Screen Colors
+  static const Color accentYellow = Color(0xFFFDB022);
+  static const Color textFieldFillColor = Color(0xFFF5F5F5);
+  static const Color hintTextColor = Color(0xFFBDBDBD);
+
   AppColors._();
 }

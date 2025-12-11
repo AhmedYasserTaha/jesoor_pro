@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/widgets/custom_text.dart';
+import 'package:jesoor_pro/core/theme/app_colors.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -6,12 +8,6 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat'),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF092032),
-        foregroundColor: Colors.white,
-      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -19,16 +15,14 @@ class ChatScreen extends StatelessWidget {
             Icon(
               Icons.chat_bubble_outline,
               size: 100,
-              color: Color(0xFF092032),
+              color: AppColors.primary,
             ),
             SizedBox(height: 20),
-            Text(
+            const CustomText(
               'Chat Screen',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF092032),
-              ),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
             ),
           ],
         ),

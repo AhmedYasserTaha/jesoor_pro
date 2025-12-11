@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/widgets/custom_text.dart';
+import 'package:jesoor_pro/core/theme/app_colors.dart';
 
 class PromoBanner extends StatelessWidget {
   const PromoBanner({super.key});
@@ -8,7 +10,7 @@ class PromoBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF092032),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -17,21 +19,17 @@ class PromoBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                CustomText(
                   'Friday Sale',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 14,
-                  ),
+                  color: AppColors.textWhite.withOpacity(0.8),
+                  fontSize: 14,
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                const CustomText(
                   'Up to 30% Off',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  color: AppColors.textWhite,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -40,15 +38,13 @@ class PromoBanner extends StatelessWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.textWhite,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: const CustomText(
                     'Shop Now',
-                    style: TextStyle(
-                      color: Color(0xFF092032),
-                      fontWeight: FontWeight.w600,
-                    ),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -59,13 +55,13 @@ class PromoBanner extends StatelessWidget {
             width: 120,
             height: 100,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: AppColors.textWhite.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.shopping_bag_outlined,
               size: 50,
-              color: Colors.white,
+                    color: AppColors.background,
             ),
           ),
         ],

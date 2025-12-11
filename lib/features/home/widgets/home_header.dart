@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/widgets/custom_text.dart';
+import 'package:jesoor_pro/core/theme/app_colors.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -13,27 +15,26 @@ class HomeHeader extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
+                CustomText(
                   'Hello',
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  fontSize: 16,
+                  color: AppColors.textSecondary,
                 ),
-                const Text('👋', style: TextStyle(fontSize: 16)),
+                const CustomText('👋', fontSize: 16),
               ],
             ),
-            const Text(
+            const CustomText(
               'Jacob Jones',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF092032),
-              ),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
             ),
           ],
         ),
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: AppColors.backgroundGrey,
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(

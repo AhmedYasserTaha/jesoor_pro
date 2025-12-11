@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/widgets/custom_text.dart';
+import 'package:jesoor_pro/core/theme/app_colors.dart';
 
 class MenuBottomSheet extends StatelessWidget {
   const MenuBottomSheet({super.key});
@@ -28,7 +30,7 @@ class MenuBottomSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: AppColors.iconLight,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -40,24 +42,23 @@ class MenuBottomSheet extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 24,
-                  backgroundColor: Color(0xFF092032),
-                  child: Icon(Icons.person, color: Colors.white),
+                  backgroundColor: AppColors.primary,
+                  child: const Icon(Icons.person, color: AppColors.textWhite),
                 ),
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    const CustomText(
                       'Divy Jani',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF092032),
-                      ),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
                     ),
-                    Text(
+                    CustomText(
                       'Class 6 & Science | Roll no: 1',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
                     ),
                   ],
                 ),
@@ -83,7 +84,7 @@ class MenuBottomSheet extends StatelessWidget {
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                 ),
-                itemCount: 9,
+                itemCount: 5,
                 itemBuilder: (context, index) {
                   return _buildCategoryItem(index);
                 },
@@ -97,31 +98,15 @@ class MenuBottomSheet extends StatelessWidget {
 
   Widget _buildCategoryItem(int index) {
     final categories = [
+      {'name': 'Subject', 'icon': Icons.subject, 'color': AppColors.primary},
+      {'name': 'Quiz', 'icon': Icons.quiz, 'color': AppColors.primary},
       {
-        'name': 'Attendance',
-        'icon': Icons.calendar_today,
-        'color': Color(0xFF4FC3F7),
+        'name': 'Assignment',
+        'icon': Icons.assignment,
+        'color': AppColors.primary,
       },
-      {
-        'name': 'Timetable',
-        'icon': Icons.access_time,
-        'color': Color(0xFF4FC3F7),
-      },
-      {
-        'name': 'Notice Board',
-        'icon': Icons.dashboard,
-        'color': Color(0xFF4FC3F7),
-      },
-      {'name': 'Exams', 'icon': Icons.description, 'color': Color(0xFF4FC3F7)},
-      {'name': 'Result', 'icon': Icons.assessment, 'color': Color(0xFF4FC3F7)},
-      {
-        'name': 'Report',
-        'icon': Icons.insert_chart,
-        'color': Color(0xFF4FC3F7),
-      },
-      {'name': 'Payment', 'icon': Icons.payment, 'color': Color(0xFF4FC3F7)},
-      {'name': 'Academics', 'icon': Icons.school, 'color': Color(0xFF4FC3F7)},
-      {'name': 'Settings', 'icon': Icons.settings, 'color': Color(0xFF4FC3F7)},
+      {'name': 'Live', 'icon': Icons.video_library, 'color': AppColors.primary},
+      {'name': 'My Courses', 'icon': Icons.book, 'color': AppColors.primary},
     ];
 
     final category = categories[index];
@@ -137,7 +122,7 @@ class MenuBottomSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -147,14 +132,12 @@ class MenuBottomSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          CustomText(
             category['name'] as String,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF092032),
-              fontWeight: FontWeight.w500,
-            ),
+            fontSize: 12,
+            color: AppColors.primary,
+            fontWeight: FontWeight.w500,
           ),
         ],
       ),
