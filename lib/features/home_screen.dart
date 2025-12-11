@@ -15,27 +15,52 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header Section
-                _buildHeader(),
+                const HomeHeader(),
                 const SizedBox(height: 20),
 
                 // Search Bar
-                _buildSearchBar(),
+                const SearchBarWidget(),
                 const SizedBox(height: 20),
 
                 // Promotional Banner
-                _buildPromoBanner(),
+                const PromoBanner(),
                 const SizedBox(height: 24),
+                const SectionHeader(title: 'Subjects'),
+                const SizedBox(height: 10),
 
                 // Categories Section
-                _buildSectionHeader('Categories', onSeeAll: () {}),
+                GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.0,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemBuilder: (context, index) {
+                    return const SubjectItem();
+                  },
+                  itemCount: 6,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                ),
                 const SizedBox(height: 16),
-                _buildCategoriesGrid(),
-                const SizedBox(height: 24),
 
                 // Just for you Section
-                _buildSectionHeader('Just for you', onSeeAll: () {}),
-                const SizedBox(height: 16),
-                _buildProductsList(),
+                GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemBuilder: (context, index) {
+                    return const ProductItem();
+                  },
+                  itemCount: 6,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                ),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -43,8 +68,13 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
+class HomeHeader extends StatelessWidget {
+  const HomeHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -84,8 +114,13 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildSearchBar() {
+class SearchBarWidget extends StatelessWidget {
+  const SearchBarWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -110,8 +145,13 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildPromoBanner() {
+class PromoBanner extends StatelessWidget {
+  const PromoBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -162,7 +202,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          // Placeholder for image - will be replaced with API image
           Container(
             width: 120,
             height: 100,
@@ -180,8 +219,15 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildSectionHeader(String title, {required VoidCallback onSeeAll}) {
+class SectionHeader extends StatelessWidget {
+  final String title;
+
+  const SectionHeader({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -193,162 +239,58 @@ class HomeScreen extends StatelessWidget {
             color: Color(0xFF092032),
           ),
         ),
-        TextButton(
-          onPressed: onSeeAll,
-          child: const Text(
-            'See All',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-        ),
       ],
     );
   }
+}
 
-  Widget _buildCategoriesGrid() {
-    // This will be populated from API
-    final categories = [
-      {'name': 'Calculator', 'icon': Icons.calculate_outlined},
-      {'name': 'Pencil', 'icon': Icons.edit_outlined},
-      {'name': 'Note Book', 'icon': Icons.menu_book_outlined},
-      {'name': 'Eraser', 'icon': Icons.auto_fix_high_outlined},
-    ];
+class ProductItem extends StatelessWidget {
+  const ProductItem({super.key});
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: categories.map((category) {
-        return _buildCategoryItem(
-          category['name'] as String,
-          category['icon'] as IconData,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildCategoryItem(String name, IconData icon) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 32, color: const Color(0xFF092032)),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF092032)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProductsList() {
-    // This will be populated from API
-    final products = [
-      {
-        'name': 'Still life of drawing',
-        'price': '\$40.00',
-        'image': Icons.brush_outlined,
-        'isFavorite': true,
-      },
-      {
-        'name': 'Camel Water Color',
-        'price': '\$20.00',
-        'image': Icons.palette_outlined,
-        'isFavorite': false,
-      },
-    ];
-
-    return SizedBox(
-      height: 220,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return _buildProductCard(
-            product['name'] as String,
-            product['price'] as String,
-            product['image'] as IconData,
-            product['isFavorite'] as bool,
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildProductCard(
-    String name,
-    String price,
-    IconData icon,
-    bool isFavorite,
-  ) {
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              Container(
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
-                ),
-                child: Center(
-                  child: Icon(icon, size: 60, color: const Color(0xFF092032)),
-                ),
+          Container(
+            height: 140,
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
               ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_border,
-                    size: 18,
-                    color: isFavorite ? Colors.red : Colors.grey,
-                  ),
-                ),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.brush_outlined,
+                size: 60,
+                color: Color(0xFF092032),
               ),
-            ],
+            ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(12),
+          const Padding(
+            padding: EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
-                  style: const TextStyle(
+                  'Product Name',
+                  style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF092032),
+                    fontWeight: FontWeight.w500,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
-                  price,
-                  style: const TextStyle(
+                  '\$40.00',
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF092032),
@@ -356,6 +298,33 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SubjectItem extends StatelessWidget {
+  const SubjectItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Color(0xffe8f0fb),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.subject, size: 32, color: Color(0xFF092032)),
+          const SizedBox(height: 8),
+          const Text(
+            'Subject',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: Color(0xFF092032)),
           ),
         ],
       ),
