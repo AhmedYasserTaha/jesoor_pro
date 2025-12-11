@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class CategoriesBottomSheet extends StatelessWidget {
-  const CategoriesBottomSheet({super.key});
+class MenuBottomSheet extends StatelessWidget {
+  const MenuBottomSheet({super.key});
 
   static void show(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const CategoriesBottomSheet(),
+      builder: (context) => const MenuBottomSheet(),
     );
   }
 
