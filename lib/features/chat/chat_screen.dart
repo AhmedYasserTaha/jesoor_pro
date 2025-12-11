@@ -6,7 +6,12 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Chat'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF092032),
+        foregroundColor: Colors.white,
+      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -19,7 +24,11 @@ class ChatScreen extends StatelessWidget {
             SizedBox(height: 20),
             Text(
               'Chat Screen',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF092032),
+              ),
             ),
           ],
         ),

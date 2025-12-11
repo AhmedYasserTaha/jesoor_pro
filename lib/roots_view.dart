@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:jesoor_pro/features/home/home_screen.dart';
-import 'features/chat_screen.dart';
-import 'features/assignment_screen.dart';
-import 'features/categories_bottom_sheet.dart';
+import 'features/home/presentation/screen/home_screen.dart';
+import 'features/chat/chat_screen.dart';
+import 'features/assignment/assignment_screen.dart';
+import 'features/menu/menu_bottom_sheet.dart';
 
 class RootsView extends StatefulWidget {
   const RootsView({super.key});
@@ -24,7 +24,7 @@ class _RootsViewState extends State<RootsView> {
   void _onNavTap(int index) {
     // Index 3 is Menu - show bottom sheet instead
     if (index == 3) {
-      CategoriesBottomSheet.show(context);
+      MenuBottomSheet.show(context);
       return;
     }
 
