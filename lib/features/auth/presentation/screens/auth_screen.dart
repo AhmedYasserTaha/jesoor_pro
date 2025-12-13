@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/widgets/custom_text.dart';
 import 'package:jesoor_pro/roots_view.dart';
 import 'package:jesoor_pro/core/theme/app_colors.dart';
 import 'package:jesoor_pro/core/theme/app_dimensions.dart';
@@ -7,6 +8,7 @@ import 'widgets/auth_header.dart';
 import 'widgets/auth_tab_bar.dart';
 import 'widgets/login_form.dart';
 import 'widgets/signup_form.dart';
+import 'widgets/step_indicator.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -80,20 +82,60 @@ class _AuthScreenState extends State<AuthScreen>
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            content: const Text(
-              'تم عمل اكونت جديد مبروووك',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/cograt.png',
+                  height: 150,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 20),
+                CustomText(
+                  "عملت اكونت جديد مبروووك",
+                  textAlign: TextAlign.center,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(height: 10),
+                CustomText(
+                  "مش باقي غير شوية خطوات بسيطة عشان تقدر تستخدم الأكونت بتاعك",
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+              ],
             ),
             actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    _signupStep = 2;
-                  });
-                },
-                child: const Text('OK'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _signupStep = 2;
+                    });
+                  },
+                  child: const Text(
+                    'تم',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -154,64 +196,85 @@ class _AuthScreenState extends State<AuthScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            const AuthHeader(),
-            const SizedBox(height: 40),
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(AppDimensions.topContainerRadius),
-                    topRight: Radius.circular(AppDimensions.topContainerRadius),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 30),
-                    AuthTabBar(tabController: _tabController),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          LoginForm(
-                            formKey: _loginFormKey,
-                            emailController: _loginEmailController,
-                            passwordController: _loginPasswordController,
-                            obscurePassword: _obscurePassword,
-                            onTogglePassword: _togglePasswordVisibility,
-                            onLogin: _navigateToHome,
-                          ),
-                          SignupForm(
-                            formKey: _signupFormKey,
-                            nameController: _signupNameController,
-                            emailController: _signupEmailController,
-                            passwordController: _signupPasswordController,
-                            obscurePassword: _obscurePassword,
-                            onTogglePassword: _togglePasswordVisibility,
-                            onSignup: _handleSignup,
-                            step: _signupStep,
-                            parentPhoneController: _signupParentPhoneController,
-                            parentPhoneOptController:
-                                _signupParentPhoneOptController,
-                            schoolController: _signupSchoolController,
-                            governorateController: _signupGovernorateController,
-                            onSystemSelect: _onSystemSelect,
-                            onStageSelect: _onStageSelect,
-                            onGradeSelect: _onGradeSelect,
-                            availableGrades: _availableGrades,
-                          ),
-                        ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 30),
+              const AuthHeader(),
+              const SizedBox(height: 20),
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(
+                        AppDimensions.topContainerRadius,
+                      ),
+                      topRight: Radius.circular(
+                        AppDimensions.topContainerRadius,
                       ),
                     ),
-                  ],
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 30),
+                      AuthTabBar(tabController: _tabController),
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            LoginForm(
+                              formKey: _loginFormKey,
+                              emailController: _loginEmailController,
+                              passwordController: _loginPasswordController,
+                              obscurePassword: _obscurePassword,
+                              onTogglePassword: _togglePasswordVisibility,
+                              onLogin: _navigateToHome,
+                            ),
+                            Column(
+                              children: [
+                                StepIndicator(
+                                  currentStep: _signupStep >= 3
+                                      ? 3
+                                      : _signupStep,
+                                ),
+                                Expanded(
+                                  child: SignupForm(
+                                    formKey: _signupFormKey,
+                                    nameController: _signupNameController,
+                                    emailController: _signupEmailController,
+                                    passwordController:
+                                        _signupPasswordController,
+                                    obscurePassword: _obscurePassword,
+                                    onTogglePassword: _togglePasswordVisibility,
+                                    onSignup: _handleSignup,
+                                    step: _signupStep,
+                                    parentPhoneController:
+                                        _signupParentPhoneController,
+                                    parentPhoneOptController:
+                                        _signupParentPhoneOptController,
+                                    schoolController: _signupSchoolController,
+                                    governorateController:
+                                        _signupGovernorateController,
+                                    onSystemSelect: _onSystemSelect,
+                                    onStageSelect: _onStageSelect,
+                                    onGradeSelect: _onGradeSelect,
+                                    availableGrades: _availableGrades,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

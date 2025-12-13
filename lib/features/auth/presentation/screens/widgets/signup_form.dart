@@ -55,18 +55,13 @@ class SignupForm extends StatelessWidget {
         padding: const EdgeInsets.all(AppDimensions.formPadding),
         child: Column(
           children: [
-            const Text(
-              "Choose System",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
             SelectionCard(
               text: "General",
               onTap: () => onSystemSelect("General"),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             SelectionCard(text: "Azhar", onTap: () => onSystemSelect("Azhar")),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             SelectionCard(
               text: "Languages",
               onTap: () => onSystemSelect("Languages"),
@@ -81,21 +76,16 @@ class SignupForm extends StatelessWidget {
         padding: const EdgeInsets.all(AppDimensions.formPadding),
         child: Column(
           children: [
-            const Text(
-              "Choose Stage",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
             SelectionCard(
               text: "Primary",
               onTap: () => onStageSelect("Primary"),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             SelectionCard(
               text: "Preparatory",
               onTap: () => onStageSelect("Preparatory"),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             SelectionCard(
               text: "Secondary",
               onTap: () => onStageSelect("Secondary"),
@@ -107,19 +97,14 @@ class SignupForm extends StatelessWidget {
 
     if (step == 5) {
       return SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.formPadding),
+        padding: const EdgeInsets.all(AppDimensions.fieldSpacing),
         child: Column(
           children: [
-            const Text(
-              "Choose Grade",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: availableGrades.length,
-              separatorBuilder: (c, i) => const SizedBox(height: 15),
+              separatorBuilder: (c, i) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 return SelectionCard(
                   text: availableGrades[index],
@@ -150,15 +135,6 @@ class SignupForm extends StatelessWidget {
                 controller: emailController,
                 hintText: 'Phone number',
                 keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                obscureText: true,
-                showPasswordToggle: true,
-                onTogglePassword: onTogglePassword,
-                isPasswordVisible: !obscurePassword,
               ),
             ] else ...[
               CustomTextField(
