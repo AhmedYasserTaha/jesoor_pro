@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class SubjectItem extends StatelessWidget {
-  const SubjectItem({super.key});
+  final String imagePath;
+  final String label;
+
+  const SubjectItem({super.key, required this.imagePath, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +17,12 @@ class SubjectItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.subject, size: 32, color: Color(0xFF092032)),
+          Image.asset(imagePath, height: 40, fit: BoxFit.contain),
           const SizedBox(height: 8),
-          const Text(
-            'Subject',
+          Text(
+            label,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: Color(0xFF092032)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF092032)),
           ),
         ],
       ),

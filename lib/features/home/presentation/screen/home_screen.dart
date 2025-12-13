@@ -9,6 +9,13 @@ import '../widgets/product_item.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  final List<Map<String, String>> _subjects = const [
+    {'image': 'assets/images/clipboard.png', 'label': 'Exams'},
+    {'image': 'assets/images/files.png', 'label': 'Homework'},
+    {'image': 'assets/images/folder.png', 'label': 'Materials'},
+    {'image': 'assets/images/notes.png', 'label': 'Notes'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,30 +50,16 @@ class HomeScreen extends StatelessWidget {
                     mainAxisSpacing: 8,
                   ),
                   itemBuilder: (context, index) {
-                    return const SubjectItem();
+                    return SubjectItem(
+                      imagePath: _subjects[index]['image']!,
+                      label: _subjects[index]['label']!,
+                    );
                   },
-                  itemCount: 8,
+                  itemCount: _subjects.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                 ),
                 const SizedBox(height: 16),
-
-                // Just for you Section
-                GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.7,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemBuilder: (context, index) {
-                    return const ProductItem();
-                  },
-                  itemCount: 6,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                ),
-                const SizedBox(height: 20),
               ],
             ),
           ),
