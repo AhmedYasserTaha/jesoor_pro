@@ -96,7 +96,7 @@ class _AuthScreenState extends State<AuthScreen>
                 ),
                 const SizedBox(height: 20),
                 CustomText(
-                  "عملت اكونت جديد مبروووك",
+                  "I created a new account — congratulations 🎉",
                   textAlign: TextAlign.center,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -104,7 +104,7 @@ class _AuthScreenState extends State<AuthScreen>
                 ),
                 const SizedBox(height: 10),
                 CustomText(
-                  "مش باقي غير شوية خطوات بسيطة عشان تقدر تستخدم الأكونت بتاعك",
+                  "There are just a few simple steps left so you can start using your account.",
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
@@ -128,7 +128,7 @@ class _AuthScreenState extends State<AuthScreen>
                     });
                   },
                   child: const Text(
-                    'تم',
+                    'Next',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
