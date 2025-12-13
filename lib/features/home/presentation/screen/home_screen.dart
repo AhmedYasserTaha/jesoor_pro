@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../widgets/home_header.dart';
-import '../../widgets/search_bar_widget.dart';
-import '../../widgets/promo_banner.dart';
-import '../../widgets/section_header.dart';
-import '../../widgets/subject_item.dart';
-import '../../widgets/product_item.dart';
+import '../widgets/home_header.dart';
+import '../widgets/search_bar_widget.dart';
+import '../widgets/promo_banner.dart';
+import '../widgets/section_header.dart';
+import '../widgets/subject_item.dart';
+import '../widgets/product_item.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

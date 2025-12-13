@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/features/auth/presentation/screens/auth_screen.dart';
 import 'package:jesoor_pro/features/splash/splash_screen.dart';
 
 void main() {
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         primaryColor: const Color(0xFF092032),
       ),
-      home: const SplashScreen(),
+      home: const AuthScreen(),
     );
   }
 }
