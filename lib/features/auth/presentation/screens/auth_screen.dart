@@ -28,8 +28,23 @@ class _AuthScreenState extends State<AuthScreen>
   final _loginPasswordController = TextEditingController();
 
   final _signupNameController = TextEditingController();
-  final _signupEmailController = TextEditingController();
+  final _signupEmailController =
+      TextEditingController(); // This is phone number in UI "hintText: 'Phone number'"
   final _signupPasswordController = TextEditingController();
+
+  // Step 2 Controllers
+  final _signupParentPhoneController = TextEditingController();
+  final _signupParentPhoneOptController = TextEditingController();
+  final _signupSchoolController = TextEditingController();
+  final _signupGovernorateController = TextEditingController();
+
+  int _signupStep = 1;
+
+  // Step 3, 4, 5 Selections
+  String? _educationSystem;
+  String? _educationStage;
+  String? _educationGrade;
+  List<String> _availableGrades = [];
 
   @override
   void initState() {
@@ -45,6 +60,10 @@ class _AuthScreenState extends State<AuthScreen>
     _signupNameController.dispose();
     _signupEmailController.dispose();
     _signupPasswordController.dispose();
+    _signupParentPhoneController.dispose();
+    _signupParentPhoneOptController.dispose();
+    _signupSchoolController.dispose();
+    _signupGovernorateController.dispose();
     super.dispose();
   }
 
@@ -53,6 +72,78 @@ class _AuthScreenState extends State<AuthScreen>
       context,
       MaterialPageRoute(builder: (context) => const RootsView()),
     );
+  }
+
+  void _handleSignup() {
+    if (_signupStep == 1) {
+      if (_signupFormKey.currentState!.validate()) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: const Text(
+              'تم عمل اكونت جديد مبروووك',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _signupStep = 2;
+                  });
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } else if (_signupStep == 2) {
+      if (_signupFormKey.currentState!.validate()) {
+        // Advance to Step 3 (System Selection)
+        setState(() {
+          _signupStep = 3;
+        });
+      }
+    } else if (_signupStep == 5) {
+      // Final Step
+      _navigateToHome();
+    }
+  }
+
+  void _onSystemSelect(String system) {
+    setState(() {
+      _educationSystem = system;
+      _signupStep = 4; // Advance to Stage
+    });
+  }
+
+  void _onStageSelect(String stage) {
+    setState(() {
+      _educationStage = stage;
+      _updateAvailableGrades(stage);
+      _signupStep = 5; // Advance to Grade
+    });
+  }
+
+  void _onGradeSelect(String grade) {
+    setState(() {
+      _educationGrade = grade;
+      _navigateToHome(); // Finish
+    });
+  }
+
+  void _updateAvailableGrades(String stage) {
+    if (stage == 'Primary') {
+      _availableGrades = List.generate(6, (i) => '${i + 1} Primary');
+    } else if (stage == 'Preparatory') {
+      _availableGrades = List.generate(3, (i) => '${i + 1} Preparatory');
+    } else if (stage == 'Secondary') {
+      _availableGrades = List.generate(3, (i) => '${i + 1} Secondary');
+    } else {
+      _availableGrades = [];
+    }
   }
 
   void _togglePasswordVisibility() {
@@ -101,7 +192,17 @@ class _AuthScreenState extends State<AuthScreen>
                             passwordController: _signupPasswordController,
                             obscurePassword: _obscurePassword,
                             onTogglePassword: _togglePasswordVisibility,
-                            onSignup: _navigateToHome,
+                            onSignup: _handleSignup,
+                            step: _signupStep,
+                            parentPhoneController: _signupParentPhoneController,
+                            parentPhoneOptController:
+                                _signupParentPhoneOptController,
+                            schoolController: _signupSchoolController,
+                            governorateController: _signupGovernorateController,
+                            onSystemSelect: _onSystemSelect,
+                            onStageSelect: _onStageSelect,
+                            onGradeSelect: _onGradeSelect,
+                            availableGrades: _availableGrades,
                           ),
                         ],
                       ),
