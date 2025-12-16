@@ -6,7 +6,6 @@ import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 import '../screens/widgets/loading_dialog.dart';
-import '../screens/widgets/success_dialog.dart';
 import '../screens/widgets/otp_verification_dialog.dart';
 import '../screens/widgets/error_dialog.dart';
 
@@ -59,16 +58,8 @@ class AuthListenerHandler {
     // Handle verify OTP status
     if (state.verifyOtpStatus == AuthStatus.success) {
       Navigator.pop(context); // Dismiss OTP Dialog
-
-      // Show Success Dialog then move to step 2
-      showDialog(
-        context: context,
-        builder: (context) => SuccessDialog(
-          onNext: () {
-            context.read<AuthCubit>().setSignupStep(2);
-          },
-        ),
-      );
+      // Move directly to step 2 without showing success dialog
+      context.read<AuthCubit>().setSignupStep(2);
     } else if (state.verifyOtpStatus == AuthStatus.error) {
       // Error message will be shown inside the OTP dialog
       // No need to show additional dialog here

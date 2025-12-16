@@ -58,7 +58,9 @@ class DioConsumer implements ApiConsumer {
         queryParameters: queryParameters,
       );
       // Check if response status indicates an error
-      if (response.statusCode != null && response.statusCode! >= 400) {
+      // 302 redirect usually means error (like phone already registered)
+      if (response.statusCode != null &&
+          (response.statusCode! >= 400 || response.statusCode == 302)) {
         throw DioException(
           requestOptions: response.requestOptions,
           response: response,
@@ -113,12 +115,20 @@ class DioConsumer implements ApiConsumer {
     if (response.data is String) {
       final responseString = response.data as String;
 
-      // Check if response is HTML (like 404 page or error page)
+      // Check if response is HTML (like 404 page, error page, or redirect page)
       if (responseString.trim().startsWith('<!DOCTYPE') ||
           responseString.trim().startsWith('<html') ||
-          responseString.contains('<!DOCTYPE html>')) {
+          responseString.contains('<!DOCTYPE html>') ||
+          responseString.contains('Redirecting to')) {
         // This means we got an HTML page instead of JSON
-        // Usually happens when endpoint doesn't exist (404)
+        // Usually happens when endpoint doesn't exist (404) or redirect (302)
+        // For redirects, it usually means the resource already exists (like phone already registered)
+        if (response.statusCode == 302) {
+          // Check if this is a send-otp request - redirect usually means phone already registered
+          if (response.requestOptions.path.contains('send-otp')) {
+            throw ServerException(Strings.phoneAlreadyRegistered);
+          }
+        }
         throw ServerException(Strings.errorOccurred);
       }
 
@@ -179,6 +189,13 @@ class DioConsumer implements ApiConsumer {
         }
 
         switch (error.response?.statusCode) {
+          case 302:
+            // 302 redirect usually means resource already exists (like phone already registered)
+            if (error.response?.requestOptions.path.contains('send-otp') ==
+                true) {
+              throw ServerException(Strings.phoneAlreadyRegistered);
+            }
+            throw ServerException(errorMessage);
           case 400:
           case 401:
           case 403:

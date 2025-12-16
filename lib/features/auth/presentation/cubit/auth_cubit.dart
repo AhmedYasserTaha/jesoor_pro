@@ -90,20 +90,33 @@ class AuthCubit extends Cubit<AuthState> {
     result.fold(
       (failure) {
         // Check if the error indicates phone is already registered
-        final errorMessage = failure.message.toLowerCase();
+        // Be very specific - only check for clear indicators of duplicate/registered phone
+        final errorMessage = failure.message.toLowerCase().trim();
+
+        // Only consider it a registered phone error if the message clearly indicates it
         final isPhoneRegistered =
-            errorMessage.contains('phone') ||
-            errorMessage.contains('رقم') ||
-            errorMessage.contains('مسجل') ||
-            errorMessage.contains('موجود') ||
-            errorMessage.contains('already') ||
-            errorMessage.contains('exists') ||
-            errorMessage.contains('registered') ||
-            errorMessage.contains('duplicate') ||
-            errorMessage.contains('مكرر') ||
-            errorMessage.contains('تسجيل') ||
-            errorMessage.contains('signup') ||
-            errorMessage.contains('register');
+            // English patterns
+            errorMessage.contains('phone number already exists') ||
+            errorMessage.contains('phone already registered') ||
+            errorMessage.contains('phone is already taken') ||
+            errorMessage.contains('phone already exists') ||
+            errorMessage.contains('phone number is already registered') ||
+            errorMessage.contains('phone number already taken') ||
+            (errorMessage.contains('phone') &&
+                errorMessage.contains('already') &&
+                (errorMessage.contains('exists') ||
+                    errorMessage.contains('registered') ||
+                    errorMessage.contains('taken'))) ||
+            // Arabic patterns
+            errorMessage.contains('الرقم مسجل') ||
+            errorMessage.contains('الرقم موجود') ||
+            errorMessage.contains('الرقم مكرر') ||
+            errorMessage.contains('رقم الهاتف مسجل') ||
+            errorMessage.contains('رقم الهاتف موجود') ||
+            (errorMessage.contains('رقم') &&
+                (errorMessage.contains('مسجل') ||
+                    errorMessage.contains('موجود') ||
+                    errorMessage.contains('مكرر')));
 
         final displayMessage = isPhoneRegistered
             ? Strings.phoneAlreadyRegistered
