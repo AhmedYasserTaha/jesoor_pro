@@ -6,6 +6,13 @@ import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
   Future<UserModel> signup(SignupParams params);
+  Future<void> sendOtp(String name, String phone);
+  Future<void> verifyOtp(
+    String phone,
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  );
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -14,9 +21,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.apiConsumer});
 
   @override
+  @override
   Future<UserModel> login(String email, String password) async {
     final response = await apiConsumer.post(
-      EndPoints.baseUrl + 'auth/login',
+      EndPoints.login,
       body: {'email': email, 'password': password},
     );
     return UserModel.fromJson(response);
@@ -25,13 +33,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> signup(SignupParams params) async {
     final response = await apiConsumer.post(
-      EndPoints.baseUrl + 'auth/signup',
+      EndPoints.signup,
       body: {
         'username': params.username,
         'email': params.email,
         'password': params.password,
-        'phone': params
-            .parentPhone, // Mapping parentPhone to phone? Or maybe there IS a phone field?
+        'phone': params.parentPhone,
         'school_name': params.schoolName,
         'governorate': params.governorate,
         'education_system': params.educationSystem,
@@ -40,5 +47,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       },
     );
     return UserModel.fromJson(response);
+  }
+
+  @override
+  Future<void> sendOtp(String name, String phone) async {
+    await apiConsumer.post(
+      EndPoints.sendOtp,
+      body: {'name': name, 'phone': phone},
+    );
+  }
+
+  @override
+  Future<void> verifyOtp(
+    String phone,
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  ) async {
+    await apiConsumer.post(
+      EndPoints.verifyOtp,
+      body: {
+        'phone': phone,
+        'otp': otp,
+        'device_token': deviceToken,
+        'device_label': deviceLabel,
+      },
+    );
   }
 }

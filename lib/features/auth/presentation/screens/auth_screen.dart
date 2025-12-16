@@ -10,6 +10,7 @@ import 'widgets/auth_tab_bar.dart';
 import 'widgets/login_form.dart';
 import 'widgets/signup_form.dart';
 import 'widgets/step_indicator.dart';
+import 'widgets/otp_verification_dialog.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -88,58 +89,24 @@ class _AuthScreenState extends State<AuthScreen>
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/images/cograt.png',
-                  height: 150,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 20),
-                CustomText(
-                  "I created a new account — congratulations 🎉",
-                  textAlign: TextAlign.center,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(height: 10),
-                CustomText(
-                  "There are just a few simple steps left so you can start using your account.",
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-              ],
+            title: const Text('Confirm Phone Number'),
+            content: Text(
+              'We will send an OTP code to ${_signupEmailController.text}.\nIs this correct?',
             ),
             actions: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    cubit.setSignupStep(2);
-                  },
-                  child: const Text(
-                    'Next',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  cubit.sendOtp(
+                    _signupNameController.text,
+                    _signupEmailController.text,
+                  );
+                },
+                child: const Text('Confirm'),
               ),
             ],
           ),
@@ -164,7 +131,6 @@ class _AuthScreenState extends State<AuthScreen>
           listener: (context, state) {
             if (state.status == AuthStatus.success) {
               // TODO: Navigate to Home/Root screen
-              // Navigator.pushReplacementNamed(context, Routes.home);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Auth Success! Navigating to Home...'),
@@ -173,6 +139,127 @@ class _AuthScreenState extends State<AuthScreen>
             } else if (state.status == AuthStatus.error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.errorMessage ?? 'Unknown Error')),
+              );
+            } else if (state.status == AuthStatus.error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.errorMessage ?? 'Unknown Error')),
+              );
+            } else if (state.sendOtpStatus == AuthStatus.loading) {
+              // Show Loading Dialog
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              );
+            } else if (state.sendOtpStatus == AuthStatus.success) {
+              // Dismiss Loading Dialog if it is open (it should be)
+              // We blindly pop assuming the loading dialog is top-most.
+              // To be safer, we can check but simplified flow usually works if states are sequential.
+              Navigator.pop(context);
+
+              // Show OTP Dialog
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => OtpVerificationDialog(
+                  phone: state.phone ?? '',
+                  onVerify: (otp) {
+                    // Do NOT pop here. Let the dialog handle loading state.
+                    // Just call verify.
+                    context.read<AuthCubit>().verifyOtp(
+                      otp,
+                      "test-device-token",
+                      "test-device-label",
+                    );
+                  },
+                ),
+              );
+            } else if (state.sendOtpStatus == AuthStatus.error) {
+              Navigator.pop(context); // Dismiss Loading Dialog
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.errorMessage ?? 'Error sending OTP',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            } else if (state.verifyOtpStatus == AuthStatus.success) {
+              Navigator.pop(context); // Dismiss OTP Dialog
+
+              // Show Success Dialog then move to step 2
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/images/cograt.png',
+                        height: 150,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 20),
+                      CustomText(
+                        "I created a new account — congratulations 🎉",
+                        textAlign: TextAlign.center,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(height: 10),
+                      CustomText(
+                        "There are just a few simple steps left so you can start using your account.",
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                  actions: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context); // Close success dialog
+                          context.read<AuthCubit>().setSignupStep(2);
+                        },
+                        child: const Text(
+                          'Next',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else if (state.verifyOtpStatus == AuthStatus.error) {
+              // Don't dismiss OTP dialog on error, just show toast
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.errorMessage ?? 'Invalid OTP',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.red,
+                ),
               );
             }
           },

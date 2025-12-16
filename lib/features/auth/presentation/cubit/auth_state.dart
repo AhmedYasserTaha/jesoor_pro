@@ -16,6 +16,11 @@ class AuthState extends Equatable {
   final String? educationGrade;
   final List<String> availableGrades;
 
+  // OTP State
+  final AuthStatus sendOtpStatus;
+  final AuthStatus verifyOtpStatus;
+  final String? phone;
+
   const AuthState({
     this.status = AuthStatus.initial,
     this.user,
@@ -26,6 +31,9 @@ class AuthState extends Equatable {
     this.educationStage,
     this.educationGrade,
     this.availableGrades = const [],
+    this.sendOtpStatus = AuthStatus.initial,
+    this.verifyOtpStatus = AuthStatus.initial,
+    this.phone,
   });
 
   AuthState copyWith({
@@ -38,6 +46,9 @@ class AuthState extends Equatable {
     String? educationStage,
     String? educationGrade,
     List<String>? availableGrades,
+    AuthStatus? sendOtpStatus,
+    AuthStatus? verifyOtpStatus,
+    String? phone,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -49,6 +60,9 @@ class AuthState extends Equatable {
       educationStage: educationStage ?? this.educationStage,
       educationGrade: educationGrade ?? this.educationGrade,
       availableGrades: availableGrades ?? this.availableGrades,
+      sendOtpStatus: sendOtpStatus ?? this.sendOtpStatus,
+      verifyOtpStatus: verifyOtpStatus ?? this.verifyOtpStatus,
+      phone: phone ?? this.phone,
     );
   }
 
@@ -63,5 +77,8 @@ class AuthState extends Equatable {
     educationStage,
     educationGrade,
     availableGrades,
+    sendOtpStatus,
+    verifyOtpStatus,
+    phone,
   ];
 }

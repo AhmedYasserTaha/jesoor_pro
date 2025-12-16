@@ -36,6 +36,18 @@ class LoginForm extends StatelessWidget {
               controller: emailController,
               hintText: 'Enter Email',
               keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Email is required';
+                }
+                // Optional: Basic email regex
+                if (!RegExp(
+                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                ).hasMatch(value)) {
+                  return 'Enter a valid email';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: AppDimensions.fieldSpacing),
             CustomTextField(
@@ -45,6 +57,15 @@ class LoginForm extends StatelessWidget {
               showPasswordToggle: true,
               isPasswordVisible: !obscurePassword,
               onTogglePassword: onTogglePassword,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Password is required';
+                }
+                if (value.length < 6) {
+                  return 'Password must be at least 6 characters';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             const ForgotPasswordButton(),

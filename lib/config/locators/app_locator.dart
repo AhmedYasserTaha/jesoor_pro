@@ -9,6 +9,8 @@ import 'package:jesoor_pro/features/auth/data/repositories/auth_repository_impl.
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/verify_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 
 final sl = GetIt.instance;
@@ -16,11 +18,20 @@ final sl = GetIt.instance;
 Future<void> init() async {
   //! Features - Auth
   // Cubit
-  sl.registerFactory(() => AuthCubit(loginUseCase: sl(), signupUseCase: sl()));
+  sl.registerFactory(
+    () => AuthCubit(
+      loginUseCase: sl(),
+      signupUseCase: sl(),
+      sendOtpUseCase: sl(),
+      verifyOtpUseCase: sl(),
+    ),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(repository: sl()));
   sl.registerLazySingleton(() => SignupUseCase(repository: sl()));
+  sl.registerLazySingleton(() => SendOtpUseCase(sl()));
+  sl.registerLazySingleton(() => VerifyOtpUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(

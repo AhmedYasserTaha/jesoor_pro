@@ -47,4 +47,37 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Left(CacheFailure(message: "No Internet Connection"));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> sendOtp(String name, String phone) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        await remoteDataSource.sendOtp(name, phone);
+        return const Right(null);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> verifyOtp(
+    String phone,
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  ) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        await remoteDataSource.verifyOtp(phone, otp, deviceToken, deviceLabel);
+        return const Right(null);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
 }

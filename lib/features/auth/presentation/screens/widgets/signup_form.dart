@@ -126,44 +126,108 @@ class SignupForm extends StatelessWidget {
           children: [
             const SizedBox(height: AppDimensions.fieldSpacing),
             if (step == 1) ...[
-              CustomTextField(
-                controller: nameController,
-                hintText: 'Enter Full Name',
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: emailController,
-                hintText: 'Phone number',
-                keyboardType: TextInputType.phone,
-              ),
-            ] else ...[
-              CustomTextField(
-                controller: parentPhoneController,
-                hintText: 'Parent Phone',
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: parentPhoneOptController,
-                hintText: 'Parent Phone (Optional)',
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: schoolController,
-                hintText: 'School Name',
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: governorateController,
-                hintText: 'Governorate',
+              if (step == 1) ...[
+                CustomTextField(
+                  controller: nameController,
+                  hintText: 'Enter Full Name',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Name is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppDimensions.fieldSpacing),
+                CustomTextField(
+                  controller: emailController,
+                  hintText: 'Phone number',
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Phone number is required';
+                    }
+                    if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
+                      return 'Enter a valid Egyptian phone number';
+                    }
+                    return null;
+                  },
+                ),
+                // const SizedBox(height: AppDimensions.fieldSpacing),
+                // CustomTextField(
+                //   controller: passwordController,
+                //   hintText: 'Enter Password',
+                //   obscureText: true,
+                //   showPasswordToggle: true,
+                //   isPasswordVisible: !obscurePassword,
+                //   onTogglePassword: onTogglePassword,
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Password is required';
+                //     }
+                //     if (value.length < 6) {
+                //       return 'Password must be at least 6 characters';
+                //     }
+                //     return null;
+                //   },
+                // ),
+              ] else ...[
+                CustomTextField(
+                  controller: parentPhoneController,
+                  hintText: 'Parent Phone',
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Parent Phone is required';
+                    }
+                    if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
+                      return 'Enter a valid Egyptian phone number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppDimensions.fieldSpacing),
+                CustomTextField(
+                  controller: parentPhoneOptController,
+                  hintText: 'Parent Phone (Optional)',
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty) {
+                      if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
+                        return 'Enter a valid Egyptian phone number';
+                      }
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppDimensions.fieldSpacing),
+                CustomTextField(
+                  controller: schoolController,
+                  hintText: 'School Name',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'School Name is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppDimensions.fieldSpacing),
+                CustomTextField(
+                  controller: governorateController,
+                  hintText: 'Governorate',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Governorate is required';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+              const SizedBox(height: 40),
+              CustomButton(
+                text: step == 1 ? 'SIGNUP' : 'SAVE',
+                onPressed: onSignup,
               ),
             ],
-            const SizedBox(height: 40),
-            CustomButton(
-              text: step == 1 ? 'SIGNUP' : 'SAVE',
-              onPressed: onSignup,
-            ),
           ],
         ),
       ),
