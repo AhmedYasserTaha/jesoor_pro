@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 
 import 'package:jesoor_pro/config/routes/app_router.dart';
@@ -43,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Navigate to onboarding after 3 seconds
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed(Routes.onboarding);
+        context.go(Routes.onboarding);
       }
     });
   }

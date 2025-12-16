@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jesoor_pro/config/routes/app_router.dart';
 import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/features/onboarding/widget/onboarding_bottom_controls.dart';
@@ -25,7 +26,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _onPageChanged(int page) => setState(() => _currentPage = page);
 
   void _navigateToAuth() {
-    Navigator.of(context).pushReplacementNamed(Routes.authScreen);
+    context.go(Routes.authScreen);
   }
 
   void _nextPage() {
