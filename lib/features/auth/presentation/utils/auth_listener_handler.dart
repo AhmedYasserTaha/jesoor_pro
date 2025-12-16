@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/routes/routes.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 import '../screens/widgets/loading_dialog.dart';
@@ -22,7 +23,7 @@ class AuthListenerHandler {
       // Show error dialog instead of snackbar
       ErrorDialog.show(
         context: context,
-        message: state.errorMessage ?? 'حدث خطأ ما، يرجى المحاولة مرة أخرى',
+        message: state.errorMessage ?? Strings.errorOccurred,
       );
     }
 
@@ -49,14 +50,9 @@ class AuthListenerHandler {
       );
     } else if (state.sendOtpStatus == AuthStatus.error) {
       LoadingDialog.hide(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            state.errorMessage ?? 'Error sending OTP',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-        ),
+      ErrorDialog.show(
+        context: context,
+        message: state.errorMessage ?? Strings.errorOccurred,
       );
     }
 
@@ -74,19 +70,8 @@ class AuthListenerHandler {
         ),
       );
     } else if (state.verifyOtpStatus == AuthStatus.error) {
-      // Don't dismiss OTP dialog on error
-      // Error message will be shown inside the dialog
-      // Optionally show snackbar as well
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            state.errorMessage ?? 'كود التحقق غير صحيح',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      // Error message will be shown inside the OTP dialog
+      // No need to show additional dialog here
     }
 
     // Handle complete step 2 status
@@ -101,14 +86,9 @@ class AuthListenerHandler {
       }
     } else if (state.completeStep2Status == AuthStatus.error) {
       LoadingDialog.hide(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            state.errorMessage ?? 'Error completing step 2',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-        ),
+      ErrorDialog.show(
+        context: context,
+        message: state.errorMessage ?? Strings.errorOccurred,
       );
     }
 
@@ -120,14 +100,9 @@ class AuthListenerHandler {
       // Categories loaded successfully, UI will display them
     } else if (state.getCategoriesStatus == AuthStatus.error) {
       LoadingDialog.hide(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            state.errorMessage ?? 'Error loading categories',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-        ),
+      ErrorDialog.show(
+        context: context,
+        message: state.errorMessage ?? Strings.errorOccurred,
       );
     }
 
@@ -139,14 +114,9 @@ class AuthListenerHandler {
       // Registration complete, handled by main status success
     } else if (state.completeStep3Status == AuthStatus.error) {
       LoadingDialog.hide(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            state.errorMessage ?? 'Error completing step 3',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-        ),
+      ErrorDialog.show(
+        context: context,
+        message: state.errorMessage ?? Strings.errorOccurred,
       );
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 
 class ConfirmPhoneDialog extends StatelessWidget {
   final String email;
@@ -15,9 +16,9 @@ class ConfirmPhoneDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Confirm Phone Number'),
+      title: const Text(Strings.confirmPhoneNumber),
       content: Text(
-        'We will send an OTP code to $email.\nIs this correct?',
+        Strings.replacePlaceholder(Strings.confirmPhoneMessage, 'phone', email),
       ),
       actions: [
         TextButton(
@@ -25,14 +26,14 @@ class ConfirmPhoneDialog extends StatelessWidget {
             Navigator.pop(context);
             onCancel();
           },
-          child: const Text('Cancel'),
+          child: const Text(Strings.cancel),
         ),
         TextButton(
           onPressed: () {
             Navigator.pop(context);
             onConfirm();
           },
-          child: const Text('Confirm'),
+          child: const Text(Strings.confirm),
         ),
       ],
     );

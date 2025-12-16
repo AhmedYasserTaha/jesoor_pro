@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:jesoor_pro/core/error/exceptions.dart';
 import 'package:jesoor_pro/core/error/failures.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/governorate_entity.dart';
@@ -124,7 +125,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> completeStep2(CompleteStep2Params params) async {
+  Future<Either<Failure, void>> completeStep2(
+    CompleteStep2Params params,
+  ) async {
     if (await networkInfo.hasConnection) {
       try {
         await remoteDataSource.completeStep2(params);
@@ -138,7 +141,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> completeStep3(CompleteStep3Params params) async {
+  Future<Either<Failure, void>> completeStep3(
+    CompleteStep3Params params,
+  ) async {
     if (await networkInfo.hasConnection) {
       try {
         await remoteDataSource.completeStep3(params);
@@ -202,16 +207,16 @@ class AuthRepositoryImpl implements AuthRepository {
         await remoteDataSource.forgotPasswordSendOtp(phone);
         return const Right(null);
       } on ServerException catch (_) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       } on NotFoundException catch (_) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       } on UnauthorizedException catch (_) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       } catch (_) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       }
     } else {
-      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
+      return Left(CacheFailure(message: Strings.noInternetConnection));
     }
   }
 
@@ -232,16 +237,16 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         return const Right(null);
       } on ServerException catch (_) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       } on NotFoundException catch (_) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       } on UnauthorizedException catch (_) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       } catch (e) {
-        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+        return Left(ServerFailure(message: Strings.errorOccurred));
       }
     } else {
-      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
+      return Left(CacheFailure(message: Strings.noInternetConnection));
     }
   }
 }

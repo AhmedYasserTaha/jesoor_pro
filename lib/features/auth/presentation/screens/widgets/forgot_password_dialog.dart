@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/widgets/custom_button.dart';
 import 'package:jesoor_pro/core/widgets/custom_text_field.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/widgets/otp_verification_dialog.dart';
@@ -41,16 +42,16 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     final phone = _phoneController.text.trim();
     if (phone.isEmpty) {
       ErrorDialog.show(
         context: context,
-        message: 'الرجاء إدخال رقم هاتف',
+        message: Strings.pleaseEnterPhoneNumber,
       );
       return;
     }
-    
+
     // Send OTP
     context.read<AuthCubit>().forgotPasswordSendOtp(phone);
   }
@@ -94,7 +95,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
         } else if (state.forgotPasswordSendOtpStatus == AuthStatus.error) {
           ErrorDialog.show(
             context: context,
-            message: state.errorMessage ?? 'حدث خطأ ما، يرجى المحاولة مرة أخرى',
+            message: state.errorMessage ?? Strings.errorOccurred,
           );
         }
 
@@ -105,7 +106,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           showDialog(
             context: context,
             barrierDismissible: false,
-            useRootNavigator: true, // Use root navigator to show above bottom sheet
+            useRootNavigator:
+                true, // Use root navigator to show above bottom sheet
             builder: (context) => AlertDialog(
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
@@ -121,12 +123,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'تم تغيير كلمة السر بنجاح',
+                    Strings.passwordChangedSuccessfully,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -143,7 +142,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: const Text('حسناً'),
+                    child: const Text(Strings.ok),
                   ),
                 ),
               ],
@@ -153,7 +152,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
         } else if (state.forgotPasswordResetStatus == AuthStatus.error) {
           ErrorDialog.show(
             context: context,
-            message: state.errorMessage ?? 'حدث خطأ ما، يرجى المحاولة مرة أخرى',
+            message: state.errorMessage ?? Strings.errorOccurred,
           );
         }
       },
@@ -181,10 +180,10 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 const SizedBox(height: 20),
                 Text(
                   _currentStep == ForgotPasswordStep.enterPhone
-                      ? "نسيت كلمة السر"
+                      ? Strings.forgotPasswordTitle
                       : _currentStep == ForgotPasswordStep.enterOtp
-                      ? "تحقق من الكود"
-                      : "إعادة تعيين كلمة السر",
+                      ? Strings.verifyCode
+                      : Strings.resetPassword,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -195,22 +194,24 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 const SizedBox(height: 20),
                 if (_currentStep == ForgotPasswordStep.enterPhone) ...[
                   const Text(
-                    "أدخل رقم هاتفك لتلقي كود التحقق",
+                    Strings.enterPhoneForOtp,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 20),
                   CustomTextField(
                     controller: _phoneController,
-                    hintText: "رقم الهاتف",
+                    hintText: Strings.phoneNumber,
                     keyboardType: TextInputType.phone,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'رقم الهاتف مطلوب';
+                        return Strings.phoneNumberRequired;
                       }
                       final trimmedValue = value.trim();
-                      if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(trimmedValue)) {
-                        return 'أدخل رقم هاتف مصري صحيح';
+                      if (!RegExp(
+                        r'^01[0125][0-9]{8}$',
+                      ).hasMatch(trimmedValue)) {
+                        return Strings.enterValidEgyptianPhone;
                       }
                       return null;
                     },
@@ -229,7 +230,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                               ),
                             )
                           : CustomButton(
-                              text: "إرسال الكود",
+                              text: Strings.sendCode,
                               onPressed: _sendOtp,
                             );
                     },
@@ -237,14 +238,14 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 ] else if (_currentStep ==
                     ForgotPasswordStep.enterNewPassword) ...[
                   const Text(
-                    "أدخل كلمة سر جديدة",
+                    Strings.enterNewPassword,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 20),
                   CustomTextField(
                     controller: _newPasswordController,
-                    hintText: "كلمة السر الجديدة",
+                    hintText: Strings.newPassword,
                     obscureText: _obscureNewPassword,
                     showPasswordToggle: true,
                     isPasswordVisible: !_obscureNewPassword,
@@ -255,10 +256,10 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'كلمة السر مطلوبة';
+                        return Strings.passwordRequired;
                       }
                       if (value.length < 6) {
-                        return 'كلمة السر يجب أن تكون 6 أحرف على الأقل';
+                        return Strings.passwordMinLength;
                       }
                       return null;
                     },
@@ -266,7 +267,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _confirmPasswordController,
-                    hintText: "تأكيد كلمة السر",
+                    hintText: Strings.confirmPassword,
                     obscureText: _obscureConfirmPassword,
                     showPasswordToggle: true,
                     isPasswordVisible: !_obscureConfirmPassword,
@@ -277,10 +278,10 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'تأكيد كلمة السر مطلوب';
+                        return Strings.confirmPasswordRequired;
                       }
                       if (value != _newPasswordController.text) {
-                        return 'كلمة السر غير متطابقة';
+                        return Strings.passwordsDoNotMatch;
                       }
                       return null;
                     },
@@ -291,7 +292,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                       final isLoading =
                           state.forgotPasswordResetStatus == AuthStatus.loading;
                       return CustomButton(
-                        text: "تغيير كلمة السر",
+                        text: Strings.changePassword,
                         onPressed: isLoading ? () {} : _resetPassword,
                       );
                     },

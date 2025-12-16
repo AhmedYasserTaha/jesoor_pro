@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/widgets/custom_button.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 
@@ -72,7 +73,7 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
       builder: (context, state) {
         final isLoading = state.verifyOtpStatus == AuthStatus.loading;
         final hasError = state.verifyOtpStatus == AuthStatus.error;
-        final errorMessage = state.errorMessage ?? 'كود التحقق غير صحيح';
+        final errorMessage = state.errorMessage ?? Strings.otpIncorrect;
 
         return Dialog(
           shape: RoundedRectangleBorder(
@@ -85,7 +86,7 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'Verify OTP',
+                  Strings.verifyOtp,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -94,7 +95,7 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Enter the 6-digit code sent to\n${widget.phone}',
+                  '${Strings.enterOtpCode}${widget.phone}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey),
                 ),
@@ -192,7 +193,7 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
                 if (isLoading)
                   const CircularProgressIndicator(color: AppColors.primary)
                 else
-                  CustomButton(text: 'VERIFY', onPressed: _verify),
+                  CustomButton(text: Strings.verify, onPressed: _verify),
               ],
             ),
           ),

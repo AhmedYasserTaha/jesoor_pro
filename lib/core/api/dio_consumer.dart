@@ -6,6 +6,7 @@ import 'package:jesoor_pro/core/api/api_consumer.dart';
 import 'package:jesoor_pro/core/api/end_points.dart';
 import 'package:jesoor_pro/core/api/interceptors.dart';
 import 'package:jesoor_pro/core/error/exceptions.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 
 class DioConsumer implements ApiConsumer {
   final Dio client;
@@ -118,14 +119,14 @@ class DioConsumer implements ApiConsumer {
           responseString.contains('<!DOCTYPE html>')) {
         // This means we got an HTML page instead of JSON
         // Usually happens when endpoint doesn't exist (404)
-        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
+        throw ServerException(Strings.errorOccurred);
       }
 
       try {
         return jsonDecode(responseString);
       } catch (e) {
         // If JSON parsing fails, show generic error message
-        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
+        throw ServerException(Strings.errorOccurred);
       }
     }
     // If it's already parsed (Map/List), return it directly
@@ -137,9 +138,46 @@ class DioConsumer implements ApiConsumer {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
+        throw ServerException(Strings.errorOccurred);
       case DioExceptionType.badResponse:
-        // For all error responses, show a generic message to user
+        // Try to extract error message from response
+        String errorMessage = Strings.errorOccurred;
+        if (error.response?.data != null) {
+          try {
+            final responseData = error.response!.data;
+            Map<String, dynamic>? jsonData;
+
+            if (responseData is String) {
+              jsonData = jsonDecode(responseData) as Map<String, dynamic>?;
+            } else if (responseData is Map) {
+              jsonData = responseData as Map<String, dynamic>?;
+            }
+
+            if (jsonData != null) {
+              // Try common error message fields
+              if (jsonData.containsKey('message')) {
+                errorMessage = jsonData['message'].toString();
+              } else if (jsonData.containsKey('error')) {
+                errorMessage = jsonData['error'].toString();
+              } else if (jsonData.containsKey('errors')) {
+                final errors = jsonData['errors'];
+                if (errors is Map && errors.isNotEmpty) {
+                  // Get first error message
+                  final firstError = errors.values.first;
+                  if (firstError is List && firstError.isNotEmpty) {
+                    errorMessage = firstError.first.toString();
+                  } else if (firstError is String) {
+                    errorMessage = firstError;
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            // If parsing fails, use default message
+            errorMessage = Strings.errorOccurred;
+          }
+        }
+
         switch (error.response?.statusCode) {
           case 400:
           case 401:
@@ -148,16 +186,16 @@ class DioConsumer implements ApiConsumer {
           case 409:
           case 500:
           default:
-            throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
+            throw ServerException(errorMessage);
         }
       case DioExceptionType.cancel:
-        throw const ServerException('تم إلغاء الطلب');
+        throw ServerException(Strings.requestCancelled);
       case DioExceptionType.unknown:
-        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
+        throw ServerException(Strings.errorOccurred);
       case DioExceptionType.badCertificate:
-        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
+        throw ServerException(Strings.errorOccurred);
       case DioExceptionType.connectionError:
-        throw const NoInternetConnectionException('لا يوجد اتصال بالإنترنت');
+        throw NoInternetConnectionException(Strings.noInternetConnection);
     }
   }
 }

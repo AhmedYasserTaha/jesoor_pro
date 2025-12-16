@@ -1,37 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 
 class ErrorDialog extends StatelessWidget {
   final String message;
 
-  const ErrorDialog({
-    super.key,
-    required this.message,
-  });
+  const ErrorDialog({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.error_outline,
-            color: Colors.red,
-            size: 60,
-          ),
+          Icon(Icons.error_outline, color: Colors.red, size: 60),
           const SizedBox(height: 20),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -48,17 +37,14 @@ class ErrorDialog extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
-            child: const Text('حسناً'),
+            child: const Text(Strings.ok),
           ),
         ),
       ],
     );
   }
 
-  static void show({
-    required BuildContext context,
-    required String message,
-  }) {
+  static void show({required BuildContext context, required String message}) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -67,4 +53,3 @@ class ErrorDialog extends StatelessWidget {
     );
   }
 }
-

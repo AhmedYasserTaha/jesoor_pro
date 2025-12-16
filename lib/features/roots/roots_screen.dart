@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 
 class RootsScreen extends StatefulWidget {
   const RootsScreen({super.key});
@@ -33,21 +34,18 @@ class _RootsScreenState extends State<RootsScreen> {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'الرئيسية',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: Strings.home),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: 'البحث',
+            label: Strings.search,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
-            label: 'المفضلة',
+            label: Strings.favorites,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'الملف الشخصي',
+            label: Strings.profile,
           ),
         ],
       ),
@@ -62,15 +60,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الرئيسية'),
+        title: const Text(Strings.home),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: const Center(
-        child: Text(
-          'مرحباً بك في الصفحة الرئيسية',
-          style: TextStyle(fontSize: 24),
-        ),
+        child: Text(Strings.welcomeToHome, style: TextStyle(fontSize: 24)),
       ),
     );
   }
@@ -89,13 +84,7 @@ class PlaceholderScreen extends StatelessWidget {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
-      body: Center(
-        child: Text(
-          title,
-          style: const TextStyle(fontSize: 24),
-        ),
-      ),
+      body: Center(child: Text(title, style: const TextStyle(fontSize: 24))),
     );
   }
 }
-

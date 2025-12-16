@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_text_styles.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/widgets/forgot_password_dialog.dart';
 
 class ForgotPasswordButton extends StatelessWidget {
@@ -22,7 +23,7 @@ class ForgotPasswordButton extends StatelessWidget {
           );
         },
         child: const Text(
-          'Forgot password ?',
+          Strings.forgotPassword,
           style: AppTextStyles.forgotPasswordStyle,
         ),
       ),

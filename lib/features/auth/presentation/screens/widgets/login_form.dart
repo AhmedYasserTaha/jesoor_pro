@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_dimensions.dart';
 import '../../../../../core/widgets/custom_text_field.dart';
 import '../../../../../core/widgets/custom_button.dart';
+import '../../../../../core/utils/strings.dart';
 import 'forgot_password_button.dart';
 
 class LoginForm extends StatelessWidget {
@@ -34,14 +35,14 @@ class LoginForm extends StatelessWidget {
             const SizedBox(height: AppDimensions.fieldSpacing),
             CustomTextField(
               controller: phoneController,
-              hintText: 'رقم الهاتف',
+              hintText: Strings.phoneNumber,
               keyboardType: TextInputType.phone,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'رقم الهاتف مطلوب';
+                  return Strings.phoneNumberRequired;
                 }
                 if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
-                  return 'أدخل رقم هاتف مصري صحيح';
+                  return Strings.enterValidEgyptianPhone;
                 }
                 return null;
               },
@@ -49,17 +50,17 @@ class LoginForm extends StatelessWidget {
             const SizedBox(height: 16),
             CustomTextField(
               controller: passwordController,
-              hintText: 'كلمة المرور',
+              hintText: Strings.password,
               obscureText: obscurePassword,
               showPasswordToggle: true,
               isPasswordVisible: !obscurePassword,
               onTogglePassword: onTogglePassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'كلمة المرور مطلوبة';
+                  return Strings.passwordRequired;
                 }
                 if (value.length < 6) {
-                  return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                  return Strings.passwordMinLength;
                 }
                 return null;
               },
@@ -67,7 +68,7 @@ class LoginForm extends StatelessWidget {
             const SizedBox(height: 12),
             const ForgotPasswordButton(),
             const SizedBox(height: 30),
-            CustomButton(text: 'تسجيل الدخول', onPressed: onLogin),
+            CustomButton(text: Strings.loginButton, onPressed: onLogin),
           ],
         ),
       ),

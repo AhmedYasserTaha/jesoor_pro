@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/widgets/custom_text.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 
 class SuccessDialog extends StatelessWidget {
   final VoidCallback onNext;
 
-  const SuccessDialog({
-    super.key,
-    required this.onNext,
-  });
+  const SuccessDialog({super.key, required this.onNext});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -27,7 +23,7 @@ class SuccessDialog extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           CustomText(
-            "I created a new account — congratulations 🎉",
+            Strings.accountCreated,
             textAlign: TextAlign.center,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -35,7 +31,7 @@ class SuccessDialog extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           CustomText(
-            "There are just a few simple steps left so you can start using your account.",
+            Strings.accountCreatedMessage,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 10),
@@ -57,7 +53,7 @@ class SuccessDialog extends StatelessWidget {
               onNext();
             },
             child: const Text(
-              'Next',
+              Strings.next,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/core/usecases/use_case.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
@@ -87,12 +88,34 @@ class AuthCubit extends Cubit<AuthState> {
       SendOtpParams(name: name, phone: phone),
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          sendOtpStatus: AuthStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        // Check if the error indicates phone is already registered
+        final errorMessage = failure.message.toLowerCase();
+        final isPhoneRegistered =
+            errorMessage.contains('phone') ||
+            errorMessage.contains('رقم') ||
+            errorMessage.contains('مسجل') ||
+            errorMessage.contains('موجود') ||
+            errorMessage.contains('already') ||
+            errorMessage.contains('exists') ||
+            errorMessage.contains('registered') ||
+            errorMessage.contains('duplicate') ||
+            errorMessage.contains('مكرر') ||
+            errorMessage.contains('تسجيل') ||
+            errorMessage.contains('signup') ||
+            errorMessage.contains('register');
+
+        final displayMessage = isPhoneRegistered
+            ? Strings.phoneAlreadyRegistered
+            : failure.message;
+
+        emit(
+          state.copyWith(
+            sendOtpStatus: AuthStatus.error,
+            errorMessage: displayMessage,
+          ),
+        );
+      },
       (_) => emit(
         state.copyWith(
           sendOtpStatus: AuthStatus.success,

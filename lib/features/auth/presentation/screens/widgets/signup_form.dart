@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_dimensions.dart';
 import '../../../../../core/widgets/custom_text_field.dart';
 import '../../../../../core/widgets/custom_button.dart';
+import '../../../../../core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/widgets/selection_card.dart';
 
 class SignupForm extends StatelessWidget {
@@ -56,15 +57,18 @@ class SignupForm extends StatelessWidget {
         child: Column(
           children: [
             SelectionCard(
-              text: "General",
-              onTap: () => onSystemSelect("General"),
+              text: Strings.general,
+              onTap: () => onSystemSelect(Strings.general),
             ),
             const SizedBox(height: 10),
-            SelectionCard(text: "Azhar", onTap: () => onSystemSelect("Azhar")),
+            SelectionCard(
+              text: Strings.azhar,
+              onTap: () => onSystemSelect(Strings.azhar),
+            ),
             const SizedBox(height: 10),
             SelectionCard(
-              text: "Languages",
-              onTap: () => onSystemSelect("Languages"),
+              text: Strings.languages,
+              onTap: () => onSystemSelect(Strings.languages),
             ),
           ],
         ),
@@ -77,18 +81,18 @@ class SignupForm extends StatelessWidget {
         child: Column(
           children: [
             SelectionCard(
-              text: "Primary",
-              onTap: () => onStageSelect("Primary"),
+              text: Strings.primary,
+              onTap: () => onStageSelect(Strings.primary),
             ),
             const SizedBox(height: 10),
             SelectionCard(
-              text: "Preparatory",
-              onTap: () => onStageSelect("Preparatory"),
+              text: Strings.preparatory,
+              onTap: () => onStageSelect(Strings.preparatory),
             ),
             const SizedBox(height: 10),
             SelectionCard(
-              text: "Secondary",
-              onTap: () => onStageSelect("Secondary"),
+              text: Strings.secondary,
+              onTap: () => onStageSelect(Strings.secondary),
             ),
           ],
         ),
@@ -128,10 +132,10 @@ class SignupForm extends StatelessWidget {
             if (step == 1) ...[
               CustomTextField(
                 controller: nameController,
-                hintText: 'Enter Full Name',
+                hintText: Strings.enterFullName,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Name is required';
+                    return Strings.nameRequired;
                   }
                   return null;
                 },
@@ -139,34 +143,31 @@ class SignupForm extends StatelessWidget {
               const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
                 controller: emailController,
-                hintText: 'Phone number',
+                hintText: Strings.phoneNumber,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Phone number is required';
+                    return Strings.phoneNumberRequired;
                   }
                   if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
-                    return 'Enter a valid Egyptian phone number';
+                    return Strings.enterValidEgyptianPhone;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 40),
-              CustomButton(
-                text: 'SIGNUP',
-                onPressed: onSignup,
-              ),
+              CustomButton(text: Strings.signup, onPressed: onSignup),
             ] else if (step == 2) ...[
               CustomTextField(
                 controller: parentPhoneController,
-                hintText: 'Parent Phone',
+                hintText: Strings.parentPhone,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Parent Phone is required';
+                    return Strings.parentPhoneRequired;
                   }
                   if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
-                    return 'Enter a valid Egyptian phone number';
+                    return Strings.enterValidEgyptianPhone;
                   }
                   return null;
                 },
@@ -174,12 +175,12 @@ class SignupForm extends StatelessWidget {
               const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
                 controller: parentPhoneOptController,
-                hintText: 'Parent Phone (Optional)',
+                hintText: Strings.parentPhoneOptional,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
-                      return 'Enter a valid Egyptian phone number';
+                      return Strings.enterValidEgyptianPhone;
                     }
                   }
                   return null;
@@ -188,10 +189,10 @@ class SignupForm extends StatelessWidget {
               const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
                 controller: schoolController,
-                hintText: 'School Name',
+                hintText: Strings.schoolName,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'School Name is required';
+                    return Strings.schoolNameRequired;
                   }
                   return null;
                 },
@@ -199,19 +200,16 @@ class SignupForm extends StatelessWidget {
               const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
                 controller: governorateController,
-                hintText: 'Governorate',
+                hintText: Strings.governorate,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Governorate is required';
+                    return Strings.governorateRequired;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 40),
-              CustomButton(
-                text: 'SAVE',
-                onPressed: onSignup,
-              ),
+              CustomButton(text: Strings.save, onPressed: onSignup),
             ],
           ],
         ),
