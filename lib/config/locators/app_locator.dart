@@ -9,14 +9,14 @@ import 'package:jesoor_pro/features/auth/data/repositories/auth_repository_impl.
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
-import 'package:jesoor_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
   //! Features - Auth
-  // Bloc
-  sl.registerFactory(() => AuthBloc(loginUseCase: sl(), signupUseCase: sl()));
+  // Cubit
+  sl.registerFactory(() => AuthCubit(loginUseCase: sl(), signupUseCase: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(repository: sl()));
