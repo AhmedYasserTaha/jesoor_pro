@@ -7,17 +7,22 @@ import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 import '../screens/widgets/loading_dialog.dart';
 import '../screens/widgets/success_dialog.dart';
 import '../screens/widgets/otp_verification_dialog.dart';
+import '../screens/widgets/error_dialog.dart';
 
 /// Handles all BlocListener logic for auth state changes
 class AuthListenerHandler {
   static void handleStateChange(BuildContext context, AuthState state) {
     // Handle main auth status (login/signup success/error)
     if (state.status == AuthStatus.success) {
-      // Navigate to Roots screen
-      context.go(Routes.roots);
+      // Navigate to Roots screen after successful login or signup
+      Future.microtask(() {
+        context.go(Routes.roots);
+      });
     } else if (state.status == AuthStatus.error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.errorMessage ?? 'Unknown Error')),
+      // Show error dialog instead of snackbar
+      ErrorDialog.show(
+        context: context,
+        message: state.errorMessage ?? 'حدث خطأ ما، يرجى المحاولة مرة أخرى',
       );
     }
 

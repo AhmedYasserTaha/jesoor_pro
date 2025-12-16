@@ -56,6 +56,14 @@ class DioConsumer implements ApiConsumer {
         data: body,
         queryParameters: queryParameters,
       );
+      // Check if response status indicates an error
+      if (response.statusCode != null && response.statusCode! >= 400) {
+        throw DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          type: DioExceptionType.badResponse,
+        );
+      }
       return _handleResponseAsJson(response);
     } on DioException catch (error) {
       _handleDioError(error);
@@ -102,10 +110,22 @@ class DioConsumer implements ApiConsumer {
     // Since ResponseType.plain is used, response.data is a String
     // We need to parse it as JSON
     if (response.data is String) {
+      final responseString = response.data as String;
+
+      // Check if response is HTML (like 404 page or error page)
+      if (responseString.trim().startsWith('<!DOCTYPE') ||
+          responseString.trim().startsWith('<html') ||
+          responseString.contains('<!DOCTYPE html>')) {
+        // This means we got an HTML page instead of JSON
+        // Usually happens when endpoint doesn't exist (404)
+        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
+      }
+
       try {
-        return jsonDecode(response.data as String);
+        return jsonDecode(responseString);
       } catch (e) {
-        throw ServerException('Invalid JSON response: $e');
+        // If JSON parsing fails, show generic error message
+        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
       }
     }
     // If it's already parsed (Map/List), return it directly

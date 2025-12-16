@@ -7,6 +7,7 @@ import 'package:jesoor_pro/core/widgets/custom_text_field.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/widgets/otp_verification_dialog.dart';
+import 'package:jesoor_pro/features/auth/presentation/screens/widgets/error_dialog.dart';
 
 enum ForgotPasswordStep { enterPhone, enterOtp, enterNewPassword }
 
@@ -43,11 +44,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
     
     final phone = _phoneController.text.trim();
     if (phone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('الرجاء إدخال رقم هاتف'),
-          backgroundColor: Colors.red,
-        ),
+      ErrorDialog.show(
+        context: context,
+        message: 'الرجاء إدخال رقم هاتف',
       );
       return;
     }
@@ -93,30 +92,68 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
             ),
           );
         } else if (state.forgotPasswordSendOtpStatus == AuthStatus.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage ?? 'خطأ في إرسال الكود'),
-              backgroundColor: Colors.red,
-            ),
+          ErrorDialog.show(
+            context: context,
+            message: state.errorMessage ?? 'حدث خطأ ما، يرجى المحاولة مرة أخرى',
           );
         }
 
         // Handle forgot password reset
         if (state.forgotPasswordResetStatus == AuthStatus.success) {
           Navigator.pop(context); // Close forgot password dialog
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم تغيير كلمة السر بنجاح'),
-              backgroundColor: Colors.green,
+          // Show success message in dialog
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            useRootNavigator: true, // Use root navigator to show above bottom sheet
+            builder: (context) => AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 60,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'تم تغيير كلمة السر بنجاح',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('حسناً'),
+                  ),
+                ),
+              ],
             ),
           );
           // After successful password reset, user can login normally
         } else if (state.forgotPasswordResetStatus == AuthStatus.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage ?? 'Error resetting password'),
-              backgroundColor: Colors.red,
-            ),
+          ErrorDialog.show(
+            context: context,
+            message: state.errorMessage ?? 'حدث خطأ ما، يرجى المحاولة مرة أخرى',
           );
         }
       },
