@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 import '../screens/widgets/loading_dialog.dart';
@@ -11,12 +13,8 @@ class AuthListenerHandler {
   static void handleStateChange(BuildContext context, AuthState state) {
     // Handle main auth status (login/signup success/error)
     if (state.status == AuthStatus.success) {
-      // TODO: Navigate to Home/Root screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Auth Success! Navigating to Home...'),
-        ),
-      );
+      // Navigate to Roots screen
+      context.go(Routes.roots);
     } else if (state.status == AuthStatus.error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(state.errorMessage ?? 'Unknown Error')),
@@ -37,10 +35,10 @@ class AuthListenerHandler {
           phone: state.phone ?? '',
           onVerify: (otp) {
             context.read<AuthCubit>().verifyOtp(
-                  otp,
-                  "test-device-token",
-                  "test-device-label",
-                );
+              otp,
+              "test-device-token",
+              "test-device-label",
+            );
           },
         ),
       );
@@ -143,58 +141,6 @@ class AuthListenerHandler {
             style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.red,
-        ),
-      );
-    }
-
-    // Handle login send OTP status
-    if (state.loginSendOtpStatus == AuthStatus.loading) {
-      LoadingDialog.show(context);
-    } else if (state.loginSendOtpStatus == AuthStatus.success) {
-      LoadingDialog.hide(context);
-
-      // Show OTP Dialog for login
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => OtpVerificationDialog(
-          phone: state.loginPhone ?? '',
-          onVerify: (otp) {
-            context.read<AuthCubit>().loginVerifyOtp(
-                  otp,
-                  "test-device-token",
-                  "test-device-label",
-                );
-          },
-        ),
-      );
-    } else if (state.loginSendOtpStatus == AuthStatus.error) {
-      LoadingDialog.hide(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            state.errorMessage ?? 'Error sending OTP',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-
-    // Handle login verify OTP status
-    if (state.loginVerifyOtpStatus == AuthStatus.success) {
-      Navigator.pop(context); // Dismiss OTP Dialog
-      // Login success is handled by main status success
-    } else if (state.loginVerifyOtpStatus == AuthStatus.error) {
-      // Error message shown in dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            state.errorMessage ?? 'كود التحقق غير صحيح',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
         ),
       );
     }

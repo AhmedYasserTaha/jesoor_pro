@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class AuthFormController {
   // Login form controllers
   final loginPhoneController = TextEditingController();
+  final loginPasswordController = TextEditingController();
   final loginFormKey = GlobalKey<FormState>();
 
   // Signup form controllers
@@ -20,6 +21,7 @@ class AuthFormController {
 
   void dispose() {
     loginPhoneController.dispose();
+    loginPasswordController.dispose();
     signupNameController.dispose();
     signupEmailController.dispose();
     signupPasswordController.dispose();
@@ -31,6 +33,7 @@ class AuthFormController {
 
   void reset() {
     loginPhoneController.clear();
+    loginPasswordController.clear();
     signupNameController.clear();
     signupEmailController.clear();
     signupPasswordController.clear();

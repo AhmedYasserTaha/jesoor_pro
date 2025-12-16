@@ -36,8 +36,12 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
   }
 
   void _sendOtp() {
-    if (_phoneController.text.isEmpty) return;
-    context.read<AuthCubit>().forgotPasswordSendOtp(_phoneController.text);
+    if (_formKey.currentState!.validate()) {
+      final phone = _phoneController.text.trim();
+      if (phone.isNotEmpty) {
+        context.read<AuthCubit>().forgotPasswordSendOtp(phone);
+      }
+    }
   }
 
   void _resetPassword() {
@@ -94,6 +98,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
               backgroundColor: Colors.green,
             ),
           );
+          // After successful password reset, user can login normally
         } else if (state.forgotPasswordResetStatus == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

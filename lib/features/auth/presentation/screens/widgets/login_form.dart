@@ -7,12 +7,18 @@ import 'forgot_password_button.dart';
 class LoginForm extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController phoneController;
+  final TextEditingController passwordController;
+  final bool obscurePassword;
+  final VoidCallback onTogglePassword;
   final VoidCallback onLogin;
 
   const LoginForm({
     super.key,
     required this.formKey,
     required this.phoneController,
+    required this.passwordController,
+    required this.obscurePassword,
+    required this.onTogglePassword,
     required this.onLogin,
   });
 
@@ -36,6 +42,24 @@ class LoginForm extends StatelessWidget {
                 }
                 if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
                   return 'أدخل رقم هاتف مصري صحيح';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            CustomTextField(
+              controller: passwordController,
+              hintText: 'كلمة المرور',
+              obscureText: obscurePassword,
+              showPasswordToggle: true,
+              isPasswordVisible: !obscurePassword,
+              onTogglePassword: onTogglePassword,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'كلمة المرور مطلوبة';
+                }
+                if (value.length < 6) {
+                  return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
                 }
                 return null;
               },

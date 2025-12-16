@@ -149,10 +149,13 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> login(String email, String password) async {
+  Future<void> login(String phone, String password) async {
     emit(state.copyWith(status: AuthStatus.loading));
     final result = await loginUseCase(
-      LoginParams(email: email, password: password),
+      LoginParams(
+        email: phone,
+        password: password,
+      ), // Using phone as email for now
     );
     result.fold(
       (failure) => emit(

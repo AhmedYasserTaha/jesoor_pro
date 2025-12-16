@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/auth_screen.dart';
 import 'package:jesoor_pro/features/onboarding/onboarding_screen.dart';
+import 'package:jesoor_pro/features/roots/roots_screen.dart';
 import 'package:jesoor_pro/features/splash/splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -59,6 +60,16 @@ class AppRouter {
             context,
             state,
             child: const AuthScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.roots,
+        pageBuilder: (context, state) {
+          return _buildPageWithTransition(
+            context,
+            state,
+            child: const RootsScreen(),
           );
         },
       ),
