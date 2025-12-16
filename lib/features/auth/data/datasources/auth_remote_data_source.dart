@@ -21,7 +21,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.apiConsumer});
 
   @override
-  @override
   Future<UserModel> login(String email, String password) async {
     final response = await apiConsumer.post(
       EndPoints.login,

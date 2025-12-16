@@ -4,6 +4,7 @@ import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/verify_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
+import 'package:jesoor_pro/features/auth/presentation/utils/grade_utils.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final LoginUseCase loginUseCase;
@@ -36,14 +37,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void selectStage(String stage) {
-    List<String> grades = [];
-    if (stage == 'Primary') {
-      grades = List.generate(6, (i) => '${i + 1} Primary');
-    } else if (stage == 'Preparatory') {
-      grades = List.generate(3, (i) => '${i + 1} Preparatory');
-    } else if (stage == 'Secondary') {
-      grades = List.generate(3, (i) => '${i + 1} Secondary');
-    }
+    final grades = GradeUtils.getGradesForStage(stage);
     emit(
       state.copyWith(
         educationStage: stage,
@@ -55,9 +49,6 @@ class AuthCubit extends Cubit<AuthState> {
 
   void selectGrade(String grade) {
     emit(state.copyWith(educationGrade: grade));
-    // Trigger signup or just update state? Logic says finish here.
-    // But we will let the UI call signup after this or trigger it here if full data is passed.
-    // For now, just update state, UI calls signup.
   }
 
   // API Calls
@@ -112,38 +103,7 @@ class AuthCubit extends Cubit<AuthState> {
           errorMessage: failure.message,
         ),
       ),
-      (_) {
-        emit(state.copyWith(verifyOtpStatus: AuthStatus.success));
-        // Reset status after a short delay or let UI handle it?
-        // Requirement: Show success then move to step 2.
-        // We will just update step here in the same blocking flow or let UI listener handle it.
-        // Better to let UI listener handle "Success" -> Show Toast -> Call `nextSignupStep`.
-        // BUT user asked: "before step 2 show success account created".
-        // Wait, "account created" implies signup is done?
-        // The prompt says: "send otp -> verify otp -> step 2".
-        // Step 2 is likely completing the profile?
-        // The API `auth/register/verify-otp` might create the account or just verify phone.
-        // If verify-otp creates account, then we are done with "account creation".
-        // User request: "send apis of auth but do it with cubit... user sends name/phone -> send otp -> verify otp -> success -> step 2".
-
-        // I will assume Verify OTP success triggers a transition.
-        // The UI should listen to `verifyOtpStatus == success`, show dialog, then call `setSignupStep(2)`.
-        // Or I can set step 2 here. I'll stick to setting success status and let UI react,
-        // OR simply set step 2 here if I want to drive it from Logic.
-        // User said: "before step 2 show [Success msg] then go to step 2".
-
-        emit(
-          state.copyWith(signupStep: 2, verifyOtpStatus: AuthStatus.initial),
-        );
-        // Wait, if I change verifyOtpStatus back to initial immediately, UI might miss the success state.
-        // Correct flow:
-        // 1. emit(verifyOtpStatus: success)
-        // 2. UI shows message.
-        // 3. UI calls cubit.setSignupStep(2).
-
-        // However, to make it easier for the user's requirement "handle it in logic" (implied by "handlha br" which usually means handle it in code/logic),
-        // I will rely on the UI listner to see 'success' status.
-      },
+      (_) => emit(state.copyWith(verifyOtpStatus: AuthStatus.success)),
     );
   }
 
