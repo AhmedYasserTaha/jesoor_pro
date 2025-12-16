@@ -1,6 +1,7 @@
 import 'package:jesoor_pro/core/api/api_consumer.dart';
 import 'package:jesoor_pro/core/api/end_points.dart';
 import 'package:jesoor_pro/features/auth/data/models/category_model.dart';
+import 'package:jesoor_pro/features/auth/data/models/governorate_model.dart';
 import 'package:jesoor_pro/features/auth/data/models/user_model.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
@@ -19,6 +20,8 @@ abstract class AuthRemoteDataSource {
   Future<void> completeStep2(CompleteStep2Params params);
   Future<void> completeStep3(CompleteStep3Params params);
   Future<List<CategoryModel>> getCategories();
+  Future<List<CategoryModel>> getCategoryChildren(int categoryId);
+  Future<List<GovernorateModel>> getGovernorates();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -111,6 +114,37 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (data is List) {
         return data
             .map((json) => CategoryModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+    }
+    return [];
+  }
+
+  @override
+  Future<List<CategoryModel>> getCategoryChildren(int categoryId) async {
+    final response = await apiConsumer.get(EndPoints.categoryChildren(categoryId));
+    // Handle response structure: {status, message, data: [...]}
+    if (response is Map<String, dynamic> && response.containsKey('data')) {
+      final data = response['data'];
+      if (data is List) {
+        return data
+            .map((json) => CategoryModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+    }
+    return [];
+  }
+
+  @override
+  Future<List<GovernorateModel>> getGovernorates() async {
+    final response = await apiConsumer.get(EndPoints.governorates);
+    // Handle response structure: {status, message, data: [...]}
+    if (response is Map<String, dynamic> && response.containsKey('data')) {
+      final data = response['data'];
+      if (data is List) {
+        return data
+            .map((json) =>
+                GovernorateModel.fromJson(json as Map<String, dynamic>))
             .toList();
       }
     }

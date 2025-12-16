@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
+import 'package:jesoor_pro/features/auth/domain/entities/governorate_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/user_entity.dart';
 
 enum AuthStatus { initial, loading, success, error }
@@ -22,10 +23,15 @@ class AuthState extends Equatable {
   final List<CategoryEntity> selectedCategoryChildren;
   final CategoryEntity? selectedCategory;
 
+  // Governorates
+  final List<GovernorateEntity> governorates;
+  final AuthStatus getGovernoratesStatus;
+
   // Step 2 & 3 Status
   final AuthStatus completeStep2Status;
   final AuthStatus completeStep3Status;
   final AuthStatus getCategoriesStatus;
+  final AuthStatus getCategoryChildrenStatus;
 
   // OTP State
   final AuthStatus sendOtpStatus;
@@ -45,9 +51,12 @@ class AuthState extends Equatable {
     this.categories = const [],
     this.selectedCategoryChildren = const [],
     this.selectedCategory,
+    this.governorates = const [],
+    this.getGovernoratesStatus = AuthStatus.initial,
     this.completeStep2Status = AuthStatus.initial,
     this.completeStep3Status = AuthStatus.initial,
     this.getCategoriesStatus = AuthStatus.initial,
+    this.getCategoryChildrenStatus = AuthStatus.initial,
     this.sendOtpStatus = AuthStatus.initial,
     this.verifyOtpStatus = AuthStatus.initial,
     this.phone,
@@ -66,9 +75,12 @@ class AuthState extends Equatable {
     List<CategoryEntity>? categories,
     List<CategoryEntity>? selectedCategoryChildren,
     CategoryEntity? selectedCategory,
+    List<GovernorateEntity>? governorates,
+    AuthStatus? getGovernoratesStatus,
     AuthStatus? completeStep2Status,
     AuthStatus? completeStep3Status,
     AuthStatus? getCategoriesStatus,
+    AuthStatus? getCategoryChildrenStatus,
     AuthStatus? sendOtpStatus,
     AuthStatus? verifyOtpStatus,
     String? phone,
@@ -84,11 +96,17 @@ class AuthState extends Equatable {
       educationGrade: educationGrade ?? this.educationGrade,
       availableGrades: availableGrades ?? this.availableGrades,
       categories: categories ?? this.categories,
-      selectedCategoryChildren: selectedCategoryChildren ?? this.selectedCategoryChildren,
+      selectedCategoryChildren:
+          selectedCategoryChildren ?? this.selectedCategoryChildren,
       selectedCategory: selectedCategory,
+      governorates: governorates ?? this.governorates,
+      getGovernoratesStatus:
+          getGovernoratesStatus ?? this.getGovernoratesStatus,
       completeStep2Status: completeStep2Status ?? this.completeStep2Status,
       completeStep3Status: completeStep3Status ?? this.completeStep3Status,
       getCategoriesStatus: getCategoriesStatus ?? this.getCategoriesStatus,
+      getCategoryChildrenStatus:
+          getCategoryChildrenStatus ?? this.getCategoryChildrenStatus,
       sendOtpStatus: sendOtpStatus ?? this.sendOtpStatus,
       verifyOtpStatus: verifyOtpStatus ?? this.verifyOtpStatus,
       phone: phone ?? this.phone,
@@ -109,9 +127,12 @@ class AuthState extends Equatable {
     categories,
     selectedCategoryChildren,
     selectedCategory,
+    governorates,
+    getGovernoratesStatus,
     completeStep2Status,
     completeStep3Status,
     getCategoriesStatus,
+    getCategoryChildrenStatus,
     sendOtpStatus,
     verifyOtpStatus,
     phone,

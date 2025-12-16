@@ -10,6 +10,8 @@ import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dar
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_category_children_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_governorates_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
@@ -30,6 +32,8 @@ Future<void> init() async {
       completeStep2UseCase: sl(),
       completeStep3UseCase: sl(),
       getCategoriesUseCase: sl(),
+      getCategoryChildrenUseCase: sl(),
+      getGovernoratesUseCase: sl(),
     ),
   );
 
@@ -41,6 +45,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CompleteStep2UseCase(repository: sl()));
   sl.registerLazySingleton(() => CompleteStep3UseCase(repository: sl()));
   sl.registerLazySingleton(() => GetCategoriesUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetCategoryChildrenUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetGovernoratesUseCase(repository: sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(

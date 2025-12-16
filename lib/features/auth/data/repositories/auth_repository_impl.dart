@@ -3,6 +3,7 @@ import 'package:jesoor_pro/core/error/exceptions.dart';
 import 'package:jesoor_pro/core/error/failures.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
+import 'package:jesoor_pro/features/auth/domain/entities/governorate_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/user_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
@@ -118,6 +119,36 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         final categories = await remoteDataSource.getCategories();
         return Right(categories);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<CategoryEntity>>> getCategoryChildren(
+    int categoryId,
+  ) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        final children = await remoteDataSource.getCategoryChildren(categoryId);
+        return Right(children);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<GovernorateEntity>>> getGovernorates() async {
+    if (await networkInfo.hasConnection) {
+      try {
+        final governorates = await remoteDataSource.getGovernorates();
+        return Right(governorates);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
       }

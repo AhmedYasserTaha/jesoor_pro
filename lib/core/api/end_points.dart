@@ -7,4 +7,6 @@ class EndPoints {
   static const String completeStep2 = 'auth/register/complete-step2';
   static const String completeStep3 = 'auth/register/complete-step3';
   static const String categories = 'auth/categories';
+  static String categoryChildren(int id) => 'auth/categories/$id/children';
+  static const String governorates = 'auth/governorates';
 }

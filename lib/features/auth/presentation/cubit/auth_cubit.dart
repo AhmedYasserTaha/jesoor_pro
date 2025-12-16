@@ -4,6 +4,8 @@ import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_category_children_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_governorates_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
@@ -19,6 +21,8 @@ class AuthCubit extends Cubit<AuthState> {
   final CompleteStep2UseCase completeStep2UseCase;
   final CompleteStep3UseCase completeStep3UseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
+  final GetCategoryChildrenUseCase getCategoryChildrenUseCase;
+  final GetGovernoratesUseCase getGovernoratesUseCase;
 
   AuthCubit({
     required this.loginUseCase,
@@ -28,6 +32,8 @@ class AuthCubit extends Cubit<AuthState> {
     required this.completeStep2UseCase,
     required this.completeStep3UseCase,
     required this.getCategoriesUseCase,
+    required this.getCategoryChildrenUseCase,
+    required this.getGovernoratesUseCase,
   }) : super(const AuthState());
 
   // UI Interactions
@@ -99,10 +105,9 @@ class AuthCubit extends Cubit<AuthState> {
       return;
     }
     // Clear previous error
-    emit(state.copyWith(
-      verifyOtpStatus: AuthStatus.loading,
-      errorMessage: null,
-    ));
+    emit(
+      state.copyWith(verifyOtpStatus: AuthStatus.loading, errorMessage: null),
+    );
     final result = await verifyOtpUseCase(
       VerifyOtpParams(
         phone: state.phone!,
@@ -118,19 +123,17 @@ class AuthCubit extends Cubit<AuthState> {
           errorMessage: failure.message,
         ),
       ),
-      (_) => emit(state.copyWith(
-        verifyOtpStatus: AuthStatus.success,
-        errorMessage: null,
-      )),
+      (_) => emit(
+        state.copyWith(verifyOtpStatus: AuthStatus.success, errorMessage: null),
+      ),
     );
   }
 
   void clearVerifyOtpError() {
     if (state.verifyOtpStatus == AuthStatus.error) {
-      emit(state.copyWith(
-        verifyOtpStatus: AuthStatus.initial,
-        errorMessage: null,
-      ));
+      emit(
+        state.copyWith(verifyOtpStatus: AuthStatus.initial, errorMessage: null),
+      );
     }
   }
 
@@ -201,10 +204,12 @@ class AuthCubit extends Cubit<AuthState> {
         ),
       ),
       (_) {
-        emit(state.copyWith(
-          completeStep2Status: AuthStatus.success,
-          signupStep: 3, // Move to step 3 (categories)
-        ));
+        emit(
+          state.copyWith(
+            completeStep2Status: AuthStatus.success,
+            signupStep: 3, // Move to step 3 (categories)
+          ),
+        );
       },
     );
   }
@@ -229,7 +234,50 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  // Select Category (parent category, then show children)
+  // Get Category Children
+  Future<void> getCategoryChildren(int categoryId) async {
+    emit(state.copyWith(getCategoryChildrenStatus: AuthStatus.loading));
+    final result = await getCategoryChildrenUseCase(
+      GetCategoryChildrenParams(categoryId: categoryId),
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          getCategoryChildrenStatus: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (children) => emit(
+        state.copyWith(
+          selectedCategoryChildren: children,
+          getCategoryChildrenStatus: AuthStatus.success,
+          signupStep: 4, // Show children selection
+        ),
+      ),
+    );
+  }
+
+  // Get Governorates
+  Future<void> getGovernorates() async {
+    emit(state.copyWith(getGovernoratesStatus: AuthStatus.loading));
+    final result = await getGovernoratesUseCase(NoParams());
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          getGovernoratesStatus: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (governorates) => emit(
+        state.copyWith(
+          governorates: governorates,
+          getGovernoratesStatus: AuthStatus.success,
+        ),
+      ),
+    );
+  }
+
+  // Select Category (parent category, then fetch children from API)
   void selectCategory(dynamic category) {
     // category can be CategoryEntity or int (id)
     CategoryEntity? selected;
@@ -242,16 +290,10 @@ class AuthCubit extends Cubit<AuthState> {
       selected = category;
     }
 
-    if (selected != null && selected.children.isNotEmpty) {
-      // If category has children, show children for selection
-      emit(state.copyWith(
-        selectedCategory: selected,
-        selectedCategoryChildren: selected.children,
-        signupStep: 4, // Show children selection
-      ));
-    } else if (selected != null) {
-      // If category has no children, complete step 3
-      completeStep3(selected.id);
+    if (selected != null) {
+      emit(state.copyWith(selectedCategory: selected));
+      // Fetch children from API instead of using local children
+      getCategoryChildren(selected.id);
     }
   }
 
