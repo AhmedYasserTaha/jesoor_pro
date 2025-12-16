@@ -2,8 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:jesoor_pro/core/error/exceptions.dart';
 import 'package:jesoor_pro/core/error/failures.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/user_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
@@ -73,6 +76,48 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         await remoteDataSource.verifyOtp(phone, otp, deviceToken, deviceLabel);
         return const Right(null);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> completeStep2(CompleteStep2Params params) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        await remoteDataSource.completeStep2(params);
+        return const Right(null);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> completeStep3(CompleteStep3Params params) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        await remoteDataSource.completeStep3(params);
+        return const Right(null);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<CategoryEntity>>> getCategories() async {
+    if (await networkInfo.hasConnection) {
+      try {
+        final categories = await remoteDataSource.getCategories();
+        return Right(categories);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
       }

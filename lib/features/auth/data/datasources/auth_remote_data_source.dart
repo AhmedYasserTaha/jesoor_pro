@@ -1,6 +1,9 @@
 import 'package:jesoor_pro/core/api/api_consumer.dart';
 import 'package:jesoor_pro/core/api/end_points.dart';
+import 'package:jesoor_pro/features/auth/data/models/category_model.dart';
 import 'package:jesoor_pro/features/auth/data/models/user_model.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 
 abstract class AuthRemoteDataSource {
@@ -13,6 +16,9 @@ abstract class AuthRemoteDataSource {
     String deviceToken,
     String deviceLabel,
   );
+  Future<void> completeStep2(CompleteStep2Params params);
+  Future<void> completeStep3(CompleteStep3Params params);
+  Future<List<CategoryModel>> getCategories();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -72,5 +78,42 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'device_label': deviceLabel,
       },
     );
+  }
+
+  @override
+  Future<void> completeStep2(CompleteStep2Params params) async {
+    final body = <String, dynamic>{
+      'guardian_phone': params.guardianPhone,
+      'school_name': params.schoolName,
+      'governorate': params.governorate,
+    };
+    if (params.secondGuardianPhone != null &&
+        params.secondGuardianPhone!.isNotEmpty) {
+      body['second_guardian_phone'] = params.secondGuardianPhone;
+    }
+    await apiConsumer.post(EndPoints.completeStep2, body: body);
+  }
+
+  @override
+  Future<void> completeStep3(CompleteStep3Params params) async {
+    await apiConsumer.post(
+      EndPoints.completeStep3,
+      body: {'category_id': params.categoryId},
+    );
+  }
+
+  @override
+  Future<List<CategoryModel>> getCategories() async {
+    final response = await apiConsumer.get(EndPoints.categories);
+    // Handle response structure: {status, message, data: [...]}
+    if (response is Map<String, dynamic> && response.containsKey('data')) {
+      final data = response['data'];
+      if (data is List) {
+        return data
+            .map((json) => CategoryModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+    }
+    return [];
   }
 }

@@ -7,6 +7,9 @@ import 'package:jesoor_pro/core/api/interceptors.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
@@ -24,6 +27,9 @@ Future<void> init() async {
       signupUseCase: sl(),
       sendOtpUseCase: sl(),
       verifyOtpUseCase: sl(),
+      completeStep2UseCase: sl(),
+      completeStep3UseCase: sl(),
+      getCategoriesUseCase: sl(),
     ),
   );
 
@@ -32,6 +38,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SignupUseCase(repository: sl()));
   sl.registerLazySingleton(() => SendOtpUseCase(sl()));
   sl.registerLazySingleton(() => VerifyOtpUseCase(sl()));
+  sl.registerLazySingleton(() => CompleteStep2UseCase(repository: sl()));
+  sl.registerLazySingleton(() => CompleteStep3UseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetCategoriesUseCase(repository: sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(

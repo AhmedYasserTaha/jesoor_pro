@@ -77,7 +77,22 @@ class _AuthScreenState extends State<AuthScreen>
       }
     } else if (currentStep == 2) {
       if (_formController.signupFormKey.currentState!.validate()) {
-        cubit.setSignupStep(3);
+        cubit.completeStep2(
+          guardianPhone: _formController.signupParentPhoneController.text,
+          secondGuardianPhone:
+              _formController.signupParentPhoneOptController.text.isEmpty
+              ? null
+              : _formController.signupParentPhoneOptController.text,
+          schoolName: _formController.signupSchoolController.text,
+          governorate: _formController.signupGovernorateController.text,
+        );
+        // After step 2 completes, cubit will move to step 3 and load categories
+      }
+    } else if (currentStep == 3) {
+      // Step 3: Load categories if not already loaded
+      final currentState = cubit.state;
+      if (currentState.categories.isEmpty) {
+        cubit.getCategories();
       }
     } else if (currentStep == 5) {
       _performSignup();

@@ -71,11 +71,75 @@ class AuthListenerHandler {
         ),
       );
     } else if (state.verifyOtpStatus == AuthStatus.error) {
-      // Don't dismiss OTP dialog on error, just show snackbar
+      // Don't dismiss OTP dialog on error
+      // Error message will be shown inside the dialog
+      // Optionally show snackbar as well
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            state.errorMessage ?? 'Invalid OTP',
+            state.errorMessage ?? 'كود التحقق غير صحيح',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+
+    // Handle complete step 2 status
+    if (state.completeStep2Status == AuthStatus.loading) {
+      LoadingDialog.show(context);
+    } else if (state.completeStep2Status == AuthStatus.success) {
+      LoadingDialog.hide(context);
+      // Step 2 completed, move to step 3 (categories) is handled by cubit
+      // Load categories if step 3 is reached
+      if (state.signupStep == 3 && state.categories.isEmpty) {
+        context.read<AuthCubit>().getCategories();
+      }
+    } else if (state.completeStep2Status == AuthStatus.error) {
+      LoadingDialog.hide(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            state.errorMessage ?? 'Error completing step 2',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    // Handle get categories status
+    if (state.getCategoriesStatus == AuthStatus.loading) {
+      LoadingDialog.show(context);
+    } else if (state.getCategoriesStatus == AuthStatus.success) {
+      LoadingDialog.hide(context);
+      // Categories loaded successfully, UI will display them
+    } else if (state.getCategoriesStatus == AuthStatus.error) {
+      LoadingDialog.hide(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            state.errorMessage ?? 'Error loading categories',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    // Handle complete step 3 status
+    if (state.completeStep3Status == AuthStatus.loading) {
+      LoadingDialog.show(context);
+    } else if (state.completeStep3Status == AuthStatus.success) {
+      LoadingDialog.hide(context);
+      // Registration complete, handled by main status success
+    } else if (state.completeStep3Status == AuthStatus.error) {
+      LoadingDialog.hide(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            state.errorMessage ?? 'Error completing step 3',
             style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.red,

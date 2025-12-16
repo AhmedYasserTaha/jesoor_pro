@@ -59,11 +59,21 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
     }
   }
 
+  void _clearError(AuthCubit cubit) {
+    // Clear error when user starts typing
+    if (cubit.state.verifyOtpStatus == AuthStatus.error) {
+      cubit.clearVerifyOtpError();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         final isLoading = state.verifyOtpStatus == AuthStatus.loading;
+        final hasError = state.verifyOtpStatus == AuthStatus.error;
+        final errorMessage = state.errorMessage ?? 'كود التحقق غير صحيح';
+
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -108,15 +118,76 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
                           contentPadding: EdgeInsets.zero,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: hasError ? Colors.red : Colors.grey,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: hasError ? Colors.red : Colors.grey,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: hasError ? Colors.red : AppColors.primary,
+                              width: 2,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Colors.red,
+                              width: 2,
+                            ),
                           ),
                           counterText: "",
                         ),
-                        onChanged: (value) => _onDigitChanged(index, value),
+                        onChanged: (value) {
+                          _onDigitChanged(index, value);
+                          if (value.isNotEmpty) {
+                            _clearError(context.read<AuthCubit>());
+                          }
+                        },
                         enabled: !isLoading,
                       ),
                     );
                   }),
                 ),
+                if (hasError) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.red.shade700,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            errorMessage,
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 if (isLoading)
                   const CircularProgressIndicator(color: AppColors.primary)

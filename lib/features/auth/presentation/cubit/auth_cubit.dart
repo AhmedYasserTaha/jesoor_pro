@@ -1,4 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jesoor_pro/core/usecases/use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
@@ -11,12 +16,18 @@ class AuthCubit extends Cubit<AuthState> {
   final SignupUseCase signupUseCase;
   final SendOtpUseCase sendOtpUseCase;
   final VerifyOtpUseCase verifyOtpUseCase;
+  final CompleteStep2UseCase completeStep2UseCase;
+  final CompleteStep3UseCase completeStep3UseCase;
+  final GetCategoriesUseCase getCategoriesUseCase;
 
   AuthCubit({
     required this.loginUseCase,
     required this.signupUseCase,
     required this.sendOtpUseCase,
     required this.verifyOtpUseCase,
+    required this.completeStep2UseCase,
+    required this.completeStep3UseCase,
+    required this.getCategoriesUseCase,
   }) : super(const AuthState());
 
   // UI Interactions
@@ -87,7 +98,11 @@ class AuthCubit extends Cubit<AuthState> {
       );
       return;
     }
-    emit(state.copyWith(verifyOtpStatus: AuthStatus.loading));
+    // Clear previous error
+    emit(state.copyWith(
+      verifyOtpStatus: AuthStatus.loading,
+      errorMessage: null,
+    ));
     final result = await verifyOtpUseCase(
       VerifyOtpParams(
         phone: state.phone!,
@@ -103,8 +118,20 @@ class AuthCubit extends Cubit<AuthState> {
           errorMessage: failure.message,
         ),
       ),
-      (_) => emit(state.copyWith(verifyOtpStatus: AuthStatus.success)),
+      (_) => emit(state.copyWith(
+        verifyOtpStatus: AuthStatus.success,
+        errorMessage: null,
+      )),
     );
+  }
+
+  void clearVerifyOtpError() {
+    if (state.verifyOtpStatus == AuthStatus.error) {
+      emit(state.copyWith(
+        verifyOtpStatus: AuthStatus.initial,
+        errorMessage: null,
+      ));
+    }
   }
 
   Future<void> login(String email, String password) async {
@@ -147,6 +174,106 @@ class AuthCubit extends Cubit<AuthState> {
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
       (user) => emit(state.copyWith(status: AuthStatus.success, user: user)),
+    );
+  }
+
+  // Complete Step 2: Guardian info, school, governorate
+  Future<void> completeStep2({
+    required String guardianPhone,
+    String? secondGuardianPhone,
+    required String schoolName,
+    required String governorate,
+  }) async {
+    emit(state.copyWith(completeStep2Status: AuthStatus.loading));
+    final result = await completeStep2UseCase(
+      CompleteStep2Params(
+        guardianPhone: guardianPhone,
+        secondGuardianPhone: secondGuardianPhone,
+        schoolName: schoolName,
+        governorate: governorate,
+      ),
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          completeStep2Status: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) {
+        emit(state.copyWith(
+          completeStep2Status: AuthStatus.success,
+          signupStep: 3, // Move to step 3 (categories)
+        ));
+      },
+    );
+  }
+
+  // Get Categories
+  Future<void> getCategories() async {
+    emit(state.copyWith(getCategoriesStatus: AuthStatus.loading));
+    final result = await getCategoriesUseCase(NoParams());
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          getCategoriesStatus: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (categories) => emit(
+        state.copyWith(
+          categories: categories,
+          getCategoriesStatus: AuthStatus.success,
+        ),
+      ),
+    );
+  }
+
+  // Select Category (parent category, then show children)
+  void selectCategory(dynamic category) {
+    // category can be CategoryEntity or int (id)
+    CategoryEntity? selected;
+    if (category is int) {
+      selected = state.categories.firstWhere(
+        (cat) => cat.id == category,
+        orElse: () => state.categories.first,
+      );
+    } else if (category is CategoryEntity) {
+      selected = category;
+    }
+
+    if (selected != null && selected.children.isNotEmpty) {
+      // If category has children, show children for selection
+      emit(state.copyWith(
+        selectedCategory: selected,
+        selectedCategoryChildren: selected.children,
+        signupStep: 4, // Show children selection
+      ));
+    } else if (selected != null) {
+      // If category has no children, complete step 3
+      completeStep3(selected.id);
+    }
+  }
+
+  // Complete Step 3: Select final category (child category)
+  Future<void> completeStep3(int categoryId) async {
+    emit(state.copyWith(completeStep3Status: AuthStatus.loading));
+    final result = await completeStep3UseCase(
+      CompleteStep3Params(categoryId: categoryId),
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          completeStep3Status: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          completeStep3Status: AuthStatus.success,
+          status: AuthStatus.success, // Registration complete
+        ),
+      ),
     );
   }
 }

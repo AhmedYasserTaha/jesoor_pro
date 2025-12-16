@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:jesoor_pro/core/api/api_consumer.dart';
@@ -97,13 +99,16 @@ class DioConsumer implements ApiConsumer {
   }
 
   dynamic _handleResponseAsJson(Response response) {
-    // If the response is already a Map/List (handled by Dio's transformer), return it.
-    // If it's a String (due to ResponseType.plain), you might define how to parse it here if needed.
-    // For this boilerplate, assuming Dio is configured to return dynamic or we parse it if it's JSON string.
-    // Since we used responseType.plain above, we should probably change it to json or parse it.
-    // However, usually we set responseType to json. Let's fix the constructor to use json.
-    // Wait, the prompt said "full implementation".
-    // Let's assume standard JSON response.
+    // Since ResponseType.plain is used, response.data is a String
+    // We need to parse it as JSON
+    if (response.data is String) {
+      try {
+        return jsonDecode(response.data as String);
+      } catch (e) {
+        throw ServerException('Invalid JSON response: $e');
+      }
+    }
+    // If it's already parsed (Map/List), return it directly
     return response.data;
   }
 
