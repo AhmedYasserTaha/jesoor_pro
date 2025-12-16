@@ -36,12 +36,24 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
   }
 
   void _sendOtp() {
-    if (_formKey.currentState!.validate()) {
-      final phone = _phoneController.text.trim();
-      if (phone.isNotEmpty) {
-        context.read<AuthCubit>().forgotPasswordSendOtp(phone);
-      }
+    // Validate form first
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+    
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('الرجاء إدخال رقم هاتف'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
+    // Send OTP
+    context.read<AuthCubit>().forgotPasswordSendOtp(phone);
   }
 
   void _resetPassword() {
@@ -83,7 +95,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
         } else if (state.forgotPasswordSendOtpStatus == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage ?? 'Error sending OTP'),
+              content: Text(state.errorMessage ?? 'خطأ في إرسال الكود'),
               backgroundColor: Colors.red,
             ),
           );
@@ -159,7 +171,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                       if (value == null || value.isEmpty) {
                         return 'رقم الهاتف مطلوب';
                       }
-                      if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
+                      final trimmedValue = value.trim();
+                      if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(trimmedValue)) {
                         return 'أدخل رقم هاتف مصري صحيح';
                       }
                       return null;
@@ -171,10 +184,17 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                       final isLoading =
                           state.forgotPasswordSendOtpStatus ==
                           AuthStatus.loading;
-                      return CustomButton(
-                        text: "إرسال الكود",
-                        onPressed: isLoading ? () {} : _sendOtp,
-                      );
+                      return isLoading
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : CustomButton(
+                              text: "إرسال الكود",
+                              onPressed: _sendOtp,
+                            );
                     },
                   ),
                 ] else if (_currentStep ==

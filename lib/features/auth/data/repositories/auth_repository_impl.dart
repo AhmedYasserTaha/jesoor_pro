@@ -201,11 +201,17 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         await remoteDataSource.forgotPasswordSendOtp(phone);
         return const Right(null);
-      } on ServerException catch (failure) {
-        return Left(ServerFailure(message: failure.message));
+      } on ServerException catch (_) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+      } on NotFoundException catch (_) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+      } on UnauthorizedException catch (_) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+      } catch (_) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -225,11 +231,17 @@ class AuthRepositoryImpl implements AuthRepository {
           confirmPassword,
         );
         return const Right(null);
-      } on ServerException catch (failure) {
-        return Left(ServerFailure(message: failure.message));
+      } on ServerException catch (_) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+      } on NotFoundException catch (_) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+      } on UnauthorizedException catch (_) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
+      } catch (e) {
+        return const Left(ServerFailure(message: "حدث خطأ ما، يرجى المحاولة مرة أخرى"));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 }

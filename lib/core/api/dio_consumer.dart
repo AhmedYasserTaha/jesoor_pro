@@ -117,34 +117,27 @@ class DioConsumer implements ApiConsumer {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        throw const ServerException('Connection timeout');
+        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
       case DioExceptionType.badResponse:
+        // For all error responses, show a generic message to user
         switch (error.response?.statusCode) {
           case 400:
-            throw const ServerException('Bad Request');
           case 401:
-            throw const UnauthorizedException('Unauthorized');
           case 403:
-            throw const ServerException('Forbidden');
           case 404:
-            throw const NotFoundException('Not Found');
           case 409:
-            throw const ConflictException('Conflict');
           case 500:
-            throw const InternalServerErrorException('Internal Server Error');
           default:
-            throw ServerException(
-              'Bad Response: ${error.response?.statusCode}',
-            );
+            throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
         }
       case DioExceptionType.cancel:
-        throw const ServerException('Request Cancelled');
+        throw const ServerException('تم إلغاء الطلب');
       case DioExceptionType.unknown:
-        throw const ServerException('Unknown Error');
+        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
       case DioExceptionType.badCertificate:
-        throw const ServerException('Bad Certificate');
+        throw const ServerException('حدث خطأ ما، يرجى المحاولة مرة أخرى');
       case DioExceptionType.connectionError:
-        throw const NoInternetConnectionException('No Internet Connection');
+        throw const NoInternetConnectionException('لا يوجد اتصال بالإنترنت');
     }
   }
 }
