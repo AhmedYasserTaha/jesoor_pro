@@ -9,9 +9,13 @@ import 'package:jesoor_pro/features/auth/data/repositories/auth_repository_impl.
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/forgot_password_reset_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/forgot_password_send_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_category_children_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_governorates_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/login_send_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/login_verify_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
@@ -26,9 +30,13 @@ Future<void> init() async {
   sl.registerFactory(
     () => AuthCubit(
       loginUseCase: sl(),
+      loginSendOtpUseCase: sl(),
+      loginVerifyOtpUseCase: sl(),
       signupUseCase: sl(),
       sendOtpUseCase: sl(),
       verifyOtpUseCase: sl(),
+      forgotPasswordSendOtpUseCase: sl(),
+      forgotPasswordResetUseCase: sl(),
       completeStep2UseCase: sl(),
       completeStep3UseCase: sl(),
       getCategoriesUseCase: sl(),
@@ -39,9 +47,15 @@ Future<void> init() async {
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(repository: sl()));
+  sl.registerLazySingleton(() => LoginSendOtpUseCase(repository: sl()));
+  sl.registerLazySingleton(() => LoginVerifyOtpUseCase(repository: sl()));
   sl.registerLazySingleton(() => SignupUseCase(repository: sl()));
   sl.registerLazySingleton(() => SendOtpUseCase(sl()));
   sl.registerLazySingleton(() => VerifyOtpUseCase(sl()));
+  sl.registerLazySingleton(
+    () => ForgotPasswordSendOtpUseCase(repository: sl()),
+  );
+  sl.registerLazySingleton(() => ForgotPasswordResetUseCase(repository: sl()));
   sl.registerLazySingleton(() => CompleteStep2UseCase(repository: sl()));
   sl.registerLazySingleton(() => CompleteStep3UseCase(repository: sl()));
   sl.registerLazySingleton(() => GetCategoriesUseCase(repository: sl()));

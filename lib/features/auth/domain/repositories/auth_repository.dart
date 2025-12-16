@@ -9,6 +9,13 @@ import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, UserEntity>> login(String email, String password);
+  Future<Either<Failure, void>> loginSendOtp(String phone);
+  Future<Either<Failure, UserEntity>> loginVerifyOtp(
+    String phone,
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  );
   Future<Either<Failure, UserEntity>> signup(SignupParams params);
   Future<Either<Failure, void>> sendOtp(String name, String phone);
   Future<Either<Failure, void>> verifyOtp(
@@ -16,6 +23,13 @@ abstract class AuthRepository {
     String otp,
     String deviceToken,
     String deviceLabel,
+  );
+  Future<Either<Failure, void>> forgotPasswordSendOtp(String phone);
+  Future<Either<Failure, void>> forgotPasswordReset(
+    String phone,
+    String otp,
+    String newPassword,
+    String confirmPassword,
   );
   Future<Either<Failure, void>> completeStep2(CompleteStep2Params params);
   Future<Either<Failure, void>> completeStep3(CompleteStep3Params params);

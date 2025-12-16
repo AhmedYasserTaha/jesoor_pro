@@ -38,6 +38,15 @@ class AuthState extends Equatable {
   final AuthStatus verifyOtpStatus;
   final String? phone;
 
+  // Login OTP State
+  final AuthStatus loginSendOtpStatus;
+  final AuthStatus loginVerifyOtpStatus;
+  final String? loginPhone;
+
+  // Forgot Password State
+  final AuthStatus forgotPasswordSendOtpStatus;
+  final AuthStatus forgotPasswordResetStatus;
+
   const AuthState({
     this.status = AuthStatus.initial,
     this.user,
@@ -60,6 +69,11 @@ class AuthState extends Equatable {
     this.sendOtpStatus = AuthStatus.initial,
     this.verifyOtpStatus = AuthStatus.initial,
     this.phone,
+    this.loginSendOtpStatus = AuthStatus.initial,
+    this.loginVerifyOtpStatus = AuthStatus.initial,
+    this.loginPhone,
+    this.forgotPasswordSendOtpStatus = AuthStatus.initial,
+    this.forgotPasswordResetStatus = AuthStatus.initial,
   });
 
   AuthState copyWith({
@@ -84,6 +98,11 @@ class AuthState extends Equatable {
     AuthStatus? sendOtpStatus,
     AuthStatus? verifyOtpStatus,
     String? phone,
+    AuthStatus? loginSendOtpStatus,
+    AuthStatus? loginVerifyOtpStatus,
+    String? loginPhone,
+    AuthStatus? forgotPasswordSendOtpStatus,
+    AuthStatus? forgotPasswordResetStatus,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -110,6 +129,11 @@ class AuthState extends Equatable {
       sendOtpStatus: sendOtpStatus ?? this.sendOtpStatus,
       verifyOtpStatus: verifyOtpStatus ?? this.verifyOtpStatus,
       phone: phone ?? this.phone,
+      loginSendOtpStatus: loginSendOtpStatus ?? this.loginSendOtpStatus,
+      loginVerifyOtpStatus: loginVerifyOtpStatus ?? this.loginVerifyOtpStatus,
+      loginPhone: loginPhone ?? this.loginPhone,
+      forgotPasswordSendOtpStatus: forgotPasswordSendOtpStatus ?? this.forgotPasswordSendOtpStatus,
+      forgotPasswordResetStatus: forgotPasswordResetStatus ?? this.forgotPasswordResetStatus,
     );
   }
 
@@ -136,5 +160,10 @@ class AuthState extends Equatable {
     sendOtpStatus,
     verifyOtpStatus,
     phone,
+    loginSendOtpStatus,
+    loginVerifyOtpStatus,
+    loginPhone,
+    forgotPasswordSendOtpStatus,
+    forgotPasswordResetStatus,
   ];
 }

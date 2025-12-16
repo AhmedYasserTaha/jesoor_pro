@@ -146,5 +146,57 @@ class AuthListenerHandler {
         ),
       );
     }
+
+    // Handle login send OTP status
+    if (state.loginSendOtpStatus == AuthStatus.loading) {
+      LoadingDialog.show(context);
+    } else if (state.loginSendOtpStatus == AuthStatus.success) {
+      LoadingDialog.hide(context);
+
+      // Show OTP Dialog for login
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => OtpVerificationDialog(
+          phone: state.loginPhone ?? '',
+          onVerify: (otp) {
+            context.read<AuthCubit>().loginVerifyOtp(
+                  otp,
+                  "test-device-token",
+                  "test-device-label",
+                );
+          },
+        ),
+      );
+    } else if (state.loginSendOtpStatus == AuthStatus.error) {
+      LoadingDialog.hide(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            state.errorMessage ?? 'Error sending OTP',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    // Handle login verify OTP status
+    if (state.loginVerifyOtpStatus == AuthStatus.success) {
+      Navigator.pop(context); // Dismiss OTP Dialog
+      // Login success is handled by main status success
+    } else if (state.loginVerifyOtpStatus == AuthStatus.error) {
+      // Error message shown in dialog
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            state.errorMessage ?? 'كود التحقق غير صحيح',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }

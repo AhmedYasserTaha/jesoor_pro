@@ -39,6 +39,44 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> loginSendOtp(String phone) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        await remoteDataSource.loginSendOtp(phone);
+        return const Right(null);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> loginVerifyOtp(
+    String phone,
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  ) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        final remoteUser = await remoteDataSource.loginVerifyOtp(
+          phone,
+          otp,
+          deviceToken,
+          deviceLabel,
+        );
+        return Right(remoteUser);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
   Future<Either<Failure, UserEntity>> signup(SignupParams params) async {
     if (await networkInfo.hasConnection) {
       try {
@@ -149,6 +187,44 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         final governorates = await remoteDataSource.getGovernorates();
         return Right(governorates);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> forgotPasswordSendOtp(String phone) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        await remoteDataSource.forgotPasswordSendOtp(phone);
+        return const Right(null);
+      } on ServerException catch (failure) {
+        return Left(ServerFailure(message: failure.message));
+      }
+    } else {
+      return const Left(CacheFailure(message: "No Internet Connection"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> forgotPasswordReset(
+    String phone,
+    String otp,
+    String newPassword,
+    String confirmPassword,
+  ) async {
+    if (await networkInfo.hasConnection) {
+      try {
+        await remoteDataSource.forgotPasswordReset(
+          phone,
+          otp,
+          newPassword,
+          confirmPassword,
+        );
+        return const Right(null);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
       }

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 /// Manages all form controllers for authentication screens
 class AuthFormController {
   // Login form controllers
-  final loginEmailController = TextEditingController();
-  final loginPasswordController = TextEditingController();
+  final loginPhoneController = TextEditingController();
   final loginFormKey = GlobalKey<FormState>();
 
   // Signup form controllers
@@ -20,8 +19,7 @@ class AuthFormController {
   final signupGovernorateController = TextEditingController();
 
   void dispose() {
-    loginEmailController.dispose();
-    loginPasswordController.dispose();
+    loginPhoneController.dispose();
     signupNameController.dispose();
     signupEmailController.dispose();
     signupPasswordController.dispose();
@@ -32,8 +30,7 @@ class AuthFormController {
   }
 
   void reset() {
-    loginEmailController.clear();
-    loginPasswordController.clear();
+    loginPhoneController.clear();
     signupNameController.clear();
     signupEmailController.clear();
     signupPasswordController.clear();

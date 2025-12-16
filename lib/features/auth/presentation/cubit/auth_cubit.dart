@@ -3,9 +3,13 @@ import 'package:jesoor_pro/core/usecases/use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/forgot_password_reset_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/forgot_password_send_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_category_children_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/get_governorates_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/login_send_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/login_verify_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
@@ -15,9 +19,13 @@ import 'package:jesoor_pro/features/auth/presentation/utils/grade_utils.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final LoginUseCase loginUseCase;
+  final LoginSendOtpUseCase loginSendOtpUseCase;
+  final LoginVerifyOtpUseCase loginVerifyOtpUseCase;
   final SignupUseCase signupUseCase;
   final SendOtpUseCase sendOtpUseCase;
   final VerifyOtpUseCase verifyOtpUseCase;
+  final ForgotPasswordSendOtpUseCase forgotPasswordSendOtpUseCase;
+  final ForgotPasswordResetUseCase forgotPasswordResetUseCase;
   final CompleteStep2UseCase completeStep2UseCase;
   final CompleteStep3UseCase completeStep3UseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
@@ -26,9 +34,13 @@ class AuthCubit extends Cubit<AuthState> {
 
   AuthCubit({
     required this.loginUseCase,
+    required this.loginSendOtpUseCase,
+    required this.loginVerifyOtpUseCase,
     required this.signupUseCase,
     required this.sendOtpUseCase,
     required this.verifyOtpUseCase,
+    required this.forgotPasswordSendOtpUseCase,
+    required this.forgotPasswordResetUseCase,
     required this.completeStep2UseCase,
     required this.completeStep3UseCase,
     required this.getCategoriesUseCase,
@@ -147,6 +159,123 @@ class AuthCubit extends Cubit<AuthState> {
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
       (user) => emit(state.copyWith(status: AuthStatus.success, user: user)),
+    );
+  }
+
+  // Login with OTP flow
+  Future<void> loginSendOtp(String phone) async {
+    emit(state.copyWith(loginSendOtpStatus: AuthStatus.loading));
+    final result = await loginSendOtpUseCase(LoginSendOtpParams(phone: phone));
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          loginSendOtpStatus: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          loginSendOtpStatus: AuthStatus.success,
+          loginPhone: phone,
+        ),
+      ),
+    );
+  }
+
+  Future<void> loginVerifyOtp(
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  ) async {
+    if (state.loginPhone == null) {
+      emit(
+        state.copyWith(
+          loginVerifyOtpStatus: AuthStatus.error,
+          errorMessage: "Phone number is missing",
+        ),
+      );
+      return;
+    }
+    emit(state.copyWith(loginVerifyOtpStatus: AuthStatus.loading));
+    final result = await loginVerifyOtpUseCase(
+      LoginVerifyOtpParams(
+        phone: state.loginPhone!,
+        otp: otp,
+        deviceToken: deviceToken,
+        deviceLabel: deviceLabel,
+      ),
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          loginVerifyOtpStatus: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (user) => emit(
+        state.copyWith(
+          loginVerifyOtpStatus: AuthStatus.success,
+          status: AuthStatus.success,
+          user: user,
+        ),
+      ),
+    );
+  }
+
+  // Forgot Password flow
+  Future<void> forgotPasswordSendOtp(String phone) async {
+    emit(state.copyWith(forgotPasswordSendOtpStatus: AuthStatus.loading));
+    final result = await forgotPasswordSendOtpUseCase(
+      ForgotPasswordSendOtpParams(phone: phone),
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          forgotPasswordSendOtpStatus: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          forgotPasswordSendOtpStatus: AuthStatus.success,
+          loginPhone: phone, // Reuse loginPhone for forgot password
+        ),
+      ),
+    );
+  }
+
+  Future<void> forgotPasswordReset(
+    String otp,
+    String newPassword,
+    String confirmPassword,
+  ) async {
+    if (state.loginPhone == null) {
+      emit(
+        state.copyWith(
+          forgotPasswordResetStatus: AuthStatus.error,
+          errorMessage: "Phone number is missing",
+        ),
+      );
+      return;
+    }
+    emit(state.copyWith(forgotPasswordResetStatus: AuthStatus.loading));
+    final result = await forgotPasswordResetUseCase(
+      ForgotPasswordResetParams(
+        phone: state.loginPhone!,
+        otp: otp,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      ),
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          forgotPasswordResetStatus: AuthStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) =>
+          emit(state.copyWith(forgotPasswordResetStatus: AuthStatus.success)),
     );
   }
 

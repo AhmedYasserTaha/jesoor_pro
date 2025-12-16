@@ -9,6 +9,13 @@ import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
+  Future<void> loginSendOtp(String phone);
+  Future<UserModel> loginVerifyOtp(
+    String phone,
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  );
   Future<UserModel> signup(SignupParams params);
   Future<void> sendOtp(String name, String phone);
   Future<void> verifyOtp(
@@ -16,6 +23,13 @@ abstract class AuthRemoteDataSource {
     String otp,
     String deviceToken,
     String deviceLabel,
+  );
+  Future<void> forgotPasswordSendOtp(String phone);
+  Future<void> forgotPasswordReset(
+    String phone,
+    String otp,
+    String newPassword,
+    String confirmPassword,
   );
   Future<void> completeStep2(CompleteStep2Params params);
   Future<void> completeStep3(CompleteStep3Params params);
@@ -149,5 +163,58 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     }
     return [];
+  }
+
+  @override
+  Future<void> loginSendOtp(String phone) async {
+    await apiConsumer.post(
+      EndPoints.loginSendOtp,
+      body: {'phone': phone},
+    );
+  }
+
+  @override
+  Future<UserModel> loginVerifyOtp(
+    String phone,
+    String otp,
+    String deviceToken,
+    String deviceLabel,
+  ) async {
+    final response = await apiConsumer.post(
+      EndPoints.loginVerifyOtp,
+      body: {
+        'phone': phone,
+        'otp': otp,
+        'device_token': deviceToken,
+        'device_label': deviceLabel,
+      },
+    );
+    return UserModel.fromJson(response);
+  }
+
+  @override
+  Future<void> forgotPasswordSendOtp(String phone) async {
+    await apiConsumer.post(
+      EndPoints.forgotPasswordSendOtp,
+      body: {'phone': phone},
+    );
+  }
+
+  @override
+  Future<void> forgotPasswordReset(
+    String phone,
+    String otp,
+    String newPassword,
+    String confirmPassword,
+  ) async {
+    await apiConsumer.post(
+      EndPoints.forgotPasswordReset,
+      body: {
+        'phone': phone,
+        'otp': otp,
+        'new_password': newPassword,
+        'confirm_password': confirmPassword,
+      },
+    );
   }
 }
