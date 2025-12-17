@@ -6,6 +6,7 @@ import '../../../../../core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/widgets/selection_card.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/governorate_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
+import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 
 class SignupForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
@@ -28,12 +29,23 @@ class SignupForm extends StatefulWidget {
   final Function(String) onSystemSelect;
   final Function(String) onStageSelect;
   final Function(String) onGradeSelect;
-  final Function(CategoryEntity) onCategorySelect; // For selecting category
+  final Function(CategoryEntity)
+  onCategorySelect; // For selecting parent category (step 3)
+  final Function(CategoryEntity)
+  onChildCategorySelect; // For selecting child category (step 4) - calls completeStep3
 
   // Data for selections
   final List<String> availableGrades; // passed from parent based on stage
   final List<GovernorateEntity> availableGovernorates; // passed from parent
-  final List<CategoryEntity> availableCategories; // passed from parent
+  final List<CategoryEntity>
+  availableCategories; // passed from parent - for step 3 (parent categories)
+  final List<CategoryEntity>
+  availableCategoryChildren; // passed from parent - for step 4 (child categories)
+
+  // Loading states from AuthCubit
+  final AuthStatus getCategoriesStatus; // Loading state for parent categories
+  final AuthStatus
+  getCategoryChildrenStatus; // Loading state for child categories
 
   const SignupForm({
     super.key,
@@ -54,9 +66,13 @@ class SignupForm extends StatefulWidget {
     required this.onStageSelect,
     required this.onGradeSelect,
     required this.onCategorySelect,
+    required this.onChildCategorySelect,
     this.availableGrades = const [],
     this.availableGovernorates = const [],
     this.availableCategories = const [],
+    this.availableCategoryChildren = const [],
+    this.getCategoriesStatus = AuthStatus.initial,
+    this.getCategoryChildrenStatus = AuthStatus.initial,
   });
 
   @override
@@ -92,53 +108,96 @@ class _SignupFormState extends State<SignupForm> {
   @override
   Widget build(BuildContext context) {
     if (widget.step == 3) {
+      // Show loading if categories are being fetched or if categories list is empty and status is loading
+      final isLoadingCategories =
+          widget.getCategoriesStatus == AuthStatus.loading ||
+          (widget.availableCategories.isEmpty &&
+              widget.getCategoriesStatus == AuthStatus.loading);
+      final isLoadingChildren =
+          widget.getCategoryChildrenStatus == AuthStatus.loading;
+
       return SingleChildScrollView(
         padding: const EdgeInsets.all(AppDimensions.formPadding),
-        child: Column(
+        child: Stack(
           children: [
-            if (widget.availableCategories.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else
-              ...widget.availableCategories.map((category) {
-                return Column(
-                  children: [
-                    SelectionCard(
-                      text: category.name,
-                      onTap: () => widget.onCategorySelect(category),
+            Column(
+              children: [
+                if (isLoadingCategories && widget.availableCategories.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(),
                     ),
-                    const SizedBox(height: 10),
-                  ],
-                );
-              }).toList(),
+                  )
+                else if (widget.availableCategories.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text('لا توجد فئات متاحة'),
+                    ),
+                  )
+                else
+                  ...widget.availableCategories.map((category) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: SelectionCard(
+                        text: category.name,
+                        onTap: (isLoadingChildren || isLoadingCategories)
+                            ? () {}
+                            : () => widget.onCategorySelect(category),
+                      ),
+                    );
+                  }).toList(),
+              ],
+            ),
+            // Show loading overlay when fetching children after selecting a parent
+            if (isLoadingChildren && widget.availableCategories.isNotEmpty)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.white.withOpacity(0.7),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ),
           ],
         ),
       );
     }
 
     if (widget.step == 4) {
+      // Show loading if children categories are being fetched
+      final isLoadingChildren =
+          widget.getCategoryChildrenStatus == AuthStatus.loading;
+
       return SingleChildScrollView(
         padding: const EdgeInsets.all(AppDimensions.formPadding),
         child: Column(
           children: [
-            SelectionCard(
-              text: Strings.primary,
-              onTap: () => widget.onStageSelect(Strings.primary),
-            ),
-            const SizedBox(height: 10),
-            SelectionCard(
-              text: Strings.preparatory,
-              onTap: () => widget.onStageSelect(Strings.preparatory),
-            ),
-            const SizedBox(height: 10),
-            SelectionCard(
-              text: Strings.secondary,
-              onTap: () => widget.onStageSelect(Strings.secondary),
-            ),
+            if (isLoadingChildren && widget.availableCategoryChildren.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (widget.availableCategoryChildren.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text('لا توجد فئات فرعية متاحة'),
+                ),
+              )
+            else
+              ...widget.availableCategoryChildren.map((childCategory) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: SelectionCard(
+                    text: childCategory.name,
+                    onTap: isLoadingChildren
+                        ? () {}
+                        : () => widget.onChildCategorySelect(childCategory),
+                  ),
+                );
+              }).toList(),
           ],
         ),
       );

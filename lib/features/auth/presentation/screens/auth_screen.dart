@@ -225,10 +225,19 @@ class _AuthScreenState extends State<AuthScreen>
                                         onCategorySelect: (category) {
                                           cubit.selectCategory(category);
                                         },
+                                        onChildCategorySelect: (category) {
+                                          cubit.completeStep3(category.id);
+                                        },
                                         availableGrades: state.availableGrades,
                                         availableGovernorates:
                                             state.governorates,
                                         availableCategories: state.categories,
+                                        availableCategoryChildren:
+                                            state.selectedCategoryChildren,
+                                        getCategoriesStatus:
+                                            state.getCategoriesStatus,
+                                        getCategoryChildrenStatus:
+                                            state.getCategoryChildrenStatus,
                                       ),
                                     ),
                                   ],
