@@ -9,6 +9,7 @@ class Strings {
   static const String cancel = 'إلغاء';
   static const String confirm = 'تأكيد';
   static const String next = 'التالي';
+  static const String back = 'رجوع';
   static const String save = 'حفظ';
   static const String verify = 'تحقق';
   static const String signup = 'إنشاء حساب';

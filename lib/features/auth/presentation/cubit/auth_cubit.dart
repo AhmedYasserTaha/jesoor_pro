@@ -74,6 +74,14 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(signupStep: step));
   }
 
+  void previousSignupStep() {
+    // Allow going back from steps 3, 4, 5
+    if (state.signupStep > 1 && state.signupStep <= 5) {
+      final previousStep = state.signupStep - 1;
+      emit(state.copyWith(signupStep: previousStep));
+    }
+  }
+
   void selectSystem(String system) {
     emit(state.copyWith(educationSystem: system, signupStep: 4));
   }

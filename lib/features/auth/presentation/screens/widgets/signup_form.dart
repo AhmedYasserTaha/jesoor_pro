@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_dimensions.dart';
+import 'package:jesoor_pro/config/theme/app_colors.dart';
 import '../../../../../core/widgets/custom_text_field.dart';
 import '../../../../../core/widgets/custom_button.dart';
 import '../../../../../core/utils/strings.dart';
@@ -33,6 +34,7 @@ class SignupForm extends StatefulWidget {
   onCategorySelect; // For selecting parent category (step 3)
   final Function(CategoryEntity)
   onChildCategorySelect; // For selecting child category (step 4) - calls completeStep3
+  final VoidCallback? onBack; // Callback to go back to previous step
 
   // Data for selections
   final List<String> availableGrades; // passed from parent based on stage
@@ -42,6 +44,9 @@ class SignupForm extends StatefulWidget {
   final List<CategoryEntity>
   availableCategoryChildren; // passed from parent - for step 4 (child categories)
   final String? selectedGrade; // Selected grade for step 5
+  final CategoryEntity? selectedCategory; // Selected category for step 3
+  final CategoryEntity?
+  selectedChildCategory; // Selected child category for step 4
 
   // Loading states from AuthCubit
   final AuthStatus getCategoriesStatus; // Loading state for parent categories
@@ -68,11 +73,14 @@ class SignupForm extends StatefulWidget {
     required this.onGradeSelect,
     required this.onCategorySelect,
     required this.onChildCategorySelect,
+    this.onBack,
     this.availableGrades = const [],
     this.availableGovernorates = const [],
     this.availableCategories = const [],
     this.availableCategoryChildren = const [],
     this.selectedGrade,
+    this.selectedCategory,
+    this.selectedChildCategory,
     this.getCategoriesStatus = AuthStatus.initial,
     this.getCategoryChildrenStatus = AuthStatus.initial,
   });
@@ -96,22 +104,37 @@ class _SignupFormState extends State<SignupForm> {
         ? null
         : widget.governorateController.text;
     widget.governorateController.addListener(_onGovernorateChanged);
-    // Initialize temp selected grade from widget if available
+    // Initialize temp selections from widget state
     _tempSelectedGrade = widget.selectedGrade;
+    _tempSelectedCategory = widget.selectedCategory;
+    _tempSelectedChildCategory = widget.selectedChildCategory;
   }
 
   @override
   void didUpdateWidget(SignupForm oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update temp selected grade if widget's selectedGrade changes
+    // Update temp selections if widget's selections change
     if (widget.selectedGrade != oldWidget.selectedGrade) {
       _tempSelectedGrade = widget.selectedGrade;
     }
-    // Reset temp selections when step changes
+    if (widget.selectedCategory != oldWidget.selectedCategory) {
+      _tempSelectedCategory = widget.selectedCategory;
+    }
+    if (widget.selectedChildCategory != oldWidget.selectedChildCategory) {
+      _tempSelectedChildCategory = widget.selectedChildCategory;
+    }
+    // Initialize temp selections when step changes (to show previous selections)
     if (widget.step != oldWidget.step) {
-      _tempSelectedCategory = null;
-      _tempSelectedChildCategory = null;
-      _tempSelectedGrade = null;
+      // Initialize from saved state when navigating to a step
+      if (widget.step == 3) {
+        _tempSelectedCategory = widget.selectedCategory;
+      }
+      if (widget.step == 4) {
+        _tempSelectedChildCategory = widget.selectedChildCategory;
+      }
+      if (widget.step == 5) {
+        _tempSelectedGrade = widget.selectedGrade;
+      }
     }
   }
 
@@ -173,6 +196,19 @@ class _SignupFormState extends State<SignupForm> {
             ),
             child: Column(
               children: [
+                // Back button
+                if (widget.onBack != null)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: widget.onBack,
+                      icon: const Icon(Icons.arrow_back, size: 20),
+                      label: Text(Strings.back),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                      ),
+                    ),
+                  ),
                 if (isLoadingCategories && widget.availableCategories.isEmpty)
                   const Center(
                     child: Padding(
@@ -256,6 +292,19 @@ class _SignupFormState extends State<SignupForm> {
             ),
             child: Column(
               children: [
+                // Back button
+                if (widget.onBack != null)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: widget.onBack,
+                      icon: const Icon(Icons.arrow_back, size: 20),
+                      label: Text(Strings.back),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                      ),
+                    ),
+                  ),
                 if (isLoadingChildren &&
                     widget.availableCategoryChildren.isEmpty)
                   const Center(
@@ -331,6 +380,19 @@ class _SignupFormState extends State<SignupForm> {
             ),
             child: Column(
               children: [
+                // Back button
+                if (widget.onBack != null)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: widget.onBack,
+                      icon: const Icon(Icons.arrow_back, size: 20),
+                      label: Text(Strings.back),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                      ),
+                    ),
+                  ),
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),

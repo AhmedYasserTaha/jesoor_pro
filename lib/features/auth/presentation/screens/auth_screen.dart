@@ -228,6 +228,11 @@ class _AuthScreenState extends State<AuthScreen>
                                         onChildCategorySelect: (category) {
                                           cubit.completeStep3(category.id);
                                         },
+                                        onBack:
+                                            state.signupStep > 1 &&
+                                                state.signupStep <= 5
+                                            ? () => cubit.previousSignupStep()
+                                            : null,
                                         availableGrades: state.availableGrades,
                                         availableGovernorates:
                                             state.governorates,
@@ -235,6 +240,10 @@ class _AuthScreenState extends State<AuthScreen>
                                         availableCategoryChildren:
                                             state.selectedCategoryChildren,
                                         selectedGrade: state.educationGrade,
+                                        selectedCategory:
+                                            state.selectedCategory,
+                                        selectedChildCategory:
+                                            null, // Will be handled by temp selection
                                         getCategoriesStatus:
                                             state.getCategoriesStatus,
                                         getCategoryChildrenStatus:
