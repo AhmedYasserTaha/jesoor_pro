@@ -23,8 +23,8 @@ class AuthTabBar extends StatelessWidget {
         indicatorColor: AppColors.primary,
         indicatorWeight: 3,
         tabs: const [
-          Tab(text: 'LOGIN'),
-          Tab(text: 'SIGNUP'),
+          Tab(text: 'تسجيل الدخول'),
+          Tab(text: 'إنشاء حساب'),
         ],
       ),
     );

@@ -159,7 +159,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           verifyOtpStatus: AuthStatus.error,
-          errorMessage: "Phone number is missing",
+          errorMessage: "رقم الهاتف مفقود",
         ),
       );
       return;
@@ -243,7 +243,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           loginVerifyOtpStatus: AuthStatus.error,
-          errorMessage: "Phone number is missing",
+          errorMessage: "رقم الهاتف مفقود",
         ),
       );
       return;
@@ -305,7 +305,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           forgotPasswordResetStatus: AuthStatus.error,
-          errorMessage: "Phone number is missing",
+          errorMessage: "رقم الهاتف مفقود",
         ),
       );
       return;

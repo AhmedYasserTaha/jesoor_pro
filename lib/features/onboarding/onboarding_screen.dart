@@ -42,31 +42,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: _onPageChanged,
-                itemCount: onboardingPages.length,
-                itemBuilder: (context, index) {
-                  return OnboardingPage(
-                    data: onboardingPages[index],
-                    index: index,
-                  );
-                },
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: onboardingPages.length,
+                  itemBuilder: (context, index) {
+                    return OnboardingPage(
+                      data: onboardingPages[index],
+                      index: index,
+                    );
+                  },
+                ),
               ),
-            ),
 
-            OnboardingBottomControls(
-              currentPage: _currentPage,
-              onSkip: _navigateToAuth,
-              onNext: _nextPage,
-            ),
-          ],
+              OnboardingBottomControls(
+                currentPage: _currentPage,
+                onSkip: _navigateToAuth,
+                onNext: _nextPage,
+              ),
+            ],
+          ),
         ),
       ),
     );

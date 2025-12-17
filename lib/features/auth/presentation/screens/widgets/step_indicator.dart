@@ -20,11 +20,11 @@ class StepIndicator extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStepItem(1, "Personal Data", currentStep >= 1),
+            _buildStepItem(1, "البيانات الشخصية", currentStep >= 1),
             _buildDashedLine(),
-            _buildStepItem(2, "Parent Data", currentStep >= 2),
+            _buildStepItem(2, "بيانات ولي الأمر", currentStep >= 2),
             _buildDashedLine(),
-            _buildStepItem(3, "Grade Selection", currentStep >= 3),
+            _buildStepItem(3, "اختيار الصف", currentStep >= 3),
           ],
         ),
       ),

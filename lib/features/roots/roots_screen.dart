@@ -14,9 +14,9 @@ class _RootsScreenState extends State<RootsScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const PlaceholderScreen(title: 'Screen 2'),
-    const PlaceholderScreen(title: 'Screen 3'),
-    const PlaceholderScreen(title: 'Screen 4'),
+    const PlaceholderScreen(title: 'الشاشة 2'),
+    const PlaceholderScreen(title: 'الشاشة 3'),
+    const PlaceholderScreen(title: 'الشاشة 4'),
   ];
 
   @override

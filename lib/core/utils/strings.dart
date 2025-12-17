@@ -2,94 +2,91 @@ class Strings {
   // App Info
   static const String appName = 'Jesoor Pro';
   static const String fontFamily = 'Tajawal';
-  static const String noRouteFound = 'No Route Found';
+  static const String noRouteFound = 'الصفحة غير موجودة';
 
   // Common
-  static const String ok = 'OK';
-  static const String cancel = 'Cancel';
-  static const String confirm = 'Confirm';
-  static const String next = 'Next';
-  static const String save = 'SAVE';
-  static const String verify = 'VERIFY';
-  static const String signup = 'SIGNUP';
-  static const String login = 'LOGIN';
+  static const String ok = 'موافق';
+  static const String cancel = 'إلغاء';
+  static const String confirm = 'تأكيد';
+  static const String next = 'التالي';
+  static const String save = 'حفظ';
+  static const String verify = 'تحقق';
+  static const String signup = 'إنشاء حساب';
+  static const String login = 'تسجيل الدخول';
 
   // Auth - Login
-  static const String phoneNumber = 'Phone number';
-  static const String password = 'Password';
-  static const String loginButton = 'Login';
-  static const String forgotPassword = 'Forgot password ?';
-  static const String phoneNumberRequired = 'Phone number is required';
-  static const String enterValidEgyptianPhone =
-      'Enter a valid Egyptian phone number';
-  static const String passwordRequired = 'Password is required';
+  static const String phoneNumber = 'رقم الهاتف';
+  static const String password = 'كلمة المرور';
+  static const String loginButton = 'تسجيل الدخول';
+  static const String forgotPassword = 'نسيت كلمة المرور؟';
+  static const String phoneNumberRequired = 'رقم الهاتف مطلوب';
+  static const String enterValidEgyptianPhone = 'يرجى إدخال رقم هاتف مصري صحيح';
+  static const String passwordRequired = 'كلمة المرور مطلوبة';
   static const String passwordMinLength =
-      'Password must be at least 6 characters';
+      'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
 
   // Auth - Signup
-  static const String enterFullName = 'Enter Full Name';
-  static const String nameRequired = 'Name is required';
-  static const String parentPhone = 'Parent Phone';
-  static const String parentPhoneOptional = 'Parent Phone (Optional)';
-  static const String parentPhoneRequired = 'Parent Phone is required';
-  static const String schoolName = 'School Name';
-  static const String schoolNameRequired = 'School Name is required';
-  static const String governorate = 'Governorate';
-  static const String governorateRequired = 'Governorate is required';
+  static const String enterFullName = 'أدخل الاسم الكامل';
+  static const String nameRequired = 'الاسم مطلوب';
+  static const String parentPhone = 'هاتف ولي الأمر';
+  static const String parentPhoneOptional = 'هاتف ولي الأمر (اختياري)';
+  static const String parentPhoneRequired = 'هاتف ولي الأمر مطلوب';
+  static const String schoolName = 'اسم المدرسة';
+  static const String schoolNameRequired = 'اسم المدرسة مطلوب';
+  static const String governorate = 'المحافظة';
+  static const String governorateRequired = 'المحافظة مطلوبة';
 
   // Auth - OTP
-  static const String verifyOtp = 'Verify OTP';
-  static const String enterOtpCode = 'Enter the 6-digit code sent to\n';
-  static const String otpIncorrect = 'OTP code is incorrect';
-  static const String confirmPhoneNumber = 'Confirm Phone Number';
+  static const String verifyOtp = 'التحقق من رمز OTP';
+  static const String enterOtpCode =
+      'أدخل الرمز المكون من 6 أرقام المرسل إلى\n';
+  static const String otpIncorrect = 'رمز OTP غير صحيح';
+  static const String confirmPhoneNumber = 'تأكيد رقم الهاتف';
   static const String confirmPhoneMessage =
-      'We will send an OTP code to {phone}.\nIs this correct?';
+      'سنرسل رمز OTP إلى {phone}.\nهل هذا صحيح؟';
   static const String phoneAlreadyRegistered =
-      'This phone number is already registered, cannot register with it again';
+      'رقم الهاتف هذا مسجل بالفعل، لا يمكن التسجيل به مرة أخرى';
 
   // Auth - Forgot Password
-  static const String forgotPasswordTitle = 'Forgot Password';
-  static const String verifyCode = 'Verify Code';
-  static const String resetPassword = 'Reset Password';
-  static const String enterPhoneForOtp =
-      'Enter your phone number to receive verification code';
-  static const String enterNewPassword = 'Enter a new password';
-  static const String newPassword = 'New Password';
-  static const String confirmPassword = 'Confirm Password';
-  static const String confirmPasswordRequired =
-      'Password confirmation is required';
-  static const String passwordsDoNotMatch = 'Passwords do not match';
-  static const String sendCode = 'Send Code';
-  static const String changePassword = 'Change Password';
+  static const String forgotPasswordTitle = 'نسيت كلمة المرور';
+  static const String verifyCode = 'التحقق من الرمز';
+  static const String resetPassword = 'إعادة تعيين كلمة المرور';
+  static const String enterPhoneForOtp = 'أدخل رقم هاتفك لتلقي رمز التحقق';
+  static const String enterNewPassword = 'أدخل كلمة مرور جديدة';
+  static const String newPassword = 'كلمة المرور الجديدة';
+  static const String confirmPassword = 'تأكيد كلمة المرور';
+  static const String confirmPasswordRequired = 'تأكيد كلمة المرور مطلوب';
+  static const String passwordsDoNotMatch = 'كلمات المرور غير متطابقة';
+  static const String sendCode = 'إرسال الرمز';
+  static const String changePassword = 'تغيير كلمة المرور';
   static const String passwordChangedSuccessfully =
-      'Password changed successfully';
-  static const String pleaseEnterPhoneNumber = 'Please enter a phone number';
+      'تم تغيير كلمة المرور بنجاح';
+  static const String pleaseEnterPhoneNumber = 'يرجى إدخال رقم الهاتف';
 
   // Auth - Success
-  static const String accountCreated =
-      'I created a new account — congratulations 🎉';
+  static const String accountCreated = 'تم إنشاء حساب جديد — تهانينا 🎉';
   static const String accountCreatedMessage =
-      'There are just a few simple steps left so you can start using your account.';
+      'هناك خطوات بسيطة فقط متبقية حتى تتمكن من البدء في استخدام حسابك.';
 
   // Errors
-  static const String errorOccurred = 'An error occurred, please try again';
-  static const String requestCancelled = 'Request cancelled';
-  static const String noInternetConnection = 'No Internet Connection';
+  static const String errorOccurred = 'حدث خطأ، يرجى المحاولة مرة أخرى';
+  static const String requestCancelled = 'تم إلغاء الطلب';
+  static const String noInternetConnection = 'لا يوجد اتصال بالإنترنت';
 
   // Roots Screen
-  static const String home = 'Home';
-  static const String search = 'Search';
-  static const String favorites = 'Favorites';
-  static const String profile = 'Profile';
-  static const String welcomeToHome = 'Welcome to Home Page';
+  static const String home = 'الرئيسية';
+  static const String search = 'البحث';
+  static const String favorites = 'المفضلة';
+  static const String profile = 'الملف الشخصي';
+  static const String welcomeToHome = 'مرحباً بك في الصفحة الرئيسية';
 
   // Education System
-  static const String general = 'General';
-  static const String azhar = 'Azhar';
-  static const String languages = 'Languages';
-  static const String primary = 'Primary';
-  static const String preparatory = 'Preparatory';
-  static const String secondary = 'Secondary';
+  static const String general = 'عام';
+  static const String azhar = 'أزهر';
+  static const String languages = 'لغات';
+  static const String primary = 'ابتدائي';
+  static const String preparatory = 'إعدادي';
+  static const String secondary = 'ثانوي';
 
   // Helper method to replace placeholders
   static String replacePlaceholder(

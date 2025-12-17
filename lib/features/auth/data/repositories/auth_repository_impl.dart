@@ -38,7 +38,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -52,7 +52,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -76,7 +76,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -90,7 +90,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -104,7 +104,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -130,7 +130,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -146,7 +146,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -162,7 +162,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -176,7 +176,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -192,7 +192,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 
@@ -206,7 +206,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
-      return const Left(CacheFailure(message: "No Internet Connection"));
+      return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
 

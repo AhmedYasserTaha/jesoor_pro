@@ -25,6 +25,9 @@ dependencies:
   internet_connection_checker: ^3.0.1
   json_annotation: ^4.8.1
   page_transition: ^2.1.0
+  google_fonts: ^6.1.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
