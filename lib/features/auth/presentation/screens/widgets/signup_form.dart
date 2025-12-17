@@ -41,6 +41,7 @@ class SignupForm extends StatefulWidget {
   availableCategories; // passed from parent - for step 3 (parent categories)
   final List<CategoryEntity>
   availableCategoryChildren; // passed from parent - for step 4 (child categories)
+  final String? selectedGrade; // Selected grade for step 5
 
   // Loading states from AuthCubit
   final AuthStatus getCategoriesStatus; // Loading state for parent categories
@@ -71,6 +72,7 @@ class SignupForm extends StatefulWidget {
     this.availableGovernorates = const [],
     this.availableCategories = const [],
     this.availableCategoryChildren = const [],
+    this.selectedGrade,
     this.getCategoriesStatus = AuthStatus.initial,
     this.getCategoryChildrenStatus = AuthStatus.initial,
   });
@@ -81,6 +83,11 @@ class SignupForm extends StatefulWidget {
 
 class _SignupFormState extends State<SignupForm> {
   String? _selectedGovernorate;
+  CategoryEntity?
+  _tempSelectedCategory; // Temporary selected category for step 3
+  CategoryEntity?
+  _tempSelectedChildCategory; // Temporary selected child category for step 4
+  String? _tempSelectedGrade; // Temporary selected grade for step 5
 
   @override
   void initState() {
@@ -89,6 +96,23 @@ class _SignupFormState extends State<SignupForm> {
         ? null
         : widget.governorateController.text;
     widget.governorateController.addListener(_onGovernorateChanged);
+    // Initialize temp selected grade from widget if available
+    _tempSelectedGrade = widget.selectedGrade;
+  }
+
+  @override
+  void didUpdateWidget(SignupForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update temp selected grade if widget's selectedGrade changes
+    if (widget.selectedGrade != oldWidget.selectedGrade) {
+      _tempSelectedGrade = widget.selectedGrade;
+    }
+    // Reset temp selections when step changes
+    if (widget.step != oldWidget.step) {
+      _tempSelectedCategory = null;
+      _tempSelectedChildCategory = null;
+      _tempSelectedGrade = null;
+    }
   }
 
   @override
@@ -105,6 +129,27 @@ class _SignupFormState extends State<SignupForm> {
     });
   }
 
+  void _confirmCategorySelection() {
+    if (_tempSelectedCategory != null) {
+      widget.onCategorySelect(_tempSelectedCategory!);
+    }
+  }
+
+  void _confirmChildCategorySelection() {
+    if (_tempSelectedChildCategory != null) {
+      widget.onChildCategorySelect(_tempSelectedChildCategory!);
+    }
+  }
+
+  void _confirmGradeSelection() {
+    if (_tempSelectedGrade != null && _tempSelectedGrade!.isNotEmpty) {
+      // First, save the grade selection
+      widget.onGradeSelect(_tempSelectedGrade!);
+      // Then, proceed to signup (which will be handled by the parent)
+      widget.onSignup();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.step == 3) {
@@ -115,12 +160,18 @@ class _SignupFormState extends State<SignupForm> {
               widget.getCategoriesStatus == AuthStatus.loading);
       final isLoadingChildren =
           widget.getCategoryChildrenStatus == AuthStatus.loading;
+      final isCategorySelected = _tempSelectedCategory != null;
 
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.formPadding),
-        child: Stack(
-          children: [
-            Column(
+      return Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: AppDimensions.formPadding,
+              right: AppDimensions.formPadding,
+              top: AppDimensions.formPadding,
+              bottom: isCategorySelected ? 90 : AppDimensions.formPadding,
+            ),
+            child: Column(
               children: [
                 if (isLoadingCategories && widget.availableCategories.isEmpty)
                   const Center(
@@ -138,28 +189,53 @@ class _SignupFormState extends State<SignupForm> {
                   )
                 else
                   ...widget.availableCategories.map((category) {
+                    final isSelected = _tempSelectedCategory?.id == category.id;
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: SelectionCard(
                         text: category.name,
+                        isSelected: isSelected,
                         onTap: (isLoadingChildren || isLoadingCategories)
                             ? () {}
-                            : () => widget.onCategorySelect(category),
+                            : () {
+                                setState(() {
+                                  _tempSelectedCategory = category;
+                                });
+                              },
                       ),
                     );
                   }).toList(),
               ],
             ),
-            // Show loading overlay when fetching children after selecting a parent
-            if (isLoadingChildren && widget.availableCategories.isNotEmpty)
-              Positioned.fill(
-                child: Container(
-                  color: Colors.white.withOpacity(0.7),
-                  child: const Center(child: CircularProgressIndicator()),
+          ),
+          // Show loading overlay when fetching children after selecting a parent
+          if (isLoadingChildren && widget.availableCategories.isNotEmpty)
+            Positioned.fill(
+              child: Container(
+                color: Colors.white.withOpacity(0.7),
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+            ),
+          // Button at the bottom - appears when category is selected
+          if (isCategorySelected && !isLoadingChildren && !isLoadingCategories)
+            Positioned(
+              left: AppDimensions.formPadding,
+              right: AppDimensions.formPadding,
+              bottom: 20,
+              child: AnimatedOpacity(
+                opacity: 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: AnimatedScale(
+                  scale: 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: CustomButton(
+                    text: Strings.next,
+                    onPressed: _confirmCategorySelection,
+                  ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       );
     }
 
@@ -167,62 +243,136 @@ class _SignupFormState extends State<SignupForm> {
       // Show loading if children categories are being fetched
       final isLoadingChildren =
           widget.getCategoryChildrenStatus == AuthStatus.loading;
+      final isChildCategorySelected = _tempSelectedChildCategory != null;
 
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.formPadding),
-        child: Column(
-          children: [
-            if (isLoadingChildren && widget.availableCategoryChildren.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (widget.availableCategoryChildren.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Text('لا توجد فئات فرعية متاحة'),
-                ),
-              )
-            else
-              ...widget.availableCategoryChildren.map((childCategory) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: SelectionCard(
-                    text: childCategory.name,
-                    onTap: isLoadingChildren
-                        ? () {}
-                        : () => widget.onChildCategorySelect(childCategory),
+      return Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: AppDimensions.formPadding,
+              right: AppDimensions.formPadding,
+              top: AppDimensions.formPadding,
+              bottom: isChildCategorySelected ? 90 : AppDimensions.formPadding,
+            ),
+            child: Column(
+              children: [
+                if (isLoadingChildren &&
+                    widget.availableCategoryChildren.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (widget.availableCategoryChildren.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text('لا توجد فئات فرعية متاحة'),
+                    ),
+                  )
+                else
+                  ...widget.availableCategoryChildren.map((childCategory) {
+                    final isSelected =
+                        _tempSelectedChildCategory?.id == childCategory.id;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: SelectionCard(
+                        text: childCategory.name,
+                        isSelected: isSelected,
+                        onTap: isLoadingChildren
+                            ? () {}
+                            : () {
+                                setState(() {
+                                  _tempSelectedChildCategory = childCategory;
+                                });
+                              },
+                      ),
+                    );
+                  }).toList(),
+              ],
+            ),
+          ),
+          // Button at the bottom - appears when child category is selected
+          if (isChildCategorySelected && !isLoadingChildren)
+            Positioned(
+              left: AppDimensions.formPadding,
+              right: AppDimensions.formPadding,
+              bottom: 20,
+              child: AnimatedOpacity(
+                opacity: 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: AnimatedScale(
+                  scale: 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: CustomButton(
+                    text: Strings.next,
+                    onPressed: _confirmChildCategorySelection,
                   ),
-                );
-              }).toList(),
-          ],
-        ),
+                ),
+              ),
+            ),
+        ],
       );
     }
 
     if (widget.step == 5) {
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.fieldSpacing),
-        child: Column(
-          children: [
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: widget.availableGrades.length,
-              separatorBuilder: (c, i) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                return SelectionCard(
-                  text: widget.availableGrades[index],
-                  onTap: () =>
-                      widget.onGradeSelect(widget.availableGrades[index]),
-                );
-              },
+      final isGradeSelected =
+          _tempSelectedGrade != null && _tempSelectedGrade!.isNotEmpty;
+
+      return Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: AppDimensions.fieldSpacing,
+              right: AppDimensions.fieldSpacing,
+              top: AppDimensions.fieldSpacing,
+              bottom: isGradeSelected ? 90 : AppDimensions.fieldSpacing,
             ),
-          ],
-        ),
+            child: Column(
+              children: [
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: widget.availableGrades.length,
+                  separatorBuilder: (c, i) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final grade = widget.availableGrades[index];
+                    final isSelected = _tempSelectedGrade == grade;
+                    return SelectionCard(
+                      text: grade,
+                      isSelected: isSelected,
+                      onTap: () {
+                        setState(() {
+                          _tempSelectedGrade = grade;
+                        });
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          // Button at the bottom - appears when grade is selected
+          if (isGradeSelected)
+            Positioned(
+              left: AppDimensions.fieldSpacing,
+              right: AppDimensions.fieldSpacing,
+              bottom: 20,
+              child: AnimatedOpacity(
+                opacity: 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: AnimatedScale(
+                  scale: 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: CustomButton(
+                    text: Strings.next,
+                    onPressed: _confirmGradeSelection,
+                  ),
+                ),
+              ),
+            ),
+        ],
       );
     }
 

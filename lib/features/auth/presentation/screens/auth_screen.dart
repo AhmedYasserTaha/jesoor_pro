@@ -234,6 +234,7 @@ class _AuthScreenState extends State<AuthScreen>
                                         availableCategories: state.categories,
                                         availableCategoryChildren:
                                             state.selectedCategoryChildren,
+                                        selectedGrade: state.educationGrade,
                                         getCategoriesStatus:
                                             state.getCategoriesStatus,
                                         getCategoryChildrenStatus:

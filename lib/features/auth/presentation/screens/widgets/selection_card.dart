@@ -21,24 +21,28 @@ class SelectionCard extends StatelessWidget {
       onTap: onTap,
       child: CustomPaint(
         painter: DashedBorderPainter(
-          color: AppColors.primary,
-          strokeWidth: 1.5,
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.primary.withOpacity(0.5),
+          strokeWidth: isSelected ? 2.5 : 1.5,
           gap: 5.0,
         ),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: const Color(0xFFE3F2FD), // Light blue background
+            color: isSelected
+                ? AppColors.primary.withOpacity(0.15)
+                : const Color(0xFFE3F2FD), // Light blue background
             borderRadius: BorderRadius.circular(AppDimensions.borderRadius),
           ),
           child: Center(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: isSelected ? AppColors.primary : Colors.black,
               ),
             ),
           ),
