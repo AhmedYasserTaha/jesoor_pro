@@ -55,10 +55,22 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void nextSignupStep() {
-    emit(state.copyWith(signupStep: state.signupStep + 1));
+    // Only allow moving forward
+    final nextStep = state.signupStep + 1;
+    emit(state.copyWith(signupStep: nextStep));
   }
 
   void setSignupStep(int step) {
+    // CRITICAL: Prevent reverting to earlier steps - only allow moving forward or staying same
+    // Once we reach step 3 or higher, never allow going back to step 2 or lower
+    if (state.signupStep >= 3 && step < 3) {
+      // Don't allow going backwards from step 3+ - preserve current step
+      return;
+    }
+    if (step < state.signupStep) {
+      // Don't allow going backwards in general - preserve current step
+      return;
+    }
     emit(state.copyWith(signupStep: step));
   }
 
@@ -171,8 +183,9 @@ class AuthCubit extends Cubit<AuthState> {
           errorMessage: failure.message,
         ),
       ),
-      (_) => emit(
+      (token) => emit(
         state.copyWith(verifyOtpStatus: AuthStatus.success, errorMessage: null),
+        // Token is already stored in repository, no need to store here
       ),
     );
   }
@@ -350,14 +363,21 @@ class AuthCubit extends Cubit<AuthState> {
 
   // Complete Step 2: Guardian info, school, governorate
   Future<void> completeStep2({
+    required String email,
     required String guardianPhone,
     String? secondGuardianPhone,
     required String schoolName,
     required String governorate,
   }) async {
-    emit(state.copyWith(completeStep2Status: AuthStatus.loading));
+    emit(
+      state.copyWith(
+        completeStep2Status: AuthStatus.loading,
+        errorMessage: null, // Clear previous error
+      ),
+    );
     final result = await completeStep2UseCase(
       CompleteStep2Params(
+        email: email,
         guardianPhone: guardianPhone,
         secondGuardianPhone: secondGuardianPhone,
         schoolName: schoolName,
@@ -369,34 +389,44 @@ class AuthCubit extends Cubit<AuthState> {
         state.copyWith(
           completeStep2Status: AuthStatus.error,
           errorMessage: failure.message,
+          // Preserve signupStep on error - don't revert
         ),
       ),
-      (_) {
-        emit(
-          state.copyWith(
-            completeStep2Status: AuthStatus.success,
-            signupStep: 3, // Move to step 3 (categories)
-          ),
-        );
-      },
+      (_) => emit(
+        state.copyWith(
+          completeStep2Status: AuthStatus.success,
+          errorMessage: null, // Clear error on success
+          signupStep:
+              3, // Move to step 3 (categories) - MUST be set together with success
+        ),
+      ),
     );
   }
 
   // Get Categories
   Future<void> getCategories() async {
-    emit(state.copyWith(getCategoriesStatus: AuthStatus.loading));
+    emit(
+      state.copyWith(
+        getCategoriesStatus: AuthStatus.loading,
+        errorMessage: null, // Clear previous error
+        // Preserve signupStep - never override it
+      ),
+    );
     final result = await getCategoriesUseCase(NoParams());
     result.fold(
       (failure) => emit(
         state.copyWith(
           getCategoriesStatus: AuthStatus.error,
           errorMessage: failure.message,
+          // Preserve signupStep - never override it
         ),
       ),
       (categories) => emit(
         state.copyWith(
           categories: categories,
           getCategoriesStatus: AuthStatus.success,
+          errorMessage: null, // Clear error on success
+          // Preserve signupStep - never override it
         ),
       ),
     );
@@ -404,7 +434,12 @@ class AuthCubit extends Cubit<AuthState> {
 
   // Get Category Children
   Future<void> getCategoryChildren(int categoryId) async {
-    emit(state.copyWith(getCategoryChildrenStatus: AuthStatus.loading));
+    emit(
+      state.copyWith(
+        getCategoryChildrenStatus: AuthStatus.loading,
+        // Preserve signupStep - never override it unless moving forward
+      ),
+    );
     final result = await getCategoryChildrenUseCase(
       GetCategoryChildrenParams(categoryId: categoryId),
     );
@@ -413,13 +448,14 @@ class AuthCubit extends Cubit<AuthState> {
         state.copyWith(
           getCategoryChildrenStatus: AuthStatus.error,
           errorMessage: failure.message,
+          // Preserve signupStep - never override it on error
         ),
       ),
       (children) => emit(
         state.copyWith(
           selectedCategoryChildren: children,
           getCategoryChildrenStatus: AuthStatus.success,
-          signupStep: 4, // Show children selection
+          signupStep: 4, // Show children selection - moving forward is OK
         ),
       ),
     );
@@ -427,19 +463,26 @@ class AuthCubit extends Cubit<AuthState> {
 
   // Get Governorates
   Future<void> getGovernorates() async {
-    emit(state.copyWith(getGovernoratesStatus: AuthStatus.loading));
+    emit(
+      state.copyWith(
+        getGovernoratesStatus: AuthStatus.loading,
+        // Preserve signupStep - never override it
+      ),
+    );
     final result = await getGovernoratesUseCase(NoParams());
     result.fold(
       (failure) => emit(
         state.copyWith(
           getGovernoratesStatus: AuthStatus.error,
           errorMessage: failure.message,
+          // Preserve signupStep - never override it
         ),
       ),
       (governorates) => emit(
         state.copyWith(
           governorates: governorates,
           getGovernoratesStatus: AuthStatus.success,
+          // Preserve signupStep - never override it
         ),
       ),
     );
@@ -459,7 +502,12 @@ class AuthCubit extends Cubit<AuthState> {
     }
 
     if (selected != null) {
-      emit(state.copyWith(selectedCategory: selected));
+      emit(
+        state.copyWith(
+          selectedCategory: selected,
+          // Preserve signupStep - never override it
+        ),
+      );
       // Fetch children from API instead of using local children
       getCategoryChildren(selected.id);
     }
@@ -467,7 +515,12 @@ class AuthCubit extends Cubit<AuthState> {
 
   // Complete Step 3: Select final category (child category)
   Future<void> completeStep3(int categoryId) async {
-    emit(state.copyWith(completeStep3Status: AuthStatus.loading));
+    emit(
+      state.copyWith(
+        completeStep3Status: AuthStatus.loading,
+        // Preserve signupStep - never override it
+      ),
+    );
     final result = await completeStep3UseCase(
       CompleteStep3Params(categoryId: categoryId),
     );
@@ -476,12 +529,14 @@ class AuthCubit extends Cubit<AuthState> {
         state.copyWith(
           completeStep3Status: AuthStatus.error,
           errorMessage: failure.message,
+          // Preserve signupStep - never override it on error
         ),
       ),
       (_) => emit(
         state.copyWith(
           completeStep3Status: AuthStatus.success,
           status: AuthStatus.success, // Registration complete
+          // Preserve signupStep - never override it
         ),
       ),
     );

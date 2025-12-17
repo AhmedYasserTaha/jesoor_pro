@@ -16,12 +16,14 @@ class CompleteStep2UseCase implements UseCase<void, CompleteStep2Params> {
 }
 
 class CompleteStep2Params extends Equatable {
+  final String email;
   final String guardianPhone;
   final String? secondGuardianPhone;
   final String schoolName;
   final String governorate;
 
   const CompleteStep2Params({
+    required this.email,
     required this.guardianPhone,
     this.secondGuardianPhone,
     required this.schoolName,
@@ -30,9 +32,10 @@ class CompleteStep2Params extends Equatable {
 
   @override
   List<Object?> get props => [
-        guardianPhone,
-        secondGuardianPhone,
-        schoolName,
-        governorate,
-      ];
+    email,
+    guardianPhone,
+    secondGuardianPhone,
+    schoolName,
+    governorate,
+  ];
 }

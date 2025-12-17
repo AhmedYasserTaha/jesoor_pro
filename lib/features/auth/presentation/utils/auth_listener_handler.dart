@@ -13,13 +13,19 @@ import '../screens/widgets/error_dialog.dart';
 class AuthListenerHandler {
   static void handleStateChange(BuildContext context, AuthState state) {
     // Handle main auth status (login/signup success/error)
+    // Only handle main status if it's not related to step operations
     if (state.status == AuthStatus.success) {
       // Navigate to Roots screen after successful login or signup
       Future.microtask(() {
-        context.go(Routes.roots);
+        if (context.mounted) {
+          context.go(Routes.roots);
+        }
       });
-    } else if (state.status == AuthStatus.error) {
-      // Show error dialog instead of snackbar
+    } else if (state.status == AuthStatus.error &&
+        state.completeStep2Status != AuthStatus.error &&
+        state.completeStep3Status != AuthStatus.error &&
+        state.getCategoriesStatus != AuthStatus.error) {
+      // Show error dialog only for main auth errors, not step-specific errors
       ErrorDialog.show(
         context: context,
         message: state.errorMessage ?? Strings.errorOccurred,
@@ -70,10 +76,15 @@ class AuthListenerHandler {
       LoadingDialog.show(context);
     } else if (state.completeStep2Status == AuthStatus.success) {
       LoadingDialog.hide(context);
-      // Step 2 completed, move to step 3 (categories) is handled by cubit
-      // Load categories if step 3 is reached
-      if (state.signupStep == 3 && state.categories.isEmpty) {
-        context.read<AuthCubit>().getCategories();
+      // Step 2 completed, step 3 is already set by cubit
+      // Load categories only once when step 3 is reached and categories are empty
+      if (state.signupStep == 3) {
+        final cubit = context.read<AuthCubit>();
+        // Only load if categories are empty and not already loading
+        if (state.categories.isEmpty &&
+            state.getCategoriesStatus != AuthStatus.loading) {
+          cubit.getCategories();
+        }
       }
     } else if (state.completeStep2Status == AuthStatus.error) {
       LoadingDialog.hide(context);

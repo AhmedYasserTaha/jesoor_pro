@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:jesoor_pro/core/error/exceptions.dart';
 import 'package:jesoor_pro/core/error/failures.dart';
+import 'package:jesoor_pro/core/storage/token_storage.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
@@ -15,10 +16,12 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final InternetConnectionChecker networkInfo;
+  final TokenStorage tokenStorage;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
+    required this.tokenStorage,
   });
 
   @override
@@ -106,7 +109,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> verifyOtp(
+  Future<Either<Failure, String>> verifyOtp(
     String phone,
     String otp,
     String deviceToken,
@@ -114,8 +117,15 @@ class AuthRepositoryImpl implements AuthRepository {
   ) async {
     if (await networkInfo.hasConnection) {
       try {
-        await remoteDataSource.verifyOtp(phone, otp, deviceToken, deviceLabel);
-        return const Right(null);
+        final token = await remoteDataSource.verifyOtp(
+          phone,
+          otp,
+          deviceToken,
+          deviceLabel,
+        );
+        // Store token securely
+        await tokenStorage.saveToken(token);
+        return Right(token);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
       }

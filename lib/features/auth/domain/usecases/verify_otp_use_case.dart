@@ -3,13 +3,13 @@ import 'package:jesoor_pro/core/error/failures.dart';
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
 import 'package:jesoor_pro/core/usecases/use_case.dart';
 
-class VerifyOtpUseCase implements UseCase<void, VerifyOtpParams> {
+class VerifyOtpUseCase implements UseCase<String, VerifyOtpParams> {
   final AuthRepository repository;
 
   VerifyOtpUseCase(this.repository);
 
   @override
-  Future<Either<Failure, void>> call(VerifyOtpParams params) async {
+  Future<Either<Failure, String>> call(VerifyOtpParams params) async {
     return await repository.verifyOtp(
       params.phone,
       params.otp,

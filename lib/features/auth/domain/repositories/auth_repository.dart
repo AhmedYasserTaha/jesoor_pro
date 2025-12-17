@@ -18,7 +18,7 @@ abstract class AuthRepository {
   );
   Future<Either<Failure, UserEntity>> signup(SignupParams params);
   Future<Either<Failure, void>> sendOtp(String name, String phone);
-  Future<Either<Failure, void>> verifyOtp(
+  Future<Either<Failure, String>> verifyOtp(
     String phone,
     String otp,
     String deviceToken,
@@ -34,6 +34,8 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> completeStep2(CompleteStep2Params params);
   Future<Either<Failure, void>> completeStep3(CompleteStep3Params params);
   Future<Either<Failure, List<CategoryEntity>>> getCategories();
-  Future<Either<Failure, List<CategoryEntity>>> getCategoryChildren(int categoryId);
+  Future<Either<Failure, List<CategoryEntity>>> getCategoryChildren(
+    int categoryId,
+  );
   Future<Either<Failure, List<GovernorateEntity>>> getGovernorates();
 }

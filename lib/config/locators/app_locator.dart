@@ -1,9 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:jesoor_pro/core/api/api_consumer.dart';
+import 'package:jesoor_pro/core/api/auth_interceptor.dart';
 import 'package:jesoor_pro/core/api/dio_consumer.dart';
 import 'package:jesoor_pro/core/api/interceptors.dart';
+import 'package:jesoor_pro/core/storage/token_storage.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
@@ -64,7 +68,11 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(networkInfo: sl(), remoteDataSource: sl()),
+    () => AuthRepositoryImpl(
+      networkInfo: sl(),
+      remoteDataSource: sl(),
+      tokenStorage: sl(),
+    ),
   );
 
   // Data sources
@@ -73,10 +81,16 @@ Future<void> init() async {
   );
 
   //! Core
+  // Storage
+  sl.registerLazySingleton(() => TokenStorage());
+
+  //! Core
   sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(client: sl()));
 
   //! External
   sl.registerLazySingleton(() => AppInterceptors());
+  sl.registerLazySingleton(() => AuthInterceptor(tokenStorage: sl()));
+  sl.registerLazySingleton(() => CookieJar());
   sl.registerLazySingleton(
     () => LogInterceptor(
       request: true,
@@ -88,5 +102,11 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton(() => InternetConnectionChecker.instance);
-  sl.registerLazySingleton(() => Dio());
+  sl.registerLazySingleton(() {
+    final dio = Dio();
+    // Add interceptors in order: CookieManager first, then AuthInterceptor, then AppInterceptors
+    dio.interceptors.add(CookieManager(sl<CookieJar>()));
+    dio.interceptors.add(sl<AuthInterceptor>());
+    return dio;
+  });
 }

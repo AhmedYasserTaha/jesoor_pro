@@ -18,7 +18,7 @@ abstract class AuthRemoteDataSource {
   );
   Future<UserModel> signup(SignupParams params);
   Future<void> sendOtp(String name, String phone);
-  Future<void> verifyOtp(
+  Future<String> verifyOtp(
     String phone,
     String otp,
     String deviceToken,
@@ -80,13 +80,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> verifyOtp(
+  Future<String> verifyOtp(
     String phone,
     String otp,
     String deviceToken,
     String deviceLabel,
   ) async {
-    await apiConsumer.post(
+    final response = await apiConsumer.post(
       EndPoints.verifyOtp,
       body: {
         'phone': phone,
@@ -95,11 +95,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'device_label': deviceLabel,
       },
     );
+
+    // Extract access_token from response
+    // Handle different response structures:
+    // 1. { "data": { "access_token": "..." } }
+    // 2. { "access_token": "..." }
+    // 3. { "token": "..." }
+    String? token;
+    if (response is Map<String, dynamic>) {
+      if (response.containsKey('data') && response['data'] is Map) {
+        final data = response['data'] as Map<String, dynamic>;
+        token = data['access_token'] as String? ?? data['token'] as String?;
+      } else {
+        token =
+            response['access_token'] as String? ?? response['token'] as String?;
+      }
+    }
+
+    if (token == null || token.isEmpty) {
+      throw Exception('Access token not found in verify-otp response');
+    }
+
+    return token;
   }
 
   @override
   Future<void> completeStep2(CompleteStep2Params params) async {
     final body = <String, dynamic>{
+      'email': params.email,
       'guardian_phone': params.guardianPhone,
       'school_name': params.schoolName,
       'governorate': params.governorate,
@@ -136,7 +159,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<List<CategoryModel>> getCategoryChildren(int categoryId) async {
-    final response = await apiConsumer.get(EndPoints.categoryChildren(categoryId));
+    final response = await apiConsumer.get(
+      EndPoints.categoryChildren(categoryId),
+    );
     // Handle response structure: {status, message, data: [...]}
     if (response is Map<String, dynamic> && response.containsKey('data')) {
       final data = response['data'];
@@ -157,8 +182,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final data = response['data'];
       if (data is List) {
         return data
-            .map((json) =>
-                GovernorateModel.fromJson(json as Map<String, dynamic>))
+            .map(
+              (json) => GovernorateModel.fromJson(json as Map<String, dynamic>),
+            )
             .toList();
       }
     }
@@ -167,10 +193,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> loginSendOtp(String phone) async {
-    await apiConsumer.post(
-      EndPoints.loginSendOtp,
-      body: {'phone': phone},
-    );
+    await apiConsumer.post(EndPoints.loginSendOtp, body: {'phone': phone});
   }
 
   @override

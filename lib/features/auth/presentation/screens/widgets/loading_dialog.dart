@@ -20,6 +20,8 @@ class LoadingDialog extends StatelessWidget {
   }
 
   static void hide(BuildContext context) {
-    Navigator.pop(context);
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
   }
 }

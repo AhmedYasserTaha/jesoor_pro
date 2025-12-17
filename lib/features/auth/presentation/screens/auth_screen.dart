@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 import 'package:jesoor_pro/features/auth/presentation/controllers/auth_form_controller.dart';
@@ -30,10 +31,38 @@ class _AuthScreenState extends State<AuthScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _formController = AuthFormController();
+
+    // Load governorates when opening signup tab
+    _tabController.addListener(_onTabChanged);
+
+    // Load governorates immediately if signup tab is initially selected
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _tabController.index == 1) {
+        final cubit = context.read<AuthCubit>();
+        if (cubit.state.governorates.isEmpty &&
+            cubit.state.getGovernoratesStatus != AuthStatus.loading) {
+          cubit.getGovernorates();
+        }
+      }
+    });
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging && mounted) {
+      // When switching to signup tab (index 1), load governorates
+      if (_tabController.index == 1) {
+        final cubit = context.read<AuthCubit>();
+        if (cubit.state.governorates.isEmpty &&
+            cubit.state.getGovernoratesStatus != AuthStatus.loading) {
+          cubit.getGovernorates();
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     _formController.dispose();
     super.dispose();
@@ -53,7 +82,7 @@ class _AuthScreenState extends State<AuthScreen>
       username: _formController.signupNameController.text,
       email: _formController.signupEmailController.text,
       password: _formController.signupPasswordController.text,
-      parentPhone: _formController.signupParentPhoneController.text,
+      parentPhone: _formController.signupPhoneController.text,
       schoolName: _formController.signupSchoolController.text,
       governorate: _formController.signupGovernorateController.text,
     );
@@ -64,11 +93,11 @@ class _AuthScreenState extends State<AuthScreen>
       if (_formController.signupFormKey.currentState!.validate()) {
         ConfirmPhoneDialog.show(
           context: context,
-          email: _formController.signupEmailController.text,
+          email: _formController.signupPhoneController.text,
           onConfirm: () {
             cubit.sendOtp(
               _formController.signupNameController.text,
-              _formController.signupEmailController.text,
+              _formController.signupPhoneController.text,
             );
           },
           onCancel: () {},
@@ -76,7 +105,19 @@ class _AuthScreenState extends State<AuthScreen>
       }
     } else if (currentStep == 2) {
       if (_formController.signupFormKey.currentState!.validate()) {
+        // Check if governorate is selected
+        if (_formController.signupGovernorateController.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(Strings.governorateRequired),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        // Call API - it will move to step 3 on success
         cubit.completeStep2(
+          email: _formController.signupEmailController.text,
           guardianPhone: _formController.signupParentPhoneController.text,
           secondGuardianPhone:
               _formController.signupParentPhoneOptController.text.isEmpty
@@ -85,14 +126,10 @@ class _AuthScreenState extends State<AuthScreen>
           schoolName: _formController.signupSchoolController.text,
           governorate: _formController.signupGovernorateController.text,
         );
-        // After step 2 completes, cubit will move to step 3 and load categories
       }
     } else if (currentStep == 3) {
-      // Step 3: Load categories if not already loaded
-      final currentState = cubit.state;
-      if (currentState.categories.isEmpty) {
-        cubit.getCategories();
-      }
+      // Step 3: Categories loading is handled by listener handler
+      // No need to manually trigger here to avoid duplicate calls
     } else if (currentStep == 5) {
       _performSignup();
     }
@@ -156,6 +193,8 @@ class _AuthScreenState extends State<AuthScreen>
                                         formKey: _formController.signupFormKey,
                                         nameController: _formController
                                             .signupNameController,
+                                        phoneController: _formController
+                                            .signupPhoneController,
                                         emailController: _formController
                                             .signupEmailController,
                                         passwordController: _formController
@@ -182,9 +221,14 @@ class _AuthScreenState extends State<AuthScreen>
                                         onStageSelect: cubit.selectStage,
                                         onGradeSelect: (grade) {
                                           cubit.selectGrade(grade);
-                                          _performSignup();
+                                        },
+                                        onCategorySelect: (category) {
+                                          cubit.selectCategory(category);
                                         },
                                         availableGrades: state.availableGrades,
+                                        availableGovernorates:
+                                            state.governorates,
+                                        availableCategories: state.categories,
                                       ),
                                     ),
                                   ],

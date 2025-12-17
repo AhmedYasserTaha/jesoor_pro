@@ -4,11 +4,14 @@ import '../../../../../core/widgets/custom_text_field.dart';
 import '../../../../../core/widgets/custom_button.dart';
 import '../../../../../core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/widgets/selection_card.dart';
+import 'package:jesoor_pro/features/auth/domain/entities/governorate_entity.dart';
+import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 
-class SignupForm extends StatelessWidget {
+class SignupForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController nameController;
-  final TextEditingController emailController;
+  final TextEditingController phoneController; // Phone for step 1
+  final TextEditingController emailController; // Email for step 1
   final TextEditingController passwordController;
   final bool obscurePassword;
   final VoidCallback onTogglePassword;
@@ -25,14 +28,18 @@ class SignupForm extends StatelessWidget {
   final Function(String) onSystemSelect;
   final Function(String) onStageSelect;
   final Function(String) onGradeSelect;
+  final Function(CategoryEntity) onCategorySelect; // For selecting category
 
   // Data for selections
   final List<String> availableGrades; // passed from parent based on stage
+  final List<GovernorateEntity> availableGovernorates; // passed from parent
+  final List<CategoryEntity> availableCategories; // passed from parent
 
   const SignupForm({
     super.key,
     required this.formKey,
     required this.nameController,
+    required this.phoneController,
     required this.emailController,
     required this.passwordController,
     required this.obscurePassword,
@@ -46,60 +53,98 @@ class SignupForm extends StatelessWidget {
     required this.onSystemSelect,
     required this.onStageSelect,
     required this.onGradeSelect,
+    required this.onCategorySelect,
     this.availableGrades = const [],
+    this.availableGovernorates = const [],
+    this.availableCategories = const [],
   });
 
   @override
+  State<SignupForm> createState() => _SignupFormState();
+}
+
+class _SignupFormState extends State<SignupForm> {
+  String? _selectedGovernorate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedGovernorate = widget.governorateController.text.isEmpty
+        ? null
+        : widget.governorateController.text;
+    widget.governorateController.addListener(_onGovernorateChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.governorateController.removeListener(_onGovernorateChanged);
+    super.dispose();
+  }
+
+  void _onGovernorateChanged() {
+    setState(() {
+      _selectedGovernorate = widget.governorateController.text.isEmpty
+          ? null
+          : widget.governorateController.text;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (step == 3) {
+    if (widget.step == 3) {
       return SingleChildScrollView(
         padding: const EdgeInsets.all(AppDimensions.formPadding),
         child: Column(
           children: [
-            SelectionCard(
-              text: Strings.general,
-              onTap: () => onSystemSelect(Strings.general),
-            ),
-            const SizedBox(height: 10),
-            SelectionCard(
-              text: Strings.azhar,
-              onTap: () => onSystemSelect(Strings.azhar),
-            ),
-            const SizedBox(height: 10),
-            SelectionCard(
-              text: Strings.languages,
-              onTap: () => onSystemSelect(Strings.languages),
-            ),
+            if (widget.availableCategories.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else
+              ...widget.availableCategories.map((category) {
+                return Column(
+                  children: [
+                    SelectionCard(
+                      text: category.name,
+                      onTap: () => widget.onCategorySelect(category),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                );
+              }).toList(),
           ],
         ),
       );
     }
 
-    if (step == 4) {
+    if (widget.step == 4) {
       return SingleChildScrollView(
         padding: const EdgeInsets.all(AppDimensions.formPadding),
         child: Column(
           children: [
             SelectionCard(
               text: Strings.primary,
-              onTap: () => onStageSelect(Strings.primary),
+              onTap: () => widget.onStageSelect(Strings.primary),
             ),
             const SizedBox(height: 10),
             SelectionCard(
               text: Strings.preparatory,
-              onTap: () => onStageSelect(Strings.preparatory),
+              onTap: () => widget.onStageSelect(Strings.preparatory),
             ),
             const SizedBox(height: 10),
             SelectionCard(
               text: Strings.secondary,
-              onTap: () => onStageSelect(Strings.secondary),
+              onTap: () => widget.onStageSelect(Strings.secondary),
             ),
           ],
         ),
       );
     }
 
-    if (step == 5) {
+    if (widget.step == 5) {
       return SingleChildScrollView(
         padding: const EdgeInsets.all(AppDimensions.fieldSpacing),
         child: Column(
@@ -107,12 +152,13 @@ class SignupForm extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: availableGrades.length,
+              itemCount: widget.availableGrades.length,
               separatorBuilder: (c, i) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 return SelectionCard(
-                  text: availableGrades[index],
-                  onTap: () => onGradeSelect(availableGrades[index]),
+                  text: widget.availableGrades[index],
+                  onTap: () =>
+                      widget.onGradeSelect(widget.availableGrades[index]),
                 );
               },
             ),
@@ -124,14 +170,14 @@ class SignupForm extends StatelessWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppDimensions.formPadding),
       child: Form(
-        key: formKey,
+        key: widget.formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: AppDimensions.fieldSpacing),
-            if (step == 1) ...[
+            if (widget.step == 1) ...[
               CustomTextField(
-                controller: nameController,
+                controller: widget.nameController,
                 hintText: Strings.enterFullName,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -142,7 +188,7 @@ class SignupForm extends StatelessWidget {
               ),
               const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
-                controller: emailController,
+                controller: widget.phoneController,
                 hintText: Strings.phoneNumber,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
@@ -155,11 +201,28 @@ class SignupForm extends StatelessWidget {
                   return null;
                 },
               ),
-              const SizedBox(height: 40),
-              CustomButton(text: Strings.signup, onPressed: onSignup),
-            ] else if (step == 2) ...[
+              const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
-                controller: parentPhoneController,
+                controller: widget.emailController,
+                hintText: 'البريد الإلكتروني', // Email
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'البريد الإلكتروني مطلوب'; // Email is required
+                  }
+                  if (!RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  ).hasMatch(value)) {
+                    return 'يرجى إدخال بريد إلكتروني صحيح'; // Please enter a valid email
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 40),
+              CustomButton(text: Strings.signup, onPressed: widget.onSignup),
+            ] else if (widget.step == 2) ...[
+              CustomTextField(
+                controller: widget.parentPhoneController,
                 hintText: Strings.parentPhone,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
@@ -174,7 +237,7 @@ class SignupForm extends StatelessWidget {
               ),
               const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
-                controller: parentPhoneOptController,
+                controller: widget.parentPhoneOptController,
                 hintText: Strings.parentPhoneOptional,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
@@ -188,7 +251,7 @@ class SignupForm extends StatelessWidget {
               ),
               const SizedBox(height: AppDimensions.fieldSpacing),
               CustomTextField(
-                controller: schoolController,
+                controller: widget.schoolController,
                 hintText: Strings.schoolName,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -198,9 +261,39 @@ class SignupForm extends StatelessWidget {
                 },
               ),
               const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: governorateController,
-                hintText: Strings.governorate,
+              DropdownButtonFormField<String>(
+                value: _selectedGovernorate,
+                decoration: InputDecoration(
+                  hintText: Strings.governorate,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                ),
+                isExpanded: true,
+                items: widget.availableGovernorates.map((governorate) {
+                  // Use Arabic name first, fallback to English if Arabic is empty
+                  final displayName = governorate.name.isNotEmpty
+                      ? governorate.name
+                      : governorate.nameEn;
+                  return DropdownMenuItem<String>(
+                    value: displayName,
+                    child: Text(displayName),
+                  );
+                }).toList(),
+                onChanged: widget.availableGovernorates.isEmpty
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _selectedGovernorate = value;
+                        });
+                        if (value != null) {
+                          widget.governorateController.text = value;
+                        }
+                      },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return Strings.governorateRequired;
@@ -209,7 +302,7 @@ class SignupForm extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 40),
-              CustomButton(text: Strings.save, onPressed: onSignup),
+              CustomButton(text: Strings.save, onPressed: widget.onSignup),
             ],
           ],
         ),

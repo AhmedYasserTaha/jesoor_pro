@@ -1,6 +1,6 @@
 name: jesoor_pro
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -16,6 +16,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   dartz: ^0.10.1
   dio: ^5.3.3
+  dio_cookie_manager: ^3.1.1
+  cookie_jar: ^4.0.8
+  flutter_secure_storage: ^9.0.0
   equatable: ^2.0.5
   get_it: ^7.6.4
   go_router: ^12.0.0

@@ -9,7 +9,8 @@ class AuthFormController {
 
   // Signup form controllers
   final signupNameController = TextEditingController();
-  final signupEmailController = TextEditingController();
+  final signupPhoneController = TextEditingController(); // Phone for step 1
+  final signupEmailController = TextEditingController(); // Email for step 1
   final signupPasswordController = TextEditingController();
   final signupFormKey = GlobalKey<FormState>();
 
@@ -23,6 +24,7 @@ class AuthFormController {
     loginPhoneController.dispose();
     loginPasswordController.dispose();
     signupNameController.dispose();
+    signupPhoneController.dispose();
     signupEmailController.dispose();
     signupPasswordController.dispose();
     signupParentPhoneController.dispose();
@@ -35,6 +37,7 @@ class AuthFormController {
     loginPhoneController.clear();
     loginPasswordController.clear();
     signupNameController.clear();
+    signupPhoneController.clear();
     signupEmailController.clear();
     signupPasswordController.clear();
     signupParentPhoneController.clear();
