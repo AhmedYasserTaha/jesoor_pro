@@ -20,8 +20,12 @@ class AuthTabBar extends StatelessWidget {
         unselectedLabelColor: Colors.grey,
         labelStyle: AppTextStyles.tabLabelStyle,
         unselectedLabelStyle: AppTextStyles.tabUnselectedLabelStyle,
-        indicatorColor: AppColors.primary,
-        indicatorWeight: 3,
+        indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(color: AppColors.primary, width: 3),
+        ),
+        indicatorSize: TabBarIndicatorSize.label,
+        isScrollable: false,
+        tabAlignment: TabAlignment.fill,
         tabs: const [
           Tab(text: 'تسجيل الدخول'),
           Tab(text: 'إنشاء حساب'),

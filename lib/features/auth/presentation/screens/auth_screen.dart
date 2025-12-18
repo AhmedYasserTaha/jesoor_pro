@@ -168,6 +168,7 @@ class _AuthScreenState extends State<AuthScreen>
                           Expanded(
                             child: TabBarView(
                               controller: _tabController,
+                              physics: const NeverScrollableScrollPhysics(),
                               children: [
                                 LoginForm(
                                   formKey: _formController.loginFormKey,
