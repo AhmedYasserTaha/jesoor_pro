@@ -400,7 +400,16 @@ class AuthCubit extends Cubit<AuthState> {
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (user) => emit(state.copyWith(status: AuthStatus.success, user: user)),
+      (user) => emit(
+        state.copyWith(
+          status: AuthStatus.success,
+          user: user,
+          // Preserve education data after signup
+          educationSystem: state.educationSystem,
+          educationStage: state.educationStage,
+          educationGrade: state.educationGrade,
+        ),
+      ),
     );
   }
 

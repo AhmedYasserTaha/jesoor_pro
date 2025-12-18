@@ -133,71 +133,93 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
                     return SizedBox(
                       width: 40,
                       height: 50,
-                      child: TextField(
-                        controller: _controllers[index],
-                        focusNode: _focusNodes[index],
-                        textAlign: TextAlign.center,
-                        textDirection: TextDirection.rtl,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(1),
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.zero,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: hasError ? Colors.red : Colors.grey,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: hasError ? Colors.red : Colors.grey,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: hasError ? Colors.red : AppColors.primary,
-                              width: 2,
-                            ),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                              width: 2,
-                            ),
-                          ),
-                          counterText: "",
-                        ),
-                        onChanged: (value) {
-                          _onDigitChanged(index, value);
-                          if (value.isNotEmpty) {
-                            _clearError(context.read<AuthCubit>());
-                            // Keep cursor at the right (end)
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              _controllers[index].selection =
-                                  TextSelection.fromPosition(
-                                    TextPosition(
-                                      offset: _controllers[index].text.length,
-                                    ),
-                                  );
-                            });
+                      child: Focus(
+                        onKeyEvent: (node, event) {
+                          // Handle backspace key
+                          if (event is KeyDownEvent &&
+                              event.logicalKey ==
+                                  LogicalKeyboardKey.backspace) {
+                            if (_controllers[index].text.isEmpty && index > 0) {
+                              // If current field is empty, go to previous field and clear it
+                              _controllers[index - 1].clear();
+                              _focusNodes[index - 1].requestFocus();
+                              return KeyEventResult.handled;
+                            } else if (_controllers[index].text.isNotEmpty) {
+                              // If current field has text, clear it
+                              _controllers[index].clear();
+                              return KeyEventResult.handled;
+                            }
                           }
+                          return KeyEventResult.ignored;
                         },
-                        onTap: () {
-                          // Move cursor to the right when field is tapped
-                          _controllers[index].selection =
-                              TextSelection.fromPosition(
-                                TextPosition(
-                                  offset: _controllers[index].text.length,
-                                ),
-                              );
-                        },
-                        enabled: !isLoading,
+                        child: TextField(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index],
+                          textAlign: TextAlign.center,
+                          textDirection: TextDirection.rtl,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(1),
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.zero,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: hasError ? Colors.red : Colors.grey,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: hasError ? Colors.red : Colors.grey,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: hasError
+                                    ? Colors.red
+                                    : AppColors.primary,
+                                width: 2,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                                width: 2,
+                              ),
+                            ),
+                            counterText: "",
+                          ),
+                          onChanged: (value) {
+                            _onDigitChanged(index, value);
+                            if (value.isNotEmpty) {
+                              _clearError(context.read<AuthCubit>());
+                              // Keep cursor at the right (end)
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _controllers[index].selection =
+                                    TextSelection.fromPosition(
+                                      TextPosition(
+                                        offset: _controllers[index].text.length,
+                                      ),
+                                    );
+                              });
+                            }
+                          },
+                          onTap: () {
+                            // Move cursor to the right when field is tapped
+                            _controllers[index].selection =
+                                TextSelection.fromPosition(
+                                  TextPosition(
+                                    offset: _controllers[index].text.length,
+                                  ),
+                                );
+                          },
+                          enabled: !isLoading,
+                        ),
                       ),
                     );
                   }),
