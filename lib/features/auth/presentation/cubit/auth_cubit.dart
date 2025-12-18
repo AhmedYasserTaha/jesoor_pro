@@ -198,10 +198,29 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
+  void clearSendOtpError() {
+    if (state.sendOtpStatus == AuthStatus.error) {
+      emit(
+        state.copyWith(sendOtpStatus: AuthStatus.initial, errorMessage: null),
+      );
+    }
+  }
+
   void clearVerifyOtpError() {
     if (state.verifyOtpStatus == AuthStatus.error) {
       emit(
         state.copyWith(verifyOtpStatus: AuthStatus.initial, errorMessage: null),
+      );
+    }
+  }
+
+  void clearLoginSendOtpError() {
+    if (state.loginSendOtpStatus == AuthStatus.error) {
+      emit(
+        state.copyWith(
+          loginSendOtpStatus: AuthStatus.initial,
+          errorMessage: null,
+        ),
       );
     }
   }

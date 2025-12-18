@@ -55,10 +55,10 @@ class AuthListenerHandler {
       );
     } else if (state.sendOtpStatus == AuthStatus.error) {
       LoadingDialog.hide(context);
-      ErrorDialog.show(
-        context: context,
-        message: state.errorMessage ?? Strings.errorOccurred,
-      );
+      final errorMessage = state.errorMessage ?? Strings.errorOccurred;
+      // Clear error after showing it to prevent it from showing again
+      context.read<AuthCubit>().clearSendOtpError();
+      ErrorDialog.show(context: context, message: errorMessage);
     }
 
     // Handle verify OTP status
@@ -95,10 +95,10 @@ class AuthListenerHandler {
       );
     } else if (state.loginSendOtpStatus == AuthStatus.error) {
       LoadingDialog.hide(context);
-      ErrorDialog.show(
-        context: context,
-        message: state.errorMessage ?? Strings.errorOccurred,
-      );
+      final errorMessage = state.errorMessage ?? Strings.errorOccurred;
+      // Clear error after showing it to prevent it from showing again
+      context.read<AuthCubit>().clearLoginSendOtpError();
+      ErrorDialog.show(context: context, message: errorMessage);
     }
 
     // Handle login verify OTP status

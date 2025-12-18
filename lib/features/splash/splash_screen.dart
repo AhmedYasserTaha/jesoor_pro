@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (mounted) {
         if (hasToken) {
           // User is logged in, go to roots screen
-          context.go(Routes.roots);
+          context.go(Routes.authScreen);
         } else {
           // User is not logged in, go to onboarding
           context.go(Routes.onboarding);
