@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
-import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/config/theme/app_dimensions.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -32,6 +31,8 @@ class CustomTextField extends StatelessWidget {
       validator: validator,
       keyboardType: keyboardType,
       obscureText: obscureText && !isPasswordVisible,
+      textDirection: TextDirection.rtl,
+      textAlign: TextAlign.right,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: AppColors.hintTextColor),
@@ -63,6 +64,22 @@ class CustomTextField extends StatelessWidget {
               )
             : null,
       ),
+      onTap: () {
+        // Move cursor to the end (right) when field is tapped
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length),
+          );
+        });
+      },
+      onChanged: (value) {
+        // Keep cursor at the end (right) after typing
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length),
+          );
+        });
+      },
     );
   }
 }
