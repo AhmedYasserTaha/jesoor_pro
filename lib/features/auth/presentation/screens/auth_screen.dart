@@ -223,7 +223,7 @@ class _AuthScreenState extends State<AuthScreen>
                                           cubit.completeStep3(category.id);
                                         },
                                         onBack:
-                                            state.signupStep > 1 &&
+                                            state.signupStep > 3 &&
                                                 state.signupStep <= 5
                                             ? () => cubit.previousSignupStep()
                                             : null,
@@ -242,6 +242,8 @@ class _AuthScreenState extends State<AuthScreen>
                                             state.getCategoriesStatus,
                                         getCategoryChildrenStatus:
                                             state.getCategoryChildrenStatus,
+                                        completeStep2Status:
+                                            state.completeStep2Status,
                                       ),
                                     ),
                                   ],

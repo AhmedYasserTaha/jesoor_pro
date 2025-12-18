@@ -113,10 +113,8 @@ class AuthListenerHandler {
     }
 
     // Handle complete step 2 status
-    if (state.completeStep2Status == AuthStatus.loading) {
-      LoadingDialog.show(context);
-    } else if (state.completeStep2Status == AuthStatus.success) {
-      LoadingDialog.hide(context);
+    // No loading dialog for step 2 - loading is handled by button state
+    if (state.completeStep2Status == AuthStatus.success) {
       // Step 2 completed, step 3 is already set by cubit
       // Load categories only once when step 3 is reached and categories are empty
       if (state.signupStep == 3) {
@@ -128,7 +126,6 @@ class AuthListenerHandler {
         }
       }
     } else if (state.completeStep2Status == AuthStatus.error) {
-      LoadingDialog.hide(context);
       ErrorDialog.show(
         context: context,
         message: state.errorMessage ?? Strings.errorOccurred,
@@ -136,13 +133,10 @@ class AuthListenerHandler {
     }
 
     // Handle get categories status
-    if (state.getCategoriesStatus == AuthStatus.loading) {
-      LoadingDialog.show(context);
-    } else if (state.getCategoriesStatus == AuthStatus.success) {
-      LoadingDialog.hide(context);
+    // No loading dialog for step 3 - loading is handled by CircularProgressIndicator in the form
+    if (state.getCategoriesStatus == AuthStatus.success) {
       // Categories loaded successfully, UI will display them
     } else if (state.getCategoriesStatus == AuthStatus.error) {
-      LoadingDialog.hide(context);
       ErrorDialog.show(
         context: context,
         message: state.errorMessage ?? Strings.errorOccurred,

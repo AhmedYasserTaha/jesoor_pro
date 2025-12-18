@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/config/theme/app_dimensions.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
+import 'package:jesoor_pro/config/theme/app_text_styles.dart';
 import '../../../../../core/widgets/custom_text_field.dart';
 import '../../../../../core/widgets/custom_button.dart';
 import '../../../../../core/utils/strings.dart';
@@ -52,6 +53,7 @@ class SignupForm extends StatefulWidget {
   final AuthStatus getCategoriesStatus; // Loading state for parent categories
   final AuthStatus
   getCategoryChildrenStatus; // Loading state for child categories
+  final AuthStatus completeStep2Status; // Loading state for step 2
 
   const SignupForm({
     super.key,
@@ -83,6 +85,7 @@ class SignupForm extends StatefulWidget {
     this.selectedChildCategory,
     this.getCategoriesStatus = AuthStatus.initial,
     this.getCategoryChildrenStatus = AuthStatus.initial,
+    this.completeStep2Status = AuthStatus.initial,
   });
 
   @override
@@ -210,10 +213,12 @@ class _SignupFormState extends State<SignupForm> {
                     ),
                   ),
                 if (isLoadingCategories && widget.availableCategories.isEmpty)
-                  const Center(
+                  Center(
                     child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(),
+                      padding: const EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     ),
                   )
                 else if (widget.availableCategories.isEmpty)
@@ -249,7 +254,9 @@ class _SignupFormState extends State<SignupForm> {
             Positioned.fill(
               child: Container(
                 color: Colors.white.withOpacity(0.7),
-                child: const Center(child: CircularProgressIndicator()),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
               ),
             ),
           // Button at the bottom - appears when category is selected
@@ -307,10 +314,12 @@ class _SignupFormState extends State<SignupForm> {
                   ),
                 if (isLoadingChildren &&
                     widget.availableCategoryChildren.isEmpty)
-                  const Center(
+                  Center(
                     child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(),
+                      padding: const EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     ),
                   )
                 else if (widget.availableCategoryChildren.isEmpty)
@@ -573,7 +582,43 @@ class _SignupFormState extends State<SignupForm> {
                 },
               ),
               const SizedBox(height: 40),
-              CustomButton(text: Strings.save, onPressed: widget.onSignup),
+              Builder(
+                builder: (context) {
+                  final isLoading =
+                      widget.completeStep2Status == AuthStatus.loading;
+                  return SizedBox(
+                    height: AppDimensions.buttonHeight,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? () {} : widget.onSignup,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.buttonBorderRadius,
+                          ),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              Strings.save,
+                              style: AppTextStyles.buttonTextStyle,
+                            ),
+                    ),
+                  );
+                },
+              ),
             ],
           ],
         ),
