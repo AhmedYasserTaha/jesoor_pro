@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Navigate to onboarding after 3 seconds
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
-        context.go(Routes.roots);
+        context.go(Routes.authScreen);
       }
     });
   }

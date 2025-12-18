@@ -206,6 +206,17 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  void clearLoginVerifyOtpError() {
+    if (state.loginVerifyOtpStatus == AuthStatus.error) {
+      emit(
+        state.copyWith(
+          loginVerifyOtpStatus: AuthStatus.initial,
+          errorMessage: null,
+        ),
+      );
+    }
+  }
+
   Future<void> login(String phone, String password) async {
     emit(state.copyWith(status: AuthStatus.loading));
     final result = await loginUseCase(
@@ -256,7 +267,12 @@ class AuthCubit extends Cubit<AuthState> {
       );
       return;
     }
-    emit(state.copyWith(loginVerifyOtpStatus: AuthStatus.loading));
+    emit(
+      state.copyWith(
+        loginVerifyOtpStatus: AuthStatus.loading,
+        errorMessage: null,
+      ),
+    );
     final result = await loginVerifyOtpUseCase(
       LoginVerifyOtpParams(
         phone: state.loginPhone!,

@@ -10,11 +10,13 @@ import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
 class OtpVerificationDialog extends StatefulWidget {
   final String phone;
   final Function(String) onVerify;
+  final bool isLogin;
 
   const OtpVerificationDialog({
     super.key,
     required this.phone,
     required this.onVerify,
+    this.isLogin = false,
   });
 
   @override
@@ -62,8 +64,14 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
 
   void _clearError(AuthCubit cubit) {
     // Clear error when user starts typing
-    if (cubit.state.verifyOtpStatus == AuthStatus.error) {
-      cubit.clearVerifyOtpError();
+    if (widget.isLogin) {
+      if (cubit.state.loginVerifyOtpStatus == AuthStatus.error) {
+        cubit.clearLoginVerifyOtpError();
+      }
+    } else {
+      if (cubit.state.verifyOtpStatus == AuthStatus.error) {
+        cubit.clearVerifyOtpError();
+      }
     }
   }
 
@@ -71,8 +79,12 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
-        final isLoading = state.verifyOtpStatus == AuthStatus.loading;
-        final hasError = state.verifyOtpStatus == AuthStatus.error;
+        final isLoading = widget.isLogin
+            ? state.loginVerifyOtpStatus == AuthStatus.loading
+            : state.verifyOtpStatus == AuthStatus.loading;
+        final hasError = widget.isLogin
+            ? state.loginVerifyOtpStatus == AuthStatus.error
+            : state.verifyOtpStatus == AuthStatus.error;
         final errorMessage = state.errorMessage ?? Strings.otpIncorrect;
 
         return Dialog(

@@ -71,8 +71,7 @@ class _AuthScreenState extends State<AuthScreen>
   void _performLogin() {
     if (_formController.loginFormKey.currentState!.validate()) {
       final phone = _formController.loginPhoneController.text;
-      final password = _formController.loginPasswordController.text;
-      context.read<AuthCubit>().login(phone, password);
+      context.read<AuthCubit>().loginSendOtp(phone);
     }
   }
 
@@ -174,11 +173,6 @@ class _AuthScreenState extends State<AuthScreen>
                                   formKey: _formController.loginFormKey,
                                   phoneController:
                                       _formController.loginPhoneController,
-                                  passwordController:
-                                      _formController.loginPasswordController,
-                                  obscurePassword: state.isPasswordVisible,
-                                  onTogglePassword:
-                                      cubit.togglePasswordVisibility,
                                   onLogin: _performLogin,
                                 ),
                                 Column(

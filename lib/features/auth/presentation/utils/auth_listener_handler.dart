@@ -71,6 +71,47 @@ class AuthListenerHandler {
       // No need to show additional dialog here
     }
 
+    // Handle login send OTP status
+    if (state.loginSendOtpStatus == AuthStatus.loading) {
+      LoadingDialog.show(context);
+    } else if (state.loginSendOtpStatus == AuthStatus.success) {
+      LoadingDialog.hide(context);
+
+      // Show OTP Dialog for login
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => OtpVerificationDialog(
+          phone: state.loginPhone ?? '',
+          isLogin: true,
+          onVerify: (otp) {
+            context.read<AuthCubit>().loginVerifyOtp(
+              otp,
+              "test-device-token",
+              "test-device-label",
+            );
+          },
+        ),
+      );
+    } else if (state.loginSendOtpStatus == AuthStatus.error) {
+      LoadingDialog.hide(context);
+      ErrorDialog.show(
+        context: context,
+        message: state.errorMessage ?? Strings.errorOccurred,
+      );
+    }
+
+    // Handle login verify OTP status
+    if (state.loginVerifyOtpStatus == AuthStatus.loading) {
+      // Loading is handled inside the OTP dialog
+    } else if (state.loginVerifyOtpStatus == AuthStatus.success) {
+      Navigator.pop(context); // Dismiss OTP Dialog
+      // Login success is handled by main status success which navigates to roots
+    } else if (state.loginVerifyOtpStatus == AuthStatus.error) {
+      // Error message will be shown inside the OTP dialog
+      // No need to show additional dialog here
+    }
+
     // Handle complete step 2 status
     if (state.completeStep2Status == AuthStatus.loading) {
       LoadingDialog.show(context);
