@@ -450,14 +450,19 @@ class AuthCubit extends Cubit<AuthState> {
           // Preserve signupStep on error - don't revert
         ),
       ),
-      (_) => emit(
-        state.copyWith(
-          completeStep2Status: AuthStatus.success,
-          errorMessage: null, // Clear error on success
-          signupStep:
-              3, // Move to step 3 (categories) - MUST be set together with success
-        ),
-      ),
+      (_) {
+        emit(
+          state.copyWith(
+            completeStep2Status: AuthStatus.success,
+            errorMessage: null, // Clear error on success
+            signupStep:
+                3, // Move to step 3 (categories) - MUST be set together with success
+          ),
+        );
+        // Load categories immediately when step 3 is reached
+        // This will use cache-first strategy (fast if cached, fetch if not)
+        getCategories();
+      },
     );
   }
 
@@ -549,32 +554,85 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  // Get Category Children
+  // Get Category Children with cache-first strategy
   Future<void> getCategoryChildren(int categoryId) async {
-    emit(
-      state.copyWith(
-        getCategoryChildrenStatus: AuthStatus.loading,
-        // Preserve signupStep - never override it unless moving forward
-      ),
+    final stopwatch = Stopwatch()..start();
+
+    // Check if we already have children for this category
+    final hasCachedChildren =
+        state.selectedCategoryChildren.isNotEmpty &&
+        state.selectedCategory?.id == categoryId;
+
+    // Only show loading if we don't have cached data
+    if (!hasCachedChildren) {
+      emit(state.copyWith(getCategoryChildrenStatus: AuthStatus.loading));
+    }
+
+    final result = await getCategoryChildrenUseCase(
+      GetCategoryChildrenParams(categoryId: categoryId),
     );
+    stopwatch.stop();
+
+    result.fold(
+      (failure) {
+        // If we have cached data and remote fails, keep showing cached data
+        if (hasCachedChildren) {
+          // Don't emit error - keep cached data visible
+          return;
+        }
+        emit(
+          state.copyWith(
+            getCategoryChildrenStatus: AuthStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (children) {
+        // If data returned very quickly (< 100ms), it's likely from cache
+        final isFromCache =
+            stopwatch.elapsedMilliseconds < 100 || hasCachedChildren;
+
+        emit(
+          state.copyWith(
+            selectedCategoryChildren: children,
+            getCategoryChildrenStatus: isFromCache
+                ? AuthStatus.cached
+                : AuthStatus.success,
+            signupStep: 4, // Show children selection - moving forward is OK
+          ),
+        );
+
+        // If data was from cache, refresh in background
+        if (isFromCache) {
+          _refreshCategoryChildrenInBackground(categoryId);
+        }
+      },
+    );
+  }
+
+  // Background refresh for category children
+  Future<void> _refreshCategoryChildrenInBackground(int categoryId) async {
     final result = await getCategoryChildrenUseCase(
       GetCategoryChildrenParams(categoryId: categoryId),
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          getCategoryChildrenStatus: AuthStatus.error,
-          errorMessage: failure.message,
-          // Preserve signupStep - never override it on error
-        ),
-      ),
-      (children) => emit(
-        state.copyWith(
-          selectedCategoryChildren: children,
-          getCategoryChildrenStatus: AuthStatus.success,
-          signupStep: 4, // Show children selection - moving forward is OK
-        ),
-      ),
+      (_) {
+        // Silently fail - don't update state on background refresh failure
+      },
+      (children) {
+        // Only update if data is different
+        if (children.length != state.selectedCategoryChildren.length ||
+            children.any(
+              (child) => !state.selectedCategoryChildren.contains(child),
+            )) {
+          emit(
+            state.copyWith(
+              selectedCategoryChildren: children,
+              getCategoryChildrenStatus: AuthStatus.success,
+            ),
+          );
+        }
+      },
     );
   }
 

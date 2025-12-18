@@ -116,15 +116,8 @@ class AuthListenerHandler {
     // No loading dialog for step 2 - loading is handled by button state
     if (state.completeStep2Status == AuthStatus.success) {
       // Step 2 completed, step 3 is already set by cubit
-      // Load categories only once when step 3 is reached and categories are empty
-      if (state.signupStep == 3) {
-        final cubit = context.read<AuthCubit>();
-        // Only load if categories are empty and not already loading
-        if (state.categories.isEmpty &&
-            state.getCategoriesStatus != AuthStatus.loading) {
-          cubit.getCategories();
-        }
-      }
+      // Categories are loaded automatically by cubit.completeStep2()
+      // No need to load here to avoid duplicate calls
     } else if (state.completeStep2Status == AuthStatus.error) {
       ErrorDialog.show(
         context: context,
