@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:jesoor_pro/core/error/exceptions.dart';
 import 'package:jesoor_pro/core/error/failures.dart';
 import 'package:jesoor_pro/core/storage/token_storage.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
+import 'package:jesoor_pro/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/governorate_entity.dart';
@@ -15,11 +17,13 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
   final InternetConnectionChecker networkInfo;
   final TokenStorage tokenStorage;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
+    required this.localDataSource,
     required this.networkInfo,
     required this.tokenStorage,
   });
@@ -34,6 +38,8 @@ class AuthRepositoryImpl implements AuthRepository {
         final remoteUser = await remoteDataSource.login(email, password);
         // Store token securely
         await tokenStorage.saveToken(remoteUser.token);
+        // Cache user data
+        await localDataSource.cacheUser(remoteUser);
         return Right(remoteUser);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
@@ -74,6 +80,8 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         // Store token securely
         await tokenStorage.saveToken(remoteUser.token);
+        // Cache user data
+        await localDataSource.cacheUser(remoteUser);
         return Right(remoteUser);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
@@ -90,6 +98,8 @@ class AuthRepositoryImpl implements AuthRepository {
         final remoteUser = await remoteDataSource.signup(params);
         // Store token securely
         await tokenStorage.saveToken(remoteUser.token);
+        // Cache user data
+        await localDataSource.cacheUser(remoteUser);
         return Right(remoteUser);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
@@ -173,9 +183,25 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, List<CategoryEntity>>> getCategories() async {
+    // Cache-first strategy: Try to get cached data first
+    final cachedCategories = await localDataSource.getCachedCategories();
+    final hasCache = cachedCategories.isNotEmpty;
+
+    // If cache exists, return it immediately and fetch fresh data in background
+    if (hasCache) {
+      // Fetch fresh data in background (fire and forget)
+      if (await networkInfo.hasConnection) {
+        unawaited(_fetchAndCacheCategories());
+      }
+      return Right(cachedCategories);
+    }
+
+    // No cache available - fetch from remote
     if (await networkInfo.hasConnection) {
       try {
         final categories = await remoteDataSource.getCategories();
+        // Cache the fresh data
+        await localDataSource.cacheCategories(categories);
         return Right(categories);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
@@ -185,13 +211,41 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  // Background method to fetch and cache categories
+  Future<void> _fetchAndCacheCategories() async {
+    try {
+      final categories = await remoteDataSource.getCategories();
+      await localDataSource.cacheCategories(categories);
+    } catch (e) {
+      // Silently fail - background refresh shouldn't affect UI
+    }
+  }
+
   @override
   Future<Either<Failure, List<CategoryEntity>>> getCategoryChildren(
     int categoryId,
   ) async {
+    // Cache-first strategy: Try to get cached data first
+    final cachedChildren = await localDataSource.getCachedCategoryChildren(
+      categoryId,
+    );
+    final hasCache = cachedChildren.isNotEmpty;
+
+    // If cache exists, return it immediately and fetch fresh data in background
+    if (hasCache) {
+      // Fetch fresh data in background (fire and forget)
+      if (await networkInfo.hasConnection) {
+        unawaited(_fetchAndCacheCategoryChildren(categoryId));
+      }
+      return Right(cachedChildren);
+    }
+
+    // No cache available - fetch from remote
     if (await networkInfo.hasConnection) {
       try {
         final children = await remoteDataSource.getCategoryChildren(categoryId);
+        // Cache the fresh data
+        await localDataSource.cacheCategoryChildren(categoryId, children);
         return Right(children);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
@@ -201,17 +255,57 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  // Background method to fetch and cache category children
+  Future<void> _fetchAndCacheCategoryChildren(int categoryId) async {
+    try {
+      final children = await remoteDataSource.getCategoryChildren(categoryId);
+      await localDataSource.cacheCategoryChildren(categoryId, children);
+    } catch (e) {
+      // Silently fail - background refresh shouldn't affect UI
+    }
+  }
+
   @override
   Future<Either<Failure, List<GovernorateEntity>>> getGovernorates() async {
+    // Cache-first strategy: Try to get cached data first
+    final cachedGovernorates = await localDataSource.getCachedGovernorates();
+    final hasCache = cachedGovernorates.isNotEmpty;
+
+    // If cache exists, return it immediately and fetch fresh data in background
+    if (hasCache) {
+      // Fetch fresh data in background (fire and forget)
+      if (await networkInfo.hasConnection) {
+        unawaited(_fetchAndCacheGovernorates());
+      }
+      return Right(cachedGovernorates);
+    }
+
+    // No cache available - fetch from remote
     if (await networkInfo.hasConnection) {
       try {
         final governorates = await remoteDataSource.getGovernorates();
+        // Cache the fresh data
+        await localDataSource.cacheGovernorates(governorates);
         return Right(governorates);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
       }
     } else {
+      // Try to return cached data even if offline
+      if (hasCache) {
+        return Right(cachedGovernorates);
+      }
       return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
+    }
+  }
+
+  // Background method to fetch and cache governorates
+  Future<void> _fetchAndCacheGovernorates() async {
+    try {
+      final governorates = await remoteDataSource.getGovernorates();
+      await localDataSource.cacheGovernorates(governorates);
+    } catch (e) {
+      // Silently fail - background refresh shouldn't affect UI
     }
   }
 

@@ -3,7 +3,7 @@ import 'package:jesoor_pro/features/auth/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/governorate_entity.dart';
 import 'package:jesoor_pro/features/auth/domain/entities/user_entity.dart';
 
-enum AuthStatus { initial, loading, success, error }
+enum AuthStatus { initial, loading, success, error, cached }
 
 class AuthState extends Equatable {
   final AuthStatus status;
@@ -22,10 +22,12 @@ class AuthState extends Equatable {
   final List<CategoryEntity> categories;
   final List<CategoryEntity> selectedCategoryChildren;
   final CategoryEntity? selectedCategory;
+  final bool isCategoriesFromCache;
 
   // Governorates
   final List<GovernorateEntity> governorates;
   final AuthStatus getGovernoratesStatus;
+  final bool isGovernoratesFromCache;
 
   // Step 2 & 3 Status
   final AuthStatus completeStep2Status;
@@ -60,8 +62,10 @@ class AuthState extends Equatable {
     this.categories = const [],
     this.selectedCategoryChildren = const [],
     this.selectedCategory,
+    this.isCategoriesFromCache = false,
     this.governorates = const [],
     this.getGovernoratesStatus = AuthStatus.initial,
+    this.isGovernoratesFromCache = false,
     this.completeStep2Status = AuthStatus.initial,
     this.completeStep3Status = AuthStatus.initial,
     this.getCategoriesStatus = AuthStatus.initial,
@@ -89,8 +93,10 @@ class AuthState extends Equatable {
     List<CategoryEntity>? categories,
     List<CategoryEntity>? selectedCategoryChildren,
     CategoryEntity? selectedCategory,
+    bool? isCategoriesFromCache,
     List<GovernorateEntity>? governorates,
     AuthStatus? getGovernoratesStatus,
+    bool? isGovernoratesFromCache,
     AuthStatus? completeStep2Status,
     AuthStatus? completeStep3Status,
     AuthStatus? getCategoriesStatus,
@@ -118,9 +124,13 @@ class AuthState extends Equatable {
       selectedCategoryChildren:
           selectedCategoryChildren ?? this.selectedCategoryChildren,
       selectedCategory: selectedCategory,
+      isCategoriesFromCache:
+          isCategoriesFromCache ?? this.isCategoriesFromCache,
       governorates: governorates ?? this.governorates,
       getGovernoratesStatus:
           getGovernoratesStatus ?? this.getGovernoratesStatus,
+      isGovernoratesFromCache:
+          isGovernoratesFromCache ?? this.isGovernoratesFromCache,
       completeStep2Status: completeStep2Status ?? this.completeStep2Status,
       completeStep3Status: completeStep3Status ?? this.completeStep3Status,
       getCategoriesStatus: getCategoriesStatus ?? this.getCategoriesStatus,
@@ -132,8 +142,10 @@ class AuthState extends Equatable {
       loginSendOtpStatus: loginSendOtpStatus ?? this.loginSendOtpStatus,
       loginVerifyOtpStatus: loginVerifyOtpStatus ?? this.loginVerifyOtpStatus,
       loginPhone: loginPhone ?? this.loginPhone,
-      forgotPasswordSendOtpStatus: forgotPasswordSendOtpStatus ?? this.forgotPasswordSendOtpStatus,
-      forgotPasswordResetStatus: forgotPasswordResetStatus ?? this.forgotPasswordResetStatus,
+      forgotPasswordSendOtpStatus:
+          forgotPasswordSendOtpStatus ?? this.forgotPasswordSendOtpStatus,
+      forgotPasswordResetStatus:
+          forgotPasswordResetStatus ?? this.forgotPasswordResetStatus,
     );
   }
 
@@ -151,8 +163,10 @@ class AuthState extends Equatable {
     categories,
     selectedCategoryChildren,
     selectedCategory,
+    isCategoriesFromCache,
     governorates,
     getGovernoratesStatus,
+    isGovernoratesFromCache,
     completeStep2Status,
     completeStep3Status,
     getCategoriesStatus,

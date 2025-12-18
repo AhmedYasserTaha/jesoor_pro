@@ -33,6 +33,12 @@ class AuthCubit extends Cubit<AuthState> {
   final GetCategoryChildrenUseCase getCategoryChildrenUseCase;
   final GetGovernoratesUseCase getGovernoratesUseCase;
 
+  // Flags to prevent duplicate API calls
+  bool _isFetchingCategories = false;
+  bool _isFetchingGovernorates = false;
+  bool _isRefreshingCategories = false;
+  bool _isRefreshingGovernorates = false;
+
   AuthCubit({
     required this.loginUseCase,
     required this.loginSendOtpUseCase,
@@ -455,32 +461,91 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  // Get Categories
+  // Get Categories with cache-first strategy
   Future<void> getCategories() async {
-    emit(
-      state.copyWith(
-        getCategoriesStatus: AuthStatus.loading,
-        errorMessage: null, // Clear previous error
-        // Preserve signupStep - never override it
-      ),
+    // Prevent duplicate calls
+    if (_isFetchingCategories) return;
+    _isFetchingCategories = true;
+
+    final stopwatch = Stopwatch()..start();
+
+    // Only show loading if we don't have cached data
+    final hasCachedData = state.categories.isNotEmpty;
+    if (!hasCachedData) {
+      emit(
+        state.copyWith(
+          getCategoriesStatus: AuthStatus.loading,
+          errorMessage: null,
+        ),
+      );
+    }
+
+    final result = await getCategoriesUseCase(NoParams());
+    stopwatch.stop();
+    _isFetchingCategories = false;
+
+    result.fold(
+      (failure) {
+        // If we have cached data and remote fails, keep showing cached data
+        if (hasCachedData) {
+          // Don't emit error - keep cached data visible
+          return;
+        }
+        emit(
+          state.copyWith(
+            getCategoriesStatus: AuthStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (categories) {
+        // If data returned very quickly (< 100ms), it's likely from cache
+        final isFromCache =
+            stopwatch.elapsedMilliseconds < 100 || hasCachedData;
+
+        emit(
+          state.copyWith(
+            categories: categories,
+            getCategoriesStatus: isFromCache
+                ? AuthStatus.cached
+                : AuthStatus.success,
+            isCategoriesFromCache: isFromCache,
+            errorMessage: null,
+          ),
+        );
+
+        // If data was from cache, refresh in background
+        if (isFromCache) {
+          _refreshCategoriesInBackground();
+        }
+      },
     );
+  }
+
+  // Background refresh for categories
+  Future<void> _refreshCategoriesInBackground() async {
+    // Prevent duplicate background refreshes
+    if (_isRefreshingCategories) return;
+    _isRefreshingCategories = true;
+
     final result = await getCategoriesUseCase(NoParams());
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          getCategoriesStatus: AuthStatus.error,
-          errorMessage: failure.message,
-          // Preserve signupStep - never override it
-        ),
-      ),
-      (categories) => emit(
-        state.copyWith(
-          categories: categories,
-          getCategoriesStatus: AuthStatus.success,
-          errorMessage: null, // Clear error on success
-          // Preserve signupStep - never override it
-        ),
-      ),
+      (_) {
+        // Silently fail - don't update state on background refresh failure
+      },
+      (categories) {
+        // Only update if data is different
+        if (categories.length != state.categories.length ||
+            categories.any((cat) => !state.categories.contains(cat))) {
+          emit(
+            state.copyWith(
+              categories: categories,
+              getCategoriesStatus: AuthStatus.success,
+              isCategoriesFromCache: false,
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -513,31 +578,87 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  // Get Governorates
+  // Get Governorates with cache-first strategy
   Future<void> getGovernorates() async {
-    emit(
-      state.copyWith(
-        getGovernoratesStatus: AuthStatus.loading,
-        // Preserve signupStep - never override it
-      ),
+    // Prevent duplicate calls
+    if (_isFetchingGovernorates) return;
+    _isFetchingGovernorates = true;
+
+    final stopwatch = Stopwatch()..start();
+
+    // Only show loading if we don't have cached data
+    final hasCachedData = state.governorates.isNotEmpty;
+    if (!hasCachedData) {
+      emit(state.copyWith(getGovernoratesStatus: AuthStatus.loading));
+    }
+
+    final result = await getGovernoratesUseCase(NoParams());
+    stopwatch.stop();
+    _isFetchingGovernorates = false;
+
+    result.fold(
+      (failure) {
+        // If we have cached data and remote fails, keep showing cached data
+        if (hasCachedData) {
+          // Don't emit error - keep cached data visible
+          return;
+        }
+        emit(
+          state.copyWith(
+            getGovernoratesStatus: AuthStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (governorates) {
+        // If data returned very quickly (< 100ms), it's likely from cache
+        final isFromCache =
+            stopwatch.elapsedMilliseconds < 100 || hasCachedData;
+
+        emit(
+          state.copyWith(
+            governorates: governorates,
+            getGovernoratesStatus: isFromCache
+                ? AuthStatus.cached
+                : AuthStatus.success,
+            isGovernoratesFromCache: isFromCache,
+          ),
+        );
+
+        // If data was from cache, refresh in background
+        if (isFromCache) {
+          _refreshGovernoratesInBackground();
+        }
+      },
     );
+  }
+
+  // Background refresh for governorates
+  Future<void> _refreshGovernoratesInBackground() async {
+    // Prevent duplicate background refreshes
+    if (_isRefreshingGovernorates) return;
+    _isRefreshingGovernorates = true;
+
     final result = await getGovernoratesUseCase(NoParams());
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          getGovernoratesStatus: AuthStatus.error,
-          errorMessage: failure.message,
-          // Preserve signupStep - never override it
-        ),
-      ),
-      (governorates) => emit(
-        state.copyWith(
-          governorates: governorates,
-          getGovernoratesStatus: AuthStatus.success,
-          // Preserve signupStep - never override it
-        ),
-      ),
+      (_) {
+        // Silently fail - don't update state on background refresh failure
+      },
+      (governorates) {
+        // Only update if data is different
+        if (governorates.length != state.governorates.length ||
+            governorates.any((gov) => !state.governorates.contains(gov))) {
+          emit(
+            state.copyWith(
+              governorates: governorates,
+              getGovernoratesStatus: AuthStatus.success,
+              isGovernoratesFromCache: false,
+            ),
+          );
+        }
+      },
     );
+    _isRefreshingGovernorates = false;
   }
 
   // Select Category (parent category, then fetch children from API)

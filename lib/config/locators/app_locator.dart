@@ -2,12 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:jesoor_pro/core/api/api_consumer.dart';
 import 'package:jesoor_pro/core/api/auth_interceptor.dart';
 import 'package:jesoor_pro/core/api/dio_consumer.dart';
 import 'package:jesoor_pro/core/api/interceptors.dart';
+import 'package:jesoor_pro/core/cache/hive_constants.dart';
+import 'package:jesoor_pro/core/cache/hive_helper.dart';
 import 'package:jesoor_pro/core/storage/token_storage.dart';
+import 'package:jesoor_pro/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:jesoor_pro/features/auth/data/datasources/auth_local_data_source_impl.dart';
 import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
@@ -29,6 +34,24 @@ import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  //! Hive Boxes (Hive should be initialized in main.dart before calling init())
+  sl.registerLazySingleton<Box<String>>(
+    () => HiveHelper.getCategoriesBox(),
+    instanceName: HiveConstants.categoriesBox,
+  );
+  sl.registerLazySingleton<Box<String>>(
+    () => HiveHelper.getCategoryChildrenBox(),
+    instanceName: HiveConstants.categoryChildrenBox,
+  );
+  sl.registerLazySingleton<Box<String>>(
+    () => HiveHelper.getGovernoratesBox(),
+    instanceName: HiveConstants.governoratesBox,
+  );
+  sl.registerLazySingleton<Box<String>>(
+    () => HiveHelper.getUserBox(),
+    instanceName: HiveConstants.userBox,
+  );
+
   //! Features - Auth
   // Cubit
   sl.registerFactory(
@@ -71,6 +94,7 @@ Future<void> init() async {
     () => AuthRepositoryImpl(
       networkInfo: sl(),
       remoteDataSource: sl(),
+      localDataSource: sl(),
       tokenStorage: sl(),
     ),
   );
@@ -78,6 +102,20 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+
+  // Local Data Source
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(
+      categoriesBox: sl<Box<String>>(instanceName: HiveConstants.categoriesBox),
+      categoryChildrenBox: sl<Box<String>>(
+        instanceName: HiveConstants.categoryChildrenBox,
+      ),
+      governoratesBox: sl<Box<String>>(
+        instanceName: HiveConstants.governoratesBox,
+      ),
+      userBox: sl<Box<String>>(instanceName: HiveConstants.userBox),
+    ),
   );
 
   //! Core

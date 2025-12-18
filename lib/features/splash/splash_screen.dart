@@ -6,6 +6,9 @@ import 'package:jesoor_pro/config/routes/app_router.dart';
 import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/config/locators/app_locator.dart' as di;
 import 'package:jesoor_pro/core/storage/token_storage.dart';
+import 'package:jesoor_pro/core/usecases/use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
+import 'package:jesoor_pro/features/auth/domain/usecases/get_governorates_use_case.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -43,8 +46,35 @@ class _SplashScreenState extends State<SplashScreen>
     // Start animation
     _animationController.forward();
 
+    // Preload critical data in background (non-blocking)
+    _preloadCriticalData();
+
     // Check if user is logged in and navigate accordingly
     _checkAuthAndNavigate();
+  }
+
+  // Preload critical data (categories and governorates) for faster signup
+  void _preloadCriticalData() {
+    // Preload in background - don't block UI
+    Future.microtask(() async {
+      try {
+        // Preload in parallel - don't wait for completion
+        unawaited(
+          Future.wait([
+                di.sl<GetCategoriesUseCase>()(NoParams()),
+                di.sl<GetGovernoratesUseCase>()(NoParams()),
+              ])
+              .then((_) {
+                // Data preloaded successfully (cached or fetched)
+              })
+              .catchError((_) {
+                // Silently fail - preloading is not critical
+              }),
+        );
+      } catch (e) {
+        // Silently fail - preloading is not critical
+      }
+    });
   }
 
   Future<void> _checkAuthAndNavigate() async {
@@ -60,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (mounted) {
         if (hasToken) {
           // User is logged in, go to roots screen
-          context.go(Routes.authScreen);
+          context.go(Routes.roots);
         } else {
           // User is not logged in, go to onboarding
           context.go(Routes.onboarding);
