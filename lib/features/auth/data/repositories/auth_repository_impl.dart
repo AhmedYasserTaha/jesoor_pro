@@ -32,7 +32,8 @@ class AuthRepositoryImpl implements AuthRepository {
     if (await networkInfo.hasConnection) {
       try {
         final remoteUser = await remoteDataSource.login(email, password);
-        // TODO: Cache user token/data locally
+        // Store token securely
+        await tokenStorage.saveToken(remoteUser.token);
         return Right(remoteUser);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
@@ -71,6 +72,8 @@ class AuthRepositoryImpl implements AuthRepository {
           deviceToken,
           deviceLabel,
         );
+        // Store token securely
+        await tokenStorage.saveToken(remoteUser.token);
         return Right(remoteUser);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));
@@ -85,6 +88,8 @@ class AuthRepositoryImpl implements AuthRepository {
     if (await networkInfo.hasConnection) {
       try {
         final remoteUser = await remoteDataSource.signup(params);
+        // Store token securely
+        await tokenStorage.saveToken(remoteUser.token);
         return Right(remoteUser);
       } on ServerException catch (failure) {
         return Left(ServerFailure(message: failure.message));

@@ -31,6 +31,21 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
 
   @override
+  void initState() {
+    super.initState();
+    // Focus on the first field automatically when dialog opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _focusNodes[0].requestFocus();
+        // Set cursor position to the right (end of text)
+        _controllers[0].selection = TextSelection.fromPosition(
+          TextPosition(offset: _controllers[0].text.length),
+        );
+      }
+    });
+  }
+
+  @override
   void dispose() {
     for (var controller in _controllers) {
       controller.dispose();
@@ -122,6 +137,7 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
                         controller: _controllers[index],
                         focusNode: _focusNodes[index],
                         textAlign: TextAlign.center,
+                        textDirection: TextDirection.rtl,
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(1),
@@ -161,7 +177,25 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
                           _onDigitChanged(index, value);
                           if (value.isNotEmpty) {
                             _clearError(context.read<AuthCubit>());
+                            // Keep cursor at the right (end)
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _controllers[index].selection =
+                                  TextSelection.fromPosition(
+                                    TextPosition(
+                                      offset: _controllers[index].text.length,
+                                    ),
+                                  );
+                            });
                           }
+                        },
+                        onTap: () {
+                          // Move cursor to the right when field is tapped
+                          _controllers[index].selection =
+                              TextSelection.fromPosition(
+                                TextPosition(
+                                  offset: _controllers[index].text.length,
+                                ),
+                              );
                         },
                         enabled: !isLoading,
                       ),

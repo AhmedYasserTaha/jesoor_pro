@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:jesoor_pro/config/routes/app_router.dart';
 import 'package:jesoor_pro/config/routes/routes.dart';
+import 'package:jesoor_pro/config/locators/app_locator.dart' as di;
+import 'package:jesoor_pro/core/storage/token_storage.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,12 +43,35 @@ class _SplashScreenState extends State<SplashScreen>
     // Start animation
     _animationController.forward();
 
-    // Navigate to onboarding after 3 seconds
-    Timer(const Duration(seconds: 3), () {
+    // Check if user is logged in and navigate accordingly
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _checkAuthAndNavigate() async {
+    // Wait for animation to complete (3 seconds)
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (!mounted) return;
+
+    try {
+      final tokenStorage = di.sl<TokenStorage>();
+      final hasToken = await tokenStorage.hasToken();
+
       if (mounted) {
-        context.go(Routes.authScreen);
+        if (hasToken) {
+          // User is logged in, go to roots screen
+          context.go(Routes.roots);
+        } else {
+          // User is not logged in, go to onboarding
+          context.go(Routes.onboarding);
+        }
       }
-    });
+    } catch (e) {
+      // If there's an error checking token, go to onboarding
+      if (mounted) {
+        context.go(Routes.onboarding);
+      }
+    }
   }
 
   @override
