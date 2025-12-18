@@ -76,6 +76,9 @@ class Strings {
 
   // Roots Screen
   static const String home = 'الرئيسية';
+  static const String messages = 'الرسائل';
+  static const String myCourses = 'دوراتي';
+  static const String more = 'المزيد';
   static const String search = 'البحث';
   static const String favorites = 'المفضلة';
   static const String profile = 'الملف الشخصي';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/features/auth/presentation/screens/auth_screen.dart';
+import 'package:jesoor_pro/features/home/presentation/screens/home_screen.dart';
 import 'package:jesoor_pro/features/onboarding/onboarding_screen.dart';
 import 'package:jesoor_pro/features/roots/roots_screen.dart';
 import 'package:jesoor_pro/features/splash/splash_screen.dart';
@@ -71,6 +72,12 @@ class AppRouter {
             state,
             child: const RootsScreen(),
           );
+        },
+      ),
+      GoRoute(
+        path: Routes.home,
+        pageBuilder: (context, state) {
+          return _buildPageWithTransition(context, state, child: HomeScreen());
         },
       ),
     ],

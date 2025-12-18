@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
+import 'package:jesoor_pro/features/home/presentation/screens/home_screen.dart';
 
 class RootsScreen extends StatefulWidget {
   const RootsScreen({super.key});
@@ -14,59 +16,63 @@ class _RootsScreenState extends State<RootsScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const PlaceholderScreen(title: 'الشاشة 2'),
-    const PlaceholderScreen(title: 'الشاشة 3'),
-    const PlaceholderScreen(title: 'الشاشة 4'),
+    const PlaceholderScreen(title: Strings.messages),
+    const PlaceholderScreen(title: Strings.myCourses),
+    const PlaceholderScreen(title: Strings.more),
+  ];
+
+  final List<String> _iconPaths = [
+    'assets/icons/home-icon.png',
+    'assets/icons/chat.png',
+    'assets/icons/chat2.png',
+    'assets/icons/more-icon.png',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: Strings.home),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: Strings.search,
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: AppColors.primary,
+          selectedItemColor: AppColors.textWhite,
+          unselectedItemColor: AppColors.textWhite.withOpacity(0.6),
+          selectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: Strings.favorites,
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: Strings.profile,
-          ),
-        ],
+          elevation: 0,
+          items: [
+            _buildBottomNavItem(_iconPaths[0], Strings.home, 0),
+            _buildBottomNavItem(_iconPaths[1], Strings.messages, 1),
+            _buildBottomNavItem(_iconPaths[2], Strings.myCourses, 2),
+            _buildBottomNavItem(_iconPaths[3], Strings.more, 3),
+          ],
+        ),
       ),
     );
   }
-}
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(Strings.home),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      body: const Center(
-        child: Text(Strings.welcomeToHome, style: TextStyle(fontSize: 24)),
-      ),
+  BottomNavigationBarItem _buildBottomNavItem(
+    String iconPath,
+    String label,
+    int index,
+  ) {
+    return BottomNavigationBarItem(
+      icon: Image.asset(iconPath, width: 24, height: 24),
+      activeIcon: Image.asset(iconPath, width: 24, height: 24),
+      label: label,
     );
   }
 }
@@ -79,12 +85,13 @@ class PlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+      appBar: AppBar(title: Text(title), centerTitle: true),
+      body: Center(
+        child: Text(
+          title,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
       ),
-      body: Center(child: Text(title, style: const TextStyle(fontSize: 24))),
     );
   }
 }

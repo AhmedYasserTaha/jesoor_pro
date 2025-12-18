@@ -33,7 +33,7 @@ class OnboardingBottomControls extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: const CustomText(
-              'SKIP',
+              'تخطي',
               color: AppColors.primary,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -59,7 +59,7 @@ class OnboardingBottomControls extends StatelessWidget {
               elevation: 0,
             ),
             child: CustomText(
-              currentPage == onboardingPages.length - 1 ? 'START' : 'NEXT',
+              currentPage == onboardingPages.length - 1 ? 'ابدأ' : 'التالي',
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: AppColors.textWhite,

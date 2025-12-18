@@ -10,18 +10,17 @@ class OnboardingData {
   });
 }
 
-// Onboarding pages data
+// بيانات صفحات الإعداد
 final List<OnboardingData> onboardingPages = [
   OnboardingData(
-    title: 'Explore Online\nCourses',
+    title: 'استكشف الدورات\nعبر الإنترنت',
     description:
-        'Discover a wide range of courses tailored to your learning needs',
+        'اكتشف مجموعة واسعة من الدورات المصممة لتلبية احتياجاتك التعليمية',
     imagePath: 'assets/images/undraw_certificate_cqps.png',
   ),
   OnboardingData(
-    title: 'Learning\nMade Easy',
-    description:
-        'Learn at your own pace with interactive content and expert guidance',
+    title: 'التعلم\nبسهولة',
+    description: 'تعلم وفقًا لسرعتك الخاصة مع محتوى تفاعلي وإرشاد من خبراء',
     imagePath: 'assets/images/undraw_terms_sx63.png',
   ),
 ];
