@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/widgets/custom_button.dart';
 import 'package:jesoor_pro/core/widgets/custom_text_field.dart';
+import 'package:jesoor_pro/core/widgets/loading_widget.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/forgot_password/presentation/cubit/forgot_password_cubit.dart';
 import 'package:jesoor_pro/features/auth/forgot_password/presentation/cubit/forgot_password_state.dart';
@@ -225,11 +226,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                           state.forgotPasswordSendOtpStatus ==
                           ForgotPasswordStatus.loading;
                       return isLoading
-                          ? const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: CircularProgressIndicator(),
-                              ),
+                          ? const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: LoadingWidget(),
                             )
                           : CustomButton(
                               text: Strings.sendCode,

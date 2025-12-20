@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:jesoor_pro/config/theme/app_colors.dart';
+import 'package:jesoor_pro/core/widgets/loading_widget.dart';
 
 class LoadingDialog extends StatelessWidget {
   const LoadingDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(color: AppColors.primary),
-    );
+    return const LoadingWidget();
   }
 
   static void show(BuildContext context) {

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/widgets/custom_button.dart';
+import 'package:jesoor_pro/core/widgets/loading_widget.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_cubit.dart';
 import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_state.dart';
@@ -272,7 +273,7 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
             ],
             const SizedBox(height: 20),
             if (isLoading)
-              const CircularProgressIndicator(color: AppColors.primary)
+              const LoadingWidget(color: AppColors.primary, size: 30)
             else
               CustomButton(text: Strings.verify, onPressed: _verify),
           ],

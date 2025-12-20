@@ -7,6 +7,7 @@ import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/config/locators/app_locator.dart' as di;
 import 'package:jesoor_pro/core/storage/token_storage.dart';
 import 'package:jesoor_pro/core/usecases/use_case.dart';
+import 'package:jesoor_pro/core/widgets/loading_widget.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_categories_use_case.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_governorates_use_case.dart';
 import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_cubit.dart';
@@ -94,7 +95,7 @@ class _SplashScreenState extends State<SplashScreen>
             // If loading cached user fails, continue anyway
           }
           // Navigate to roots screen (main app)
-          context.go(Routes.authScreen);
+          context.go(Routes.roots);
         } else {
           // User is not logged in, go to onboarding
           context.go(Routes.onboarding);
@@ -146,6 +147,9 @@ class _SplashScreenState extends State<SplashScreen>
                   letterSpacing: 8,
                 ),
               ),
+              const SizedBox(height: 40),
+              // Loading Indicator
+              _buildLoadingIndicator(),
             ],
           ),
         ),
@@ -196,6 +200,14 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return const LoadingWidget(
+      color: Color(0xFFFDB022),
+      size: 50,
+      strokeWidth: 4.0,
     );
   }
 }

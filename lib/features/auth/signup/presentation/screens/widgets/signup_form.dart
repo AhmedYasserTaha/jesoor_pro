@@ -5,6 +5,7 @@ import 'package:jesoor_pro/config/theme/app_text_styles.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/core/widgets/custom_button.dart';
 import 'package:jesoor_pro/core/widgets/custom_text_field.dart';
+import 'package:jesoor_pro/core/widgets/loading_widget.dart';
 import 'package:jesoor_pro/features/auth/signup/presentation/screens/widgets/selection_card.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/entities/governorate_entity.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/entities/category_entity.dart';
@@ -216,13 +217,9 @@ class _SignupFormState extends State<SignupForm> {
                     ),
                   ),
                 if (isLoadingCategories && widget.availableCategories.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: LoadingWidget(),
                   )
                 else if (widget.availableCategories.isEmpty)
                   const Center(
@@ -257,9 +254,7 @@ class _SignupFormState extends State<SignupForm> {
             Positioned.fill(
               child: Container(
                 color: Colors.white.withOpacity(0.7),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                ),
+                child: const LoadingWidget(),
               ),
             ),
           // Button at the bottom - appears when category is selected
@@ -348,9 +343,7 @@ class _SignupFormState extends State<SignupForm> {
             Positioned.fill(
               child: Container(
                 color: Colors.white.withOpacity(0.7),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                ),
+                child: const LoadingWidget(),
               ),
             ),
           // Button at the bottom - appears when child category is selected
@@ -556,9 +549,7 @@ class _SignupFormState extends State<SignupForm> {
             Positioned.fill(
               child: Container(
                 color: Colors.white.withOpacity(0.7),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                ),
+                child: const LoadingWidget(),
               ),
             ),
         ],

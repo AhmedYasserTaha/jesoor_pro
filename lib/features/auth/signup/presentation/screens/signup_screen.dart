@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
+import 'package:jesoor_pro/core/widgets/loading_widget.dart';
 import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_cubit.dart';
 import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_state.dart';
 import 'package:jesoor_pro/features/auth/signup/presentation/utils/signup_listener_handler.dart';
@@ -171,11 +172,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   Positioned.fill(
                     child: Container(
                       color: Colors.white.withOpacity(0.7),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
-                      ),
+                      child: const LoadingWidget(),
                     ),
                   ),
               ],
