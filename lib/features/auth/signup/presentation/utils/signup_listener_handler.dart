@@ -96,13 +96,10 @@ class SignupListenerHandler {
     }
 
     // Handle complete step 3 status
-    if (state.completeStep3Status == SignupStatus.loading) {
-      LoadingDialog.show(context);
-    } else if (state.completeStep3Status == SignupStatus.success) {
-      LoadingDialog.hide(context);
+    // Loading overlay is handled in SignupForm widget, not here
+    if (state.completeStep3Status == SignupStatus.success) {
       // Registration complete, handled by main status success
     } else if (state.completeStep3Status == SignupStatus.error) {
-      LoadingDialog.hide(context);
       ErrorDialog.show(
         context: context,
         message: state.errorMessage ?? Strings.errorOccurred,

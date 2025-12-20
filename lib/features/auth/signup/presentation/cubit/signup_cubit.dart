@@ -501,15 +501,13 @@ class SignupCubit extends Cubit<SignupState> {
   Future<void> getCategoryChildren(int categoryId) async {
     final stopwatch = Stopwatch()..start();
 
+    // Always show loading when fetching children (even if cached, to show feedback)
+    emit(state.copyWith(getCategoryChildrenStatus: SignupStatus.loading));
+
     // Check if we already have children for this category
     final hasCachedChildren =
         state.selectedCategoryChildren.isNotEmpty &&
         state.selectedCategory?.id == categoryId;
-
-    // Only show loading if we don't have cached data
-    if (!hasCachedChildren) {
-      emit(state.copyWith(getCategoryChildrenStatus: SignupStatus.loading));
-    }
 
     final result = await getCategoryChildrenUseCase(
       GetCategoryChildrenParams(categoryId: categoryId),
@@ -678,9 +676,11 @@ class SignupCubit extends Cubit<SignupState> {
     }
 
     if (selected != null) {
+      // Clear previous children selection to show loading when switching categories
       emit(
         state.copyWith(
           selectedCategory: selected,
+          selectedCategoryChildren: const [], // Clear children to force loading
           // Preserve signupStep - never override it
         ),
       );

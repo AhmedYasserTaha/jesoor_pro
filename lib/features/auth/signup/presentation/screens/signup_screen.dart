@@ -94,67 +94,90 @@ class _SignupScreenState extends State<SignupScreen> {
         child: BlocBuilder<SignupCubit, SignupState>(
           builder: (context, signupState) {
             final signupCubit = context.read<SignupCubit>();
-            return Column(
+            final isCompletingStep3 =
+                signupState.completeStep3Status == SignupStatus.loading;
+            return Stack(
               children: [
-                StepIndicator(
-                  currentStep: signupState.signupStep >= 3
-                      ? 3
-                      : signupState.signupStep,
+                Column(
+                  children: [
+                    StepIndicator(
+                      currentStep: signupState.signupStep >= 3
+                          ? 3
+                          : signupState.signupStep,
+                    ),
+                    Expanded(
+                      child: SignupForm(
+                        formKey: widget.formController.signupFormKey,
+                        nameController:
+                            widget.formController.signupNameController,
+                        phoneController:
+                            widget.formController.signupPhoneController,
+                        emailController:
+                            widget.formController.signupEmailController,
+                        passwordController:
+                            widget.formController.signupPasswordController,
+                        obscurePassword: signupState.isPasswordVisible,
+                        onTogglePassword: signupCubit.togglePasswordVisibility,
+                        onSignup: () => _handleSignupNextStep(
+                          context,
+                          signupState.signupStep,
+                        ),
+                        step: signupState.signupStep,
+                        parentPhoneController:
+                            widget.formController.signupParentPhoneController,
+                        parentPhoneOptController: widget
+                            .formController
+                            .signupParentPhoneOptController,
+                        schoolController:
+                            widget.formController.signupSchoolController,
+                        governorateController:
+                            widget.formController.signupGovernorateController,
+                        onSystemSelect: signupCubit.selectSystem,
+                        onStageSelect: signupCubit.selectStage,
+                        onGradeSelect: (grade) {
+                          signupCubit.selectGrade(grade);
+                        },
+                        onCategorySelect: (category) {
+                          signupCubit.selectCategory(category);
+                        },
+                        onChildCategorySelect: (category) {
+                          signupCubit.completeStep3(category.id);
+                        },
+                        onBack:
+                            signupState.signupStep > 3 &&
+                                signupState.signupStep <= 5
+                            ? () => signupCubit.previousSignupStep()
+                            : null,
+                        availableGrades: signupState.availableGrades,
+                        availableGovernorates: signupState.governorates,
+                        availableCategories: signupState.categories,
+                        availableCategoryChildren:
+                            signupState.selectedCategoryChildren,
+                        selectedGrade: signupState.educationGrade,
+                        selectedCategory: signupState.selectedCategory,
+                        selectedChildCategory:
+                            null, // Will be handled by temp selection
+                        getCategoriesStatus: signupState.getCategoriesStatus,
+                        getCategoryChildrenStatus:
+                            signupState.getCategoryChildrenStatus,
+                        completeStep2Status: signupState.completeStep2Status,
+                        completeStep3Status: signupState.completeStep3Status,
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: SignupForm(
-                    formKey: widget.formController.signupFormKey,
-                    nameController: widget.formController.signupNameController,
-                    phoneController:
-                        widget.formController.signupPhoneController,
-                    emailController:
-                        widget.formController.signupEmailController,
-                    passwordController:
-                        widget.formController.signupPasswordController,
-                    obscurePassword: signupState.isPasswordVisible,
-                    onTogglePassword: signupCubit.togglePasswordVisibility,
-                    onSignup: () =>
-                        _handleSignupNextStep(context, signupState.signupStep),
-                    step: signupState.signupStep,
-                    parentPhoneController:
-                        widget.formController.signupParentPhoneController,
-                    parentPhoneOptController:
-                        widget.formController.signupParentPhoneOptController,
-                    schoolController:
-                        widget.formController.signupSchoolController,
-                    governorateController:
-                        widget.formController.signupGovernorateController,
-                    onSystemSelect: signupCubit.selectSystem,
-                    onStageSelect: signupCubit.selectStage,
-                    onGradeSelect: (grade) {
-                      signupCubit.selectGrade(grade);
-                    },
-                    onCategorySelect: (category) {
-                      signupCubit.selectCategory(category);
-                    },
-                    onChildCategorySelect: (category) {
-                      signupCubit.completeStep3(category.id);
-                    },
-                    onBack:
-                        signupState.signupStep > 3 &&
-                            signupState.signupStep <= 5
-                        ? () => signupCubit.previousSignupStep()
-                        : null,
-                    availableGrades: signupState.availableGrades,
-                    availableGovernorates: signupState.governorates,
-                    availableCategories: signupState.categories,
-                    availableCategoryChildren:
-                        signupState.selectedCategoryChildren,
-                    selectedGrade: signupState.educationGrade,
-                    selectedCategory: signupState.selectedCategory,
-                    selectedChildCategory:
-                        null, // Will be handled by temp selection
-                    getCategoriesStatus: signupState.getCategoriesStatus,
-                    getCategoryChildrenStatus:
-                        signupState.getCategoryChildrenStatus,
-                    completeStep2Status: signupState.completeStep2Status,
+                // Show loading overlay when completing step 3 (registration)
+                if (isCompletingStep3)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.white.withOpacity(0.7),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
               ],
             );
           },

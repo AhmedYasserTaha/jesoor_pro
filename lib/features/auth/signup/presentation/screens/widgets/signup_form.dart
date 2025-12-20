@@ -54,9 +54,12 @@ class SignupForm extends StatefulWidget {
   final SignupStatus
   getCategoryChildrenStatus; // Loading state for child categories
   final SignupStatus completeStep2Status; // Loading state for step 2
+  final SignupStatus
+  completeStep3Status; // Loading state for step 3 (completing registration)
 
   const SignupForm({
     super.key,
+    required this.completeStep3Status,
     required this.formKey,
     required this.nameController,
     required this.phoneController,
@@ -312,24 +315,15 @@ class _SignupFormState extends State<SignupForm> {
                       ),
                     ),
                   ),
-                if (isLoadingChildren &&
-                    widget.availableCategoryChildren.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  )
-                else if (widget.availableCategoryChildren.isEmpty)
+                if (widget.availableCategoryChildren.isEmpty &&
+                    !isLoadingChildren)
                   const Center(
                     child: Padding(
                       padding: EdgeInsets.all(20.0),
                       child: Text('لا توجد فئات فرعية متاحة'),
                     ),
                   )
-                else
+                else if (!isLoadingChildren)
                   ...widget.availableCategoryChildren.map((childCategory) {
                     final isSelected =
                         _tempSelectedChildCategory?.id == childCategory.id;
@@ -338,19 +332,27 @@ class _SignupFormState extends State<SignupForm> {
                       child: SelectionCard(
                         text: childCategory.name,
                         isSelected: isSelected,
-                        onTap: isLoadingChildren
-                            ? () {}
-                            : () {
-                                setState(() {
-                                  _tempSelectedChildCategory = childCategory;
-                                });
-                              },
+                        onTap: () {
+                          setState(() {
+                            _tempSelectedChildCategory = childCategory;
+                          });
+                        },
                       ),
                     );
                   }).toList(),
               ],
             ),
           ),
+          // Show loading overlay when fetching children
+          if (isLoadingChildren)
+            Positioned.fill(
+              child: Container(
+                color: Colors.white.withOpacity(0.7),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              ),
+            ),
           // Button at the bottom - appears when child category is selected
           if (isChildCategorySelected && !isLoadingChildren)
             Positioned(
@@ -447,6 +449,122 @@ class _SignupFormState extends State<SignupForm> {
       );
     }
 
+    // Step 2 with loading overlay
+    if (widget.step == 2) {
+      final isLoading = widget.completeStep2Status == SignupStatus.loading;
+      return Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(AppDimensions.formPadding),
+            child: Form(
+              key: widget.formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: AppDimensions.fieldSpacing),
+                  CustomTextField(
+                    controller: widget.parentPhoneController,
+                    hintText: Strings.parentPhone,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return Strings.parentPhoneRequired;
+                      }
+                      if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
+                        return Strings.enterValidEgyptianPhone;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: AppDimensions.fieldSpacing),
+                  CustomTextField(
+                    controller: widget.parentPhoneOptController,
+                    hintText: Strings.parentPhoneOptional,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value != null && value.isNotEmpty) {
+                        if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
+                          return Strings.enterValidEgyptianPhone;
+                        }
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: AppDimensions.fieldSpacing),
+                  CustomTextField(
+                    controller: widget.schoolController,
+                    hintText: Strings.schoolName,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return Strings.schoolNameRequired;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: AppDimensions.fieldSpacing),
+                  DropdownButtonFormField<String>(
+                    value: _selectedGovernorate,
+                    decoration: InputDecoration(
+                      hintText: Strings.governorate,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                    ),
+                    isExpanded: true,
+                    items: widget.availableGovernorates.map((governorate) {
+                      // Use Arabic name first, fallback to English if Arabic is empty
+                      final displayName = governorate.name.isNotEmpty
+                          ? governorate.name
+                          : governorate.nameEn;
+                      return DropdownMenuItem<String>(
+                        value: displayName,
+                        child: Text(displayName),
+                      );
+                    }).toList(),
+                    onChanged: widget.availableGovernorates.isEmpty || isLoading
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _selectedGovernorate = value;
+                            });
+                            if (value != null) {
+                              widget.governorateController.text = value;
+                            }
+                          },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return Strings.governorateRequired;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  CustomButton(
+                    text: Strings.save,
+                    onPressed: isLoading ? () {} : widget.onSignup,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Show loading overlay when saving step 2
+          if (isLoading)
+            Positioned.fill(
+              child: Container(
+                color: Colors.white.withOpacity(0.7),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppDimensions.formPadding),
       child: Form(
@@ -500,125 +618,6 @@ class _SignupFormState extends State<SignupForm> {
               ),
               const SizedBox(height: 40),
               CustomButton(text: Strings.signup, onPressed: widget.onSignup),
-            ] else if (widget.step == 2) ...[
-              CustomTextField(
-                controller: widget.parentPhoneController,
-                hintText: Strings.parentPhone,
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return Strings.parentPhoneRequired;
-                  }
-                  if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
-                    return Strings.enterValidEgyptianPhone;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: widget.parentPhoneOptController,
-                hintText: Strings.parentPhoneOptional,
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
-                      return Strings.enterValidEgyptianPhone;
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              CustomTextField(
-                controller: widget.schoolController,
-                hintText: Strings.schoolName,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return Strings.schoolNameRequired;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppDimensions.fieldSpacing),
-              DropdownButtonFormField<String>(
-                value: _selectedGovernorate,
-                decoration: InputDecoration(
-                  hintText: Strings.governorate,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
-                isExpanded: true,
-                items: widget.availableGovernorates.map((governorate) {
-                  // Use Arabic name first, fallback to English if Arabic is empty
-                  final displayName = governorate.name.isNotEmpty
-                      ? governorate.name
-                      : governorate.nameEn;
-                  return DropdownMenuItem<String>(
-                    value: displayName,
-                    child: Text(displayName),
-                  );
-                }).toList(),
-                onChanged: widget.availableGovernorates.isEmpty
-                    ? null
-                    : (value) {
-                        setState(() {
-                          _selectedGovernorate = value;
-                        });
-                        if (value != null) {
-                          widget.governorateController.text = value;
-                        }
-                      },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return Strings.governorateRequired;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 40),
-              Builder(
-                builder: (context) {
-                  final isLoading =
-                      widget.completeStep2Status == SignupStatus.loading;
-                  return SizedBox(
-                    height: AppDimensions.buttonHeight,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? () {} : widget.onSignup,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppDimensions.buttonBorderRadius,
-                          ),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : Text(
-                              Strings.save,
-                              style: AppTextStyles.buttonTextStyle,
-                            ),
-                    ),
-                  );
-                },
-              ),
             ],
           ],
         ),
