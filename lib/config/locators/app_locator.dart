@@ -13,6 +13,10 @@ import 'package:jesoor_pro/core/cache/hive_helper.dart';
 import 'package:jesoor_pro/core/storage/token_storage.dart';
 import 'package:jesoor_pro/features/auth/login/data/datasources/auth_local_data_source.dart';
 import 'package:jesoor_pro/features/auth/login/data/datasources/auth_local_data_source_impl.dart';
+import 'package:jesoor_pro/features/auth/signup/data/datasources/auth_local_data_source.dart'
+    as signup_auth;
+import 'package:jesoor_pro/features/auth/signup/data/datasources/auth_local_data_source_impl.dart'
+    as signup_auth_impl;
 import 'package:jesoor_pro/features/auth/forgot_password/data/datasources/forgot_password_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/login/data/datasources/login_remote_data_source.dart';
 import 'package:jesoor_pro/features/auth/signup/data/datasources/signup_remote_data_source.dart';
@@ -134,32 +138,6 @@ Future<void> init() async {
         ForgotPasswordResetUseCase(repository: sl<ForgotPasswordRepository>()),
   );
 
-  // Repositories
-  sl.registerLazySingleton<LoginRepository>(
-    () => LoginRepositoryImpl(
-      networkInfo: sl(),
-      remoteDataSource: sl<LoginRemoteDataSource>(),
-      localDataSource: sl(),
-      tokenStorage: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<SignupRepository>(
-    () => SignupRepositoryImpl(
-      networkInfo: sl(),
-      remoteDataSource: sl<SignupRemoteDataSource>(),
-      localDataSource: sl(),
-      tokenStorage: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<ForgotPasswordRepository>(
-    () => ForgotPasswordRepositoryImpl(
-      networkInfo: sl(),
-      remoteDataSource: sl<ForgotPasswordRemoteDataSource>(),
-    ),
-  );
-
   // Data sources
   sl.registerLazySingleton<LoginRemoteDataSource>(
     () => LoginRemoteDataSourceImpl(apiConsumer: sl()),
@@ -173,7 +151,8 @@ Future<void> init() async {
     () => ForgotPasswordRemoteDataSourceImpl(apiConsumer: sl()),
   );
 
-  // Local Data Source
+  // Local Data Sources
+  // Login AuthLocalDataSource
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(
       categoriesBox: sl<Box<String>>(instanceName: HiveConstants.categoriesBox),
@@ -184,6 +163,46 @@ Future<void> init() async {
         instanceName: HiveConstants.governoratesBox,
       ),
       userBox: sl<Box<String>>(instanceName: HiveConstants.userBox),
+    ),
+  );
+
+  // Signup AuthLocalDataSource
+  sl.registerLazySingleton<signup_auth.AuthLocalDataSource>(
+    () => signup_auth_impl.AuthLocalDataSourceImpl(
+      categoriesBox: sl<Box<String>>(instanceName: HiveConstants.categoriesBox),
+      categoryChildrenBox: sl<Box<String>>(
+        instanceName: HiveConstants.categoryChildrenBox,
+      ),
+      governoratesBox: sl<Box<String>>(
+        instanceName: HiveConstants.governoratesBox,
+      ),
+      userBox: sl<Box<String>>(instanceName: HiveConstants.userBox),
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<LoginRepository>(
+    () => LoginRepositoryImpl(
+      networkInfo: sl(),
+      remoteDataSource: sl<LoginRemoteDataSource>(),
+      localDataSource: sl<AuthLocalDataSource>(),
+      tokenStorage: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<SignupRepository>(
+    () => SignupRepositoryImpl(
+      networkInfo: sl(),
+      remoteDataSource: sl<SignupRemoteDataSource>(),
+      localDataSource: sl<signup_auth.AuthLocalDataSource>(),
+      tokenStorage: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<ForgotPasswordRepository>(
+    () => ForgotPasswordRepositoryImpl(
+      networkInfo: sl(),
+      remoteDataSource: sl<ForgotPasswordRemoteDataSource>(),
     ),
   );
 
