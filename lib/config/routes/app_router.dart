@@ -14,18 +14,19 @@ class AppRouter {
     BuildContext context,
     GoRouterState state, {
     required Widget child,
-    PageTransitionType transitionType = PageTransitionType.fade,
+    PageTransitionType transitionType = PageTransitionType.rightToLeftWithFade,
   }) {
     return CustomTransitionPage<void>(
       key: state.pageKey,
       child: child,
       arguments: state.extra,
-      transitionDuration: Duration(milliseconds: 300),
+      transitionDuration: const Duration(milliseconds: 400),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return PageTransition(
           type: transitionType,
           child: child,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
           settings: RouteSettings(arguments: state.extra),
         ).buildTransitions(context, animation, secondaryAnimation, child);
       },
@@ -41,6 +42,7 @@ class AppRouter {
             context,
             state,
             child: SplashScreen(),
+            transitionType: PageTransitionType.fade,
           );
         },
       ),
@@ -51,6 +53,7 @@ class AppRouter {
             context,
             state,
             child: OnboardingScreen(),
+            transitionType: PageTransitionType.rightToLeftWithFade,
           );
         },
       ),
@@ -61,6 +64,7 @@ class AppRouter {
             context,
             state,
             child: const AuthScreen(),
+            transitionType: PageTransitionType.rightToLeftWithFade,
           );
         },
       ),
@@ -71,13 +75,19 @@ class AppRouter {
             context,
             state,
             child: const RootsScreen(),
+            transitionType: PageTransitionType.rightToLeftWithFade,
           );
         },
       ),
       GoRoute(
         path: Routes.home,
         pageBuilder: (context, state) {
-          return _buildPageWithTransition(context, state, child: HomeScreen());
+          return _buildPageWithTransition(
+            context,
+            state,
+            child: HomeScreen(),
+            transitionType: PageTransitionType.rightToLeftWithFade,
+          );
         },
       ),
     ],
