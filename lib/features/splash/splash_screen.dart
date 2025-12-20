@@ -7,8 +7,8 @@ import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/config/locators/app_locator.dart' as di;
 import 'package:jesoor_pro/core/storage/token_storage.dart';
 import 'package:jesoor_pro/core/usecases/use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/get_governorates_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_categories_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_governorates_use_case.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (mounted) {
         if (hasToken) {
           // User is logged in, go to roots screen
-          context.go(Routes.roots);
+          context.go(Routes.authScreen);
         } else {
           // User is not logged in, go to onboarding
           context.go(Routes.onboarding);

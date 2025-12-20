@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/config/routes/app_router.dart';
 import 'package:jesoor_pro/config/theme/app_theme.dart';
 import 'package:jesoor_pro/config/locators/app_locator.dart' as di;
-import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/presentation/cubit/forgot_password_cubit.dart';
+import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_cubit.dart';
+import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_cubit.dart';
 
 class JesoorApp extends StatelessWidget {
   const JesoorApp({super.key});
@@ -12,7 +14,11 @@ class JesoorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => di.sl<AuthCubit>())],
+      providers: [
+        BlocProvider(create: (_) => di.sl<LoginCubit>()),
+        BlocProvider(create: (_) => di.sl<SignupCubit>()),
+        BlocProvider(create: (_) => di.sl<ForgotPasswordCubit>()),
+      ],
       child: MaterialApp.router(
         title: 'Jesoor Pro',
         theme: AppTheme.lightTheme,

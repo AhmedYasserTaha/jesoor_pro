@@ -1,0 +1,312 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jesoor_pro/config/theme/app_colors.dart';
+import 'package:jesoor_pro/core/widgets/custom_button.dart';
+import 'package:jesoor_pro/core/widgets/custom_text_field.dart';
+import 'package:jesoor_pro/core/utils/strings.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/presentation/cubit/forgot_password_cubit.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/presentation/cubit/forgot_password_state.dart';
+import 'package:jesoor_pro/features/auth/login/presentation/screens/widgets/otp_verification_dialog.dart';
+import 'package:jesoor_pro/features/auth/login/presentation/screens/widgets/error_dialog.dart';
+
+enum ForgotPasswordStep { enterPhone, enterOtp, enterNewPassword }
+
+class ForgotPasswordDialog extends StatefulWidget {
+  const ForgotPasswordDialog({super.key});
+
+  @override
+  State<ForgotPasswordDialog> createState() => _ForgotPasswordDialogState();
+}
+
+class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
+  final _phoneController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  ForgotPasswordStep _currentStep = ForgotPasswordStep.enterPhone;
+  String? _otp;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _sendOtp() {
+    // Validate form first
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) {
+      ErrorDialog.show(
+        context: context,
+        message: Strings.pleaseEnterPhoneNumber,
+      );
+      return;
+    }
+
+    // Send OTP
+    context.read<ForgotPasswordCubit>().forgotPasswordSendOtp(phone);
+  }
+
+  void _resetPassword() {
+    if (_formKey.currentState!.validate()) {
+      if (_otp == null) return;
+      context.read<ForgotPasswordCubit>().forgotPasswordReset(
+        _otp!,
+        _newPasswordController.text,
+        _confirmPasswordController.text,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<ForgotPasswordCubit, ForgotPasswordState>(
+      listener: (context, state) {
+        // Handle forgot password send OTP
+        if (state.forgotPasswordSendOtpStatus == ForgotPasswordStatus.success) {
+          setState(() {
+            _currentStep = ForgotPasswordStep.enterOtp;
+          });
+          // Show OTP Dialog - use verifyOtp directly for forgot password
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => OtpVerificationDialog(
+              phone: _phoneController.text,
+              onVerify: (otp) {
+                // Store OTP and move to next step
+                setState(() {
+                  _otp = otp;
+                  _currentStep = ForgotPasswordStep.enterNewPassword;
+                });
+                Navigator.pop(context); // Close OTP dialog
+              },
+            ),
+          );
+        } else if (state.forgotPasswordSendOtpStatus ==
+            ForgotPasswordStatus.error) {
+          ErrorDialog.show(
+            context: context,
+            message: state.errorMessage ?? Strings.errorOccurred,
+          );
+        }
+
+        // Handle forgot password reset
+        if (state.forgotPasswordResetStatus == ForgotPasswordStatus.success) {
+          Navigator.pop(context); // Close forgot password dialog
+          // Show success message in dialog
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            useRootNavigator:
+                true, // Use root navigator to show above bottom sheet
+            builder: (context) => AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 60,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    Strings.passwordChangedSuccessfully,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              actions: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(Strings.ok),
+                  ),
+                ),
+              ],
+            ),
+          );
+          // After successful password reset, user can login normally
+        } else if (state.forgotPasswordResetStatus ==
+            ForgotPasswordStatus.error) {
+          ErrorDialog.show(
+            context: context,
+            message: state.errorMessage ?? Strings.errorOccurred,
+          );
+        }
+      },
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 50,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  _currentStep == ForgotPasswordStep.enterPhone
+                      ? Strings.forgotPasswordTitle
+                      : _currentStep == ForgotPasswordStep.enterOtp
+                      ? Strings.verifyCode
+                      : Strings.resetPassword,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (_currentStep == ForgotPasswordStep.enterPhone) ...[
+                  const Text(
+                    Strings.enterPhoneForOtp,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+                  CustomTextField(
+                    controller: _phoneController,
+                    hintText: Strings.phoneNumber,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return Strings.phoneNumberRequired;
+                      }
+                      final trimmedValue = value.trim();
+                      if (!RegExp(
+                        r'^01[0125][0-9]{8}$',
+                      ).hasMatch(trimmedValue)) {
+                        return Strings.enterValidEgyptianPhone;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  BlocBuilder<ForgotPasswordCubit, ForgotPasswordState>(
+                    builder: (context, state) {
+                      final isLoading =
+                          state.forgotPasswordSendOtpStatus ==
+                          ForgotPasswordStatus.loading;
+                      return isLoading
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : CustomButton(
+                              text: Strings.sendCode,
+                              onPressed: _sendOtp,
+                            );
+                    },
+                  ),
+                ] else if (_currentStep ==
+                    ForgotPasswordStep.enterNewPassword) ...[
+                  const Text(
+                    Strings.enterNewPassword,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+                  CustomTextField(
+                    controller: _newPasswordController,
+                    hintText: Strings.newPassword,
+                    obscureText: _obscureNewPassword,
+                    showPasswordToggle: true,
+                    isPasswordVisible: !_obscureNewPassword,
+                    onTogglePassword: () {
+                      setState(() {
+                        _obscureNewPassword = !_obscureNewPassword;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return Strings.passwordRequired;
+                      }
+                      if (value.length < 6) {
+                        return Strings.passwordMinLength;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _confirmPasswordController,
+                    hintText: Strings.confirmPassword,
+                    obscureText: _obscureConfirmPassword,
+                    showPasswordToggle: true,
+                    isPasswordVisible: !_obscureConfirmPassword,
+                    onTogglePassword: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return Strings.confirmPasswordRequired;
+                      }
+                      if (value != _newPasswordController.text) {
+                        return Strings.passwordsDoNotMatch;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  BlocBuilder<ForgotPasswordCubit, ForgotPasswordState>(
+                    builder: (context, state) {
+                      final isLoading =
+                          state.forgotPasswordResetStatus ==
+                          ForgotPasswordStatus.loading;
+                      return CustomButton(
+                        text: Strings.changePassword,
+                        onPressed: isLoading ? () {} : _resetPassword,
+                      );
+                    },
+                  ),
+                ],
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

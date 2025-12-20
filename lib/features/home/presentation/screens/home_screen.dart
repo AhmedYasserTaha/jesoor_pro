@@ -4,8 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
-import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
+import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_cubit.dart';
+import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_state.dart';
+import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_cubit.dart';
+import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_state.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,7 +22,7 @@ class HomeScreen extends StatelessWidget {
     {'image': 'assets/icons/streaming8.png', 'title': 'واجب منزلي'},
   ];
 
-  String _buildEducationText(AuthState state) {
+  String _buildEducationText(SignupState state) {
     final grade = state.educationGrade ?? '';
     final stage = state.educationStage ?? '';
     final system = state.educationSystem ?? '';
@@ -39,111 +41,119 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(
-      builder: (context, state) {
-        final userName = state.user?.username ?? "محمد الشافعي";
-        final educationText = _buildEducationText(state);
+    return BlocBuilder<LoginCubit, LoginState>(
+      builder: (context, loginState) {
+        return BlocBuilder<SignupCubit, SignupState>(
+          builder: (context, signupState) {
+            final userName =
+                loginState.user?.username ??
+                signupState.user?.username ??
+                "محمد الشافعي";
+            final educationText = _buildEducationText(signupState);
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text(Strings.home),
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: AppColors.accent,
-                        radius: 40,
-                        child: Icon(Icons.person, color: AppColors.primary),
-                      ),
-                      SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text(Strings.home),
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
                         children: [
-                          Text(
-                            "مرحبا بك",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          CircleAvatar(
+                            backgroundColor: AppColors.accent,
+                            radius: 40,
+                            child: Icon(Icons.person, color: AppColors.primary),
                           ),
-                          Text(
-                            userName,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                            ),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "مرحبا بك",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                userName,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                Image.asset(
-                  "assets/images/porde.png",
-                  height: 200,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-                SizedBox(height: 10),
+                    ),
+                    SizedBox(height: 10),
+                    Image.asset(
+                      "assets/images/porde.png",
+                      height: 200,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
+                    SizedBox(height: 10),
 
-                RoundedRectDottedCard(text: educationText),
+                    RoundedRectDottedCard(text: educationText),
 
-                SizedBox(height: 10),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: gridItems.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: .7,
-                  ),
-                  itemBuilder: (context, index) {
-                    final item = gridItems[index];
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            color: const Color(0xffE8EEFC),
-                            borderRadius: BorderRadius.circular(8),
+                    SizedBox(height: 10),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: gridItems.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            childAspectRatio: .7,
                           ),
-                          child: Image.asset(
-                            item['image']!,
-                            width: 55,
-                            height: 55,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          item['title']!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                      itemBuilder: (context, index) {
+                        final item = gridItems[index];
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              alignment: Alignment.center,
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: const Color(0xffE8EEFC),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Image.asset(
+                                item['image']!,
+                                width: 55,
+                                height: 55,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              item['title']!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

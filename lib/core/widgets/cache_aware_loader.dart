@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:jesoor_pro/core/widgets/shimmer_loading.dart';
-import 'package:jesoor_pro/features/auth/presentation/cubit/auth_state.dart';
+import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_state.dart';
 
 /// Widget that shows appropriate loading state based on cache status
 class CacheAwareLoader extends StatelessWidget {
-  final AuthStatus status;
+  final SignupStatus status;
   final Widget child;
   final Widget? loadingWidget;
   final Widget? errorWidget;
@@ -22,9 +22,9 @@ class CacheAwareLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (status) {
-      case AuthStatus.loading:
+      case SignupStatus.loading:
         return loadingWidget ?? const ShimmerList();
-      case AuthStatus.error:
+      case SignupStatus.error:
         return errorWidget ??
             Center(
               child: Column(
@@ -39,9 +39,9 @@ class CacheAwareLoader extends StatelessWidget {
                 ],
               ),
             );
-      case AuthStatus.cached:
-      case AuthStatus.success:
-      case AuthStatus.initial:
+      case SignupStatus.cached:
+      case SignupStatus.success:
+      case SignupStatus.initial:
         return child;
     }
   }

@@ -11,25 +11,33 @@ import 'package:jesoor_pro/core/api/interceptors.dart';
 import 'package:jesoor_pro/core/cache/hive_constants.dart';
 import 'package:jesoor_pro/core/cache/hive_helper.dart';
 import 'package:jesoor_pro/core/storage/token_storage.dart';
-import 'package:jesoor_pro/features/auth/data/datasources/auth_local_data_source.dart';
-import 'package:jesoor_pro/features/auth/data/datasources/auth_local_data_source_impl.dart';
-import 'package:jesoor_pro/features/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:jesoor_pro/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:jesoor_pro/features/auth/domain/repositories/auth_repository.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/complete_step2_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/complete_step3_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/forgot_password_reset_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/forgot_password_send_otp_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/get_categories_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/get_category_children_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/get_governorates_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/login_send_otp_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/login_verify_otp_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/login_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/signup_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/send_otp_use_case.dart';
-import 'package:jesoor_pro/features/auth/domain/usecases/verify_otp_use_case.dart';
-import 'package:jesoor_pro/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:jesoor_pro/features/auth/login/data/datasources/auth_local_data_source.dart';
+import 'package:jesoor_pro/features/auth/login/data/datasources/auth_local_data_source_impl.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/data/datasources/forgot_password_remote_data_source.dart';
+import 'package:jesoor_pro/features/auth/login/data/datasources/login_remote_data_source.dart';
+import 'package:jesoor_pro/features/auth/signup/data/datasources/signup_remote_data_source.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/data/repositories/forgot_password_repository_impl.dart';
+import 'package:jesoor_pro/features/auth/login/data/repositories/login_repository_impl.dart';
+import 'package:jesoor_pro/features/auth/signup/data/repositories/signup_repository_impl.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/domain/repositories/forgot_password_repository.dart';
+import 'package:jesoor_pro/features/auth/login/domain/repositories/login_repository.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/repositories/signup_repository.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/complete_step2_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/complete_step3_use_case.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/domain/usecases/forgot_password_reset_use_case.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/domain/usecases/forgot_password_send_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_categories_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_category_children_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_governorates_use_case.dart';
+import 'package:jesoor_pro/features/auth/login/domain/usecases/login_send_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/login/domain/usecases/login_verify_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/login/domain/usecases/login_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/signup_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/send_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/signup/domain/usecases/verify_otp_use_case.dart';
+import 'package:jesoor_pro/features/auth/forgot_password/presentation/cubit/forgot_password_cubit.dart';
+import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_cubit.dart';
+import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -53,17 +61,20 @@ Future<void> init() async {
   );
 
   //! Features - Auth
-  // Cubit
+  // Cubits
   sl.registerFactory(
-    () => AuthCubit(
+    () => LoginCubit(
       loginUseCase: sl(),
       loginSendOtpUseCase: sl(),
       loginVerifyOtpUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => SignupCubit(
       signupUseCase: sl(),
       sendOtpUseCase: sl(),
       verifyOtpUseCase: sl(),
-      forgotPasswordSendOtpUseCase: sl(),
-      forgotPasswordResetUseCase: sl(),
       completeStep2UseCase: sl(),
       completeStep3UseCase: sl(),
       getCategoriesUseCase: sl(),
@@ -72,36 +83,94 @@ Future<void> init() async {
     ),
   );
 
-  // Use cases
-  sl.registerLazySingleton(() => LoginUseCase(repository: sl()));
-  sl.registerLazySingleton(() => LoginSendOtpUseCase(repository: sl()));
-  sl.registerLazySingleton(() => LoginVerifyOtpUseCase(repository: sl()));
-  sl.registerLazySingleton(() => SignupUseCase(repository: sl()));
-  sl.registerLazySingleton(() => SendOtpUseCase(sl()));
-  sl.registerLazySingleton(() => VerifyOtpUseCase(sl()));
-  sl.registerLazySingleton(
-    () => ForgotPasswordSendOtpUseCase(repository: sl()),
+  sl.registerFactory(
+    () => ForgotPasswordCubit(
+      forgotPasswordSendOtpUseCase: sl(),
+      forgotPasswordResetUseCase: sl(),
+    ),
   );
-  sl.registerLazySingleton(() => ForgotPasswordResetUseCase(repository: sl()));
-  sl.registerLazySingleton(() => CompleteStep2UseCase(repository: sl()));
-  sl.registerLazySingleton(() => CompleteStep3UseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetCategoriesUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetCategoryChildrenUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetGovernoratesUseCase(repository: sl()));
 
-  // Repository
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
+  // Use cases - Login
+  sl.registerLazySingleton(
+    () => LoginUseCase(repository: sl<LoginRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => LoginSendOtpUseCase(repository: sl<LoginRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => LoginVerifyOtpUseCase(repository: sl<LoginRepository>()),
+  );
+
+  // Use cases - Signup
+  sl.registerLazySingleton(
+    () => SignupUseCase(repository: sl<SignupRepository>()),
+  );
+  sl.registerLazySingleton(() => SendOtpUseCase(sl<SignupRepository>()));
+  sl.registerLazySingleton(() => VerifyOtpUseCase(sl<SignupRepository>()));
+  sl.registerLazySingleton(
+    () => CompleteStep2UseCase(repository: sl<SignupRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => CompleteStep3UseCase(repository: sl<SignupRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => GetCategoriesUseCase(repository: sl<SignupRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => GetCategoryChildrenUseCase(repository: sl<SignupRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => GetGovernoratesUseCase(repository: sl<SignupRepository>()),
+  );
+
+  // Use cases - Forgot Password
+  sl.registerLazySingleton(
+    () => ForgotPasswordSendOtpUseCase(
+      repository: sl<ForgotPasswordRepository>(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () =>
+        ForgotPasswordResetUseCase(repository: sl<ForgotPasswordRepository>()),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<LoginRepository>(
+    () => LoginRepositoryImpl(
       networkInfo: sl(),
-      remoteDataSource: sl(),
+      remoteDataSource: sl<LoginRemoteDataSource>(),
       localDataSource: sl(),
       tokenStorage: sl(),
     ),
   );
 
+  sl.registerLazySingleton<SignupRepository>(
+    () => SignupRepositoryImpl(
+      networkInfo: sl(),
+      remoteDataSource: sl<SignupRemoteDataSource>(),
+      localDataSource: sl(),
+      tokenStorage: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<ForgotPasswordRepository>(
+    () => ForgotPasswordRepositoryImpl(
+      networkInfo: sl(),
+      remoteDataSource: sl<ForgotPasswordRemoteDataSource>(),
+    ),
+  );
+
   // Data sources
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(apiConsumer: sl()),
+  sl.registerLazySingleton<LoginRemoteDataSource>(
+    () => LoginRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+
+  sl.registerLazySingleton<SignupRemoteDataSource>(
+    () => SignupRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+
+  sl.registerLazySingleton<ForgotPasswordRemoteDataSource>(
+    () => ForgotPasswordRemoteDataSourceImpl(apiConsumer: sl()),
   );
 
   // Local Data Source
