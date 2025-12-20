@@ -72,6 +72,7 @@ class SignupCubit extends Cubit<SignupState> {
           educationSystem: cachedState.educationSystem,
           educationStage: cachedState.educationStage,
           educationGrade: cachedState.educationGrade,
+          errorMessage: null, // Clear any previous error messages
         );
         emit(newState);
 
@@ -167,7 +168,15 @@ class SignupCubit extends Cubit<SignupState> {
   }
 
   void selectSystem(String system) {
-    emit(state.copyWith(educationSystem: system, signupStep: 4));
+    emit(
+      state.copyWith(
+        educationSystem: system,
+        educationStage: null, // Clear stage when system changes
+        educationGrade: null, // Clear grade when system changes
+        availableGrades: const [], // Clear available grades
+        signupStep: 4,
+      ),
+    );
     _saveSignupStateToCache();
   }
 
@@ -177,6 +186,7 @@ class SignupCubit extends Cubit<SignupState> {
       state.copyWith(
         educationStage: stage,
         availableGrades: grades,
+        educationGrade: null, // Clear old grade when stage changes
         signupStep: 5,
       ),
     );
@@ -614,6 +624,7 @@ class SignupCubit extends Cubit<SignupState> {
                 ? SignupStatus.cached
                 : SignupStatus.success,
             isGovernoratesFromCache: isFromCache,
+            errorMessage: null, // Clear error message on success
           ),
         );
 
