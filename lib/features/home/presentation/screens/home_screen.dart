@@ -17,16 +17,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // Static variable to cache loading state across widget rebuilds
+  static bool _isDataLoaded = false;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Simulate data loading
+    // If data was already loaded before, skip loading animation
+    if (_isDataLoaded) {
+      _isLoading = false;
+      return;
+    }
+
+    // Simulate data loading only on first visit
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _isDataLoaded = true; // Mark data as loaded
         });
       }
     });
