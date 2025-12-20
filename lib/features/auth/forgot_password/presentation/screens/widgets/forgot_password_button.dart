@@ -22,7 +22,7 @@ class ForgotPasswordButton extends StatelessWidget {
             builder: (context) => const ForgotPasswordDialog(),
           );
         },
-        child: const Text(
+        child: Text(
           Strings.forgotPassword,
           style: AppTextStyles.forgotPasswordStyle,
         ),

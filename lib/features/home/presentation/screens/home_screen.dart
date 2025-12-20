@@ -1,7 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:jesoor_pro/config/theme/app_colors.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
 import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_cubit.dart';
@@ -12,7 +11,6 @@ import 'package:jesoor_pro/features/auth/signup/presentation/cubit/signup_state.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // Grid items data
   final List<Map<String, String>> gridItems = const [
     {'image': 'assets/icons/streaming1.png', 'title': 'المنتدي'},
     {'image': 'assets/icons/streaming2.png', 'title': 'حصص لايف'},
@@ -41,6 +39,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return BlocBuilder<LoginCubit, LoginState>(
       builder: (context, loginState) {
         return BlocBuilder<SignupCubit, SignupState>(
@@ -57,100 +58,103 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
-              body: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: AppColors.accent,
-                            radius: 40,
-                            child: Icon(Icons.person, color: AppColors.primary),
+              body: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: AppColors.accent,
+                          radius: screenWidth * 0.08,
+                          child: Icon(
+                            Icons.person,
+                            color: AppColors.primary,
+                            size: screenWidth * 0.08,
                           ),
-                          SizedBox(width: 10),
-                          Column(
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "مرحبا بك",
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: screenWidth * 0.045,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              SizedBox(height: screenHeight * 0.005),
                               Text(
                                 userName,
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: screenWidth * 0.04,
                                   fontWeight: FontWeight.normal,
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 10),
-                    Image.asset(
-                      "assets/images/porde.png",
-                      height: 200,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
+                  ),
+                  Image.asset(
+                    "assets/images/porde.png",
+                    width: double.infinity,
+                    height: screenHeight * 0.25,
+                    fit: BoxFit.cover,
+                  ),
+                  SizedBox(height: screenHeight * 0.025),
+                  RoundedRectDottedCard(
+                    text: educationText,
+                    screenWidth: screenWidth,
+                  ),
+                  SizedBox(height: screenHeight * 0.025),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: gridItems.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: screenWidth * 0.01,
+                      // crossAxisSpacing: screenWidth * 0.02,
+                      childAspectRatio: screenWidth / (screenHeight * 0.43),
                     ),
-                    SizedBox(height: 10),
-
-                    RoundedRectDottedCard(text: educationText),
-
-                    SizedBox(height: 10),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: gridItems.length,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                            childAspectRatio: .7,
+                    itemBuilder: (context, index) {
+                      final item = gridItems[index];
+                      return Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            height: screenWidth * 0.2,
+                            width: screenWidth * 0.2,
+                            decoration: BoxDecoration(
+                              color: const Color(0xffE8EEFC),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Image.asset(
+                              item['image']!,
+                              width: screenWidth * 0.1,
+                              height: screenWidth * 0.1,
+                            ),
                           ),
-                      itemBuilder: (context, index) {
-                        final item = gridItems[index];
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              alignment: Alignment.center,
-                              height: 100,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: const Color(0xffE8EEFC),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Image.asset(
-                                item['image']!,
-                                width: 55,
-                                height: 55,
-                              ),
+                          SizedBox(height: screenHeight * 0.008),
+                          Text(
+                            item['title']!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.038,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textPrimary,
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              item['title']!,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                ],
               ),
             );
           },
@@ -162,9 +166,11 @@ class HomeScreen extends StatelessWidget {
 
 class RoundedRectDottedCard extends StatelessWidget {
   final String text;
-
-  const RoundedRectDottedCard({super.key, required this.text});
-
+  const RoundedRectDottedCard({
+    super.key,
+    required this.text,
+    required double screenWidth,
+  });
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -195,14 +201,19 @@ class RoundedRectDottedCard extends StatelessWidget {
                   color: AppColors.primary,
                 ),
                 const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
