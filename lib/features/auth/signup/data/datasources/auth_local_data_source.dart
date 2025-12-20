@@ -1,6 +1,7 @@
 import 'package:jesoor_pro/features/auth/signup/data/models/category_model.dart';
 import 'package:jesoor_pro/features/auth/signup/data/models/governorate_model.dart';
 import 'package:jesoor_pro/features/auth/signup/data/models/user_model.dart';
+import 'package:jesoor_pro/features/auth/signup/data/models/signup_state_cache_model.dart';
 
 abstract class AuthLocalDataSource {
   // Categories
@@ -20,6 +21,11 @@ abstract class AuthLocalDataSource {
   Future<UserModel?> getCachedUser();
   Future<void> cacheUser(UserModel user);
   Future<void> clearUser();
+
+  // Signup State Cache
+  Future<SignupStateCacheModel?> getCachedSignupState();
+  Future<void> cacheSignupState(SignupStateCacheModel state);
+  Future<void> clearSignupState();
 
   // Cache management
   Future<void> clearAllCache();

@@ -36,6 +36,7 @@ import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_governorates
 import 'package:jesoor_pro/features/auth/login/domain/usecases/login_send_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/login/domain/usecases/login_verify_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/login/domain/usecases/login_use_case.dart';
+import 'package:jesoor_pro/features/auth/login/domain/usecases/get_cached_user_use_case.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/signup_use_case.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/send_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/verify_otp_use_case.dart';
@@ -63,6 +64,10 @@ Future<void> init() async {
     () => HiveHelper.getUserBox(),
     instanceName: HiveConstants.userBox,
   );
+  sl.registerLazySingleton<Box<String>>(
+    () => HiveHelper.getSignupStateBox(),
+    instanceName: HiveConstants.signupStateBox,
+  );
 
   //! Features - Auth
   // Cubits
@@ -71,6 +76,7 @@ Future<void> init() async {
       loginUseCase: sl(),
       loginSendOtpUseCase: sl(),
       loginVerifyOtpUseCase: sl(),
+      getCachedUserUseCase: sl(),
     ),
   );
 
@@ -84,6 +90,7 @@ Future<void> init() async {
       getCategoriesUseCase: sl(),
       getCategoryChildrenUseCase: sl(),
       getGovernoratesUseCase: sl(),
+      localDataSource: sl<signup_auth.AuthLocalDataSource>(),
     ),
   );
 
@@ -103,6 +110,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(
     () => LoginVerifyOtpUseCase(repository: sl<LoginRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => GetCachedUserUseCase(repository: sl<LoginRepository>()),
   );
 
   // Use cases - Signup
@@ -177,6 +187,9 @@ Future<void> init() async {
         instanceName: HiveConstants.governoratesBox,
       ),
       userBox: sl<Box<String>>(instanceName: HiveConstants.userBox),
+      signupStateBox: sl<Box<String>>(
+        instanceName: HiveConstants.signupStateBox,
+      ),
     ),
   );
 

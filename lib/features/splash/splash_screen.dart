@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 
-import 'package:jesoor_pro/config/routes/app_router.dart';
 import 'package:jesoor_pro/config/routes/routes.dart';
 import 'package:jesoor_pro/config/locators/app_locator.dart' as di;
 import 'package:jesoor_pro/core/storage/token_storage.dart';
 import 'package:jesoor_pro/core/usecases/use_case.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_categories_use_case.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/get_governorates_use_case.dart';
+import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -54,31 +55,27 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   // Preload critical data (categories and governorates) for faster signup
-  void _preloadCriticalData() {
-    // Preload in background - don't block UI
-    Future.microtask(() async {
-      try {
-        // Preload in parallel - don't wait for completion
-        unawaited(
-          Future.wait([
-                di.sl<GetCategoriesUseCase>()(NoParams()),
-                di.sl<GetGovernoratesUseCase>()(NoParams()),
-              ])
-              .then((_) {
-                // Data preloaded successfully (cached or fetched)
-              })
-              .catchError((_) {
-                // Silently fail - preloading is not critical
-              }),
-        );
-      } catch (e) {
-        // Silently fail - preloading is not critical
-      }
-    });
+  Future<void> _preloadCriticalData() async {
+    try {
+      // Load in parallel - this will use cache-first strategy
+      // If cache exists, it returns immediately. If not, it fetches and caches.
+      await Future.wait([
+        di.sl<GetCategoriesUseCase>()(NoParams()),
+        di.sl<GetGovernoratesUseCase>()(NoParams()),
+      ]).timeout(const Duration(seconds: 5));
+    } on TimeoutException {
+      // If timeout, continue anyway - cache will be used later
+      // TimeoutException is caught separately to handle timeout gracefully
+    } catch (e) {
+      // Silently fail - preloading is not critical, cache will be used later
+    }
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // Wait for animation to complete (3 seconds)
+    // Preload data first (this ensures cache is populated)
+    await _preloadCriticalData();
+
+    // Wait for animation to complete (minimum 3 seconds for smooth UX)
     await Future.delayed(const Duration(seconds: 3));
 
     if (!mounted) return;
@@ -89,7 +86,14 @@ class _SplashScreenState extends State<SplashScreen>
 
       if (mounted) {
         if (hasToken) {
-          // User is logged in, go to roots screen
+          // User is logged in, load cached user data immediately
+          try {
+            final loginCubit = context.read<LoginCubit>();
+            await loginCubit.loadCachedUser();
+          } catch (e) {
+            // If loading cached user fails, continue anyway
+          }
+          // Navigate to roots screen (main app)
           context.go(Routes.authScreen);
         } else {
           // User is not logged in, go to onboarding

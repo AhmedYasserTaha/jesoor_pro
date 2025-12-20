@@ -83,4 +83,18 @@ class LoginRepositoryImpl implements LoginRepository {
       return const Left(CacheFailure(message: "لا يوجد اتصال بالإنترنت"));
     }
   }
+
+  @override
+  Future<Either<Failure, UserEntity?>> getCachedUser() async {
+    try {
+      final cachedUser = await localDataSource.getCachedUser();
+      if (cachedUser != null) {
+        return Right(cachedUser);
+      } else {
+        return const Right(null);
+      }
+    } catch (e) {
+      return const Left(CacheFailure(message: "خطأ في تحميل بيانات المستخدم"));
+    }
+  }
 }

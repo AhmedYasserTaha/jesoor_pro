@@ -11,4 +11,5 @@ abstract class LoginRepository {
     String deviceToken,
     String deviceLabel,
   );
+  Future<Either<Failure, UserEntity?>> getCachedUser();
 }

@@ -20,20 +20,8 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Load governorates when screen opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final cubit = context.read<SignupCubit>();
-        if (cubit.state.governorates.isEmpty &&
-            cubit.state.getGovernoratesStatus != SignupStatus.loading) {
-          cubit.getGovernorates();
-        }
-      }
-    });
-  }
+  // No need to load data here - SignupCubit loads governorates from cache automatically
+  // in its constructor, ensuring data is ready immediately when screen opens
 
   void _performSignup(BuildContext context) {
     final cubit = context.read<SignupCubit>();

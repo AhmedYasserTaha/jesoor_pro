@@ -1,18 +1,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jesoor_pro/core/usecases/use_case.dart';
 import 'package:jesoor_pro/features/auth/login/domain/usecases/login_send_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/login/domain/usecases/login_verify_otp_use_case.dart';
 import 'package:jesoor_pro/features/auth/login/domain/usecases/login_use_case.dart';
+import 'package:jesoor_pro/features/auth/login/domain/usecases/get_cached_user_use_case.dart';
 import 'package:jesoor_pro/features/auth/login/presentation/cubit/login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   final LoginUseCase loginUseCase;
   final LoginSendOtpUseCase loginSendOtpUseCase;
   final LoginVerifyOtpUseCase loginVerifyOtpUseCase;
+  final GetCachedUserUseCase getCachedUserUseCase;
 
   LoginCubit({
     required this.loginUseCase,
     required this.loginSendOtpUseCase,
     required this.loginVerifyOtpUseCase,
+    required this.getCachedUserUseCase,
   }) : super(const LoginState());
 
   void togglePasswordVisibility() {
@@ -122,5 +126,17 @@ class LoginCubit extends Cubit<LoginState> {
         ),
       );
     }
+  }
+
+  Future<void> loadCachedUser() async {
+    final result = await getCachedUserUseCase(NoParams());
+    result.fold(
+      (failure) => emit(state.copyWith(status: LoginStatus.initial)),
+      (user) {
+        if (user != null) {
+          emit(state.copyWith(status: LoginStatus.success, user: user));
+        }
+      },
+    );
   }
 }

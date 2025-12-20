@@ -4,11 +4,13 @@ class HiveConstants {
   static const String categoryChildrenBox = 'category_children_box';
   static const String governoratesBox = 'governorates_box';
   static const String userBox = 'user_box';
+  static const String signupStateBox = 'signup_state_box';
 
   // Keys
   static const String categoriesKey = 'categories';
   static const String governoratesKey = 'governorates';
   static const String userKey = 'user';
+  static const String signupStateKey = 'signup_state';
 
   // Type IDs for Hive adapters
   static const int categoryModelTypeId = 0;

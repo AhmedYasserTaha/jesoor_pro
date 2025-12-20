@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jesoor_pro/core/usecases/use_case.dart';
 import 'package:jesoor_pro/core/utils/strings.dart';
+import 'package:jesoor_pro/features/auth/signup/data/datasources/auth_local_data_source.dart';
+import 'package:jesoor_pro/features/auth/signup/data/models/signup_state_cache_model.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/entities/category_entity.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/complete_step2_use_case.dart';
 import 'package:jesoor_pro/features/auth/signup/domain/usecases/complete_step3_use_case.dart';
@@ -22,6 +24,7 @@ class SignupCubit extends Cubit<SignupState> {
   final GetCategoriesUseCase getCategoriesUseCase;
   final GetCategoryChildrenUseCase getCategoryChildrenUseCase;
   final GetGovernoratesUseCase getGovernoratesUseCase;
+  final AuthLocalDataSource localDataSource;
 
   // Flags to prevent duplicate API calls
   bool _isFetchingCategories = false;
@@ -38,7 +41,97 @@ class SignupCubit extends Cubit<SignupState> {
     required this.getCategoriesUseCase,
     required this.getCategoryChildrenUseCase,
     required this.getGovernoratesUseCase,
-  }) : super(const SignupState());
+    required this.localDataSource,
+  }) : super(const SignupState()) {
+    // Preload data from cache immediately on initialization
+    // This ensures data is ready when user opens signup screen
+    _loadCachedData();
+  }
+
+  // Load cached data immediately (fast, non-blocking)
+  Future<void> _loadCachedData() async {
+    // Load signup state from cache first
+    _loadCachedSignupState();
+
+    // Load governorates from cache immediately (they're needed in step 2)
+    // This is fast because it reads from local storage (cache-first strategy)
+    // Use silent mode to avoid showing loading indicator on initial load
+    getGovernorates(silent: true);
+
+    // Load categories from cache if available
+    getCategories(silent: true);
+  }
+
+  // Load cached signup state and restore it
+  Future<void> _loadCachedSignupState() async {
+    try {
+      final cachedState = await localDataSource.getCachedSignupState();
+      if (cachedState != null) {
+        // Restore education data
+        final newState = state.copyWith(
+          educationSystem: cachedState.educationSystem,
+          educationStage: cachedState.educationStage,
+          educationGrade: cachedState.educationGrade,
+        );
+        emit(newState);
+
+        // Category selection will be restored when categories are loaded
+        // via _tryRestoreCategorySelectionFromCache()
+      }
+    } catch (e) {
+      // Silently fail - cached state is not critical
+    }
+  }
+
+  // Restore category selection from cache (called when categories are loaded)
+  Future<void> _tryRestoreCategorySelectionFromCache() async {
+    if (state.selectedCategory != null) {
+      // Already have a selected category, skip
+      return;
+    }
+
+    try {
+      final cachedState = await localDataSource.getCachedSignupState();
+      if (cachedState != null &&
+          cachedState.selectedCategoryId != null &&
+          state.categories.isNotEmpty) {
+        // Find the category
+        try {
+          final category = state.categories.firstWhere(
+            (cat) => cat.id == cachedState.selectedCategoryId,
+          );
+
+          // Restore selected category
+          emit(state.copyWith(selectedCategory: category));
+
+          // Load category children - they will be cached
+          getCategoryChildren(category.id);
+        } catch (e) {
+          // Category not found, skip
+        }
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  }
+
+  // Save current signup state to cache
+  Future<void> _saveSignupStateToCache() async {
+    try {
+      final cacheModel = SignupStateCacheModel(
+        educationSystem: state.educationSystem,
+        educationStage: state.educationStage,
+        educationGrade: state.educationGrade,
+        selectedCategoryId: state.selectedCategory?.id,
+        selectedCategoryChildrenIds: state.selectedCategoryChildren
+            .map((child) => child.id)
+            .toList(),
+      );
+      await localDataSource.cacheSignupState(cacheModel);
+    } catch (e) {
+      // Silently fail - cache is not critical
+    }
+  }
 
   // UI Interactions
   void togglePasswordVisibility() {
@@ -75,6 +168,7 @@ class SignupCubit extends Cubit<SignupState> {
 
   void selectSystem(String system) {
     emit(state.copyWith(educationSystem: system, signupStep: 4));
+    _saveSignupStateToCache();
   }
 
   void selectStage(String stage) {
@@ -86,10 +180,12 @@ class SignupCubit extends Cubit<SignupState> {
         signupStep: 5,
       ),
     );
+    _saveSignupStateToCache();
   }
 
   void selectGrade(String grade) {
     emit(state.copyWith(educationGrade: grade));
+    _saveSignupStateToCache();
   }
 
   // API Calls
@@ -301,16 +397,16 @@ class SignupCubit extends Cubit<SignupState> {
   }
 
   // Get Categories with cache-first strategy
-  Future<void> getCategories() async {
+  Future<void> getCategories({bool silent = false}) async {
     // Prevent duplicate calls
     if (_isFetchingCategories) return;
     _isFetchingCategories = true;
 
     final stopwatch = Stopwatch()..start();
 
-    // Only show loading if we don't have cached data
+    // Only show loading if we don't have cached data and not silent mode
     final hasCachedData = state.categories.isNotEmpty;
-    if (!hasCachedData) {
+    if (!hasCachedData && !silent) {
       emit(
         state.copyWith(
           getCategoriesStatus: SignupStatus.loading,
@@ -326,8 +422,8 @@ class SignupCubit extends Cubit<SignupState> {
     result.fold(
       (failure) {
         // If we have cached data and remote fails, keep showing cached data
-        if (hasCachedData) {
-          // Don't emit error - keep cached data visible
+        if (hasCachedData || silent) {
+          // Don't emit error - keep cached data visible or silent load
           return;
         }
         emit(
@@ -345,13 +441,16 @@ class SignupCubit extends Cubit<SignupState> {
         emit(
           state.copyWith(
             categories: categories,
-            getCategoriesStatus: isFromCache
+            getCategoriesStatus: silent || isFromCache
                 ? SignupStatus.cached
                 : SignupStatus.success,
             isCategoriesFromCache: isFromCache,
             errorMessage: null,
           ),
         );
+
+        // Try to restore category selection from cache if categories are now loaded
+        _tryRestoreCategorySelectionFromCache();
 
         // If data was from cache, refresh in background
         if (isFromCache) {
@@ -435,6 +534,7 @@ class SignupCubit extends Cubit<SignupState> {
             signupStep: 4, // Show children selection - moving forward is OK
           ),
         );
+        _saveSignupStateToCache();
 
         // If data was from cache, refresh in background
         if (isFromCache) {
@@ -471,16 +571,16 @@ class SignupCubit extends Cubit<SignupState> {
   }
 
   // Get Governorates with cache-first strategy
-  Future<void> getGovernorates() async {
+  Future<void> getGovernorates({bool silent = false}) async {
     // Prevent duplicate calls
     if (_isFetchingGovernorates) return;
     _isFetchingGovernorates = true;
 
     final stopwatch = Stopwatch()..start();
 
-    // Only show loading if we don't have cached data
+    // Only show loading if we don't have cached data and not silent mode
     final hasCachedData = state.governorates.isNotEmpty;
-    if (!hasCachedData) {
+    if (!hasCachedData && !silent) {
       emit(state.copyWith(getGovernoratesStatus: SignupStatus.loading));
     }
 
@@ -491,8 +591,8 @@ class SignupCubit extends Cubit<SignupState> {
     result.fold(
       (failure) {
         // If we have cached data and remote fails, keep showing cached data
-        if (hasCachedData) {
-          // Don't emit error - keep cached data visible
+        if (hasCachedData || silent) {
+          // Don't emit error - keep cached data visible or silent load
           return;
         }
         emit(
@@ -510,7 +610,7 @@ class SignupCubit extends Cubit<SignupState> {
         emit(
           state.copyWith(
             governorates: governorates,
-            getGovernoratesStatus: isFromCache
+            getGovernoratesStatus: silent || isFromCache
                 ? SignupStatus.cached
                 : SignupStatus.success,
             isGovernoratesFromCache: isFromCache,
@@ -573,6 +673,7 @@ class SignupCubit extends Cubit<SignupState> {
           // Preserve signupStep - never override it
         ),
       );
+      _saveSignupStateToCache();
       // Fetch children from API instead of using local children
       getCategoryChildren(selected.id);
     }

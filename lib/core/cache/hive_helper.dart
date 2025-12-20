@@ -11,6 +11,7 @@ class HiveHelper {
       Hive.openBox<String>(HiveConstants.categoryChildrenBox),
       Hive.openBox<String>(HiveConstants.governoratesBox),
       Hive.openBox<String>(HiveConstants.userBox),
+      Hive.openBox<String>(HiveConstants.signupStateBox),
     ]);
   }
 
@@ -28,5 +29,9 @@ class HiveHelper {
 
   static Box<String> getUserBox() {
     return Hive.box<String>(HiveConstants.userBox);
+  }
+
+  static Box<String> getSignupStateBox() {
+    return Hive.box<String>(HiveConstants.signupStateBox);
   }
 }

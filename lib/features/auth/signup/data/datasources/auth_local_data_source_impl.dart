@@ -5,18 +5,21 @@ import 'package:jesoor_pro/features/auth/signup/data/datasources/auth_local_data
 import 'package:jesoor_pro/features/auth/signup/data/models/category_model.dart';
 import 'package:jesoor_pro/features/auth/signup/data/models/governorate_model.dart';
 import 'package:jesoor_pro/features/auth/signup/data/models/user_model.dart';
+import 'package:jesoor_pro/features/auth/signup/data/models/signup_state_cache_model.dart';
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final Box<String> categoriesBox;
   final Box<String> categoryChildrenBox;
   final Box<String> governoratesBox;
   final Box<String> userBox;
+  final Box<String> signupStateBox;
 
   AuthLocalDataSourceImpl({
     required this.categoriesBox,
     required this.categoryChildrenBox,
     required this.governoratesBox,
     required this.userBox,
+    required this.signupStateBox,
   });
 
   // Categories
@@ -177,6 +180,40 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       return userBox.containsKey(HiveConstants.userKey);
     } catch (e) {
       return false;
+    }
+  }
+
+  // Signup State Cache
+  @override
+  Future<SignupStateCacheModel?> getCachedSignupState() async {
+    try {
+      final jsonString = signupStateBox.get(HiveConstants.signupStateKey);
+      if (jsonString == null) return null;
+      final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      return SignupStateCacheModel.fromJson(jsonMap);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> cacheSignupState(SignupStateCacheModel state) async {
+    try {
+      await signupStateBox.put(
+        HiveConstants.signupStateKey,
+        jsonEncode(state.toJson()),
+      );
+    } catch (e) {
+      // Silently fail - cache is not critical
+    }
+  }
+
+  @override
+  Future<void> clearSignupState() async {
+    try {
+      await signupStateBox.delete(HiveConstants.signupStateKey);
+    } catch (e) {
+      // Silently fail
     }
   }
 }
